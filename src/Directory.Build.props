@@ -1,0 +1,17 @@
+<Project>
+    <PropertyGroup>
+        <Authors>Vasek</Authors>
+        <Copyright>Copyright © Vasek 2025</Copyright>
+        <RepositoryType>git</RepositoryType>
+        <RepositoryUrl>https://github.com/Vasek-gh/CSharpDepsGraph</RepositoryUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <Version>1</Version>
+        <VersionPrefix>0.0.1</VersionPrefix>
+        <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+        <NuGetAudit>false</NuGetAudit>
+        <AnalysisMode>All</AnalysisMode>
+        <AnalysisLevel>8</AnalysisLevel>
+    </PropertyGroup>
+</Project>
