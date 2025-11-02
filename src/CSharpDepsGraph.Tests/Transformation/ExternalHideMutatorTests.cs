@@ -1,11 +1,9 @@
-using CSharpDepsGraph;
 using Microsoft.CodeAnalysis;
 using NUnit.Framework;
 using CSharpDepsGraph.Mutation;
-using CSharpDepsGraph.Tests.Mocks;
 using System.Linq;
 
-namespace CSharpDepsGraph.Tests.Mutation;
+namespace CSharpDepsGraph.Tests.Transformation;
 
 [TestFixture]
 public class ExternalHideMutatorTests
@@ -84,14 +82,16 @@ public class ExternalHideMutatorTests
         );
     }
 
-    private static INode CreateNode(string id, ISymbol? symbol, params INode[] childs)
+    private static NodeMock CreateNode(string id, ISymbol? symbol, params NodeMock[] childs)
     {
-        return new NodeMock()
+        var node = new NodeMock()
         {
             Id = id,
             Symbol = symbol,
-            Childs = childs,
-            SyntaxLinks = []
         };
+
+        node.ChildList.AddRange(childs);
+
+        return node;
     }
 }

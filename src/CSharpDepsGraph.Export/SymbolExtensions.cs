@@ -53,7 +53,6 @@ public static class SymbolExtensions
 
         if (symbol is INamespaceSymbol namespaceSymbol)
         {
-
             return namespaceSymbol.IsGlobalNamespace
                 ? $"global::{symbol.ContainingSymbol.Name}"
                 : symbol.ToDisplayString();

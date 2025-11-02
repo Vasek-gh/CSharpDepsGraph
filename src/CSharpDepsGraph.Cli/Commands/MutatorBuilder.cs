@@ -58,7 +58,7 @@ internal class MutatorBuilder
             IMutator mutator = nodeExportLevel switch
             {
                 NodeExportLevel.Assembly => new AssemblyOnlyMutator(),
-                NodeExportLevel.Namespace => new NamespaceOnlyMutator(),
+                NodeExportLevel.Namespace => new NamespaceOnlyTransformer(),
                 _ => throw new NotSupportedException()
             };
 
