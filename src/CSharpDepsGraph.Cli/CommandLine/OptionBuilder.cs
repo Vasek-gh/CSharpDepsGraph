@@ -81,7 +81,6 @@ internal static class OptionBuilder
         var validValuesHint = string.Join(", ", validValues.Select(v => v.Hint));
         var descriptionWithHint = description
             + $@" Allowed values are: {validValuesHint}.
-            Default value: {validValues.Single(i => EqualityComparer<T>.Default.Equals(i.Value, defaultValue)).Name}
             ";
 
         var result = CreateOption(name, alias, descriptionWithHint, argumentHelpName, Parse);

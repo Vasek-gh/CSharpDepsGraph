@@ -15,11 +15,16 @@ internal class Program
         rootCommand.AddCommand(new DgmlExportCliCommand());
         rootCommand.AddCommand(new GraphvizExportCliCommand());
 
-        return await new CommandLineBuilder(rootCommand)
+        await new CommandLineBuilder(rootCommand)
             .UseDefaults()
             .UseExceptionHandler(HandleException)
             .Build()
             .InvokeAsync(args);
+
+        Console.WriteLine("Wait");
+        Console.ReadKey();
+
+        return 0;
     }
 
     private static void HandleException(Exception ex, InvocationContext ctx)

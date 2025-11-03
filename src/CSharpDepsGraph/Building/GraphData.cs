@@ -1,12 +1,11 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using CSharpDepsGraph;
+using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 
 namespace CSharpDepsGraph.Building;
 
-internal class GraphData // todo IGraph and kill Graph.cs
+internal class GraphData
 {
     public Node Root { get; }
 
@@ -22,14 +21,16 @@ internal class GraphData // todo IGraph and kill Graph.cs
         {
             Id = GraphConsts.RootNodeId,
             Symbol = null,
-            SyntaxLinks = Array.Empty<SyntaxLink>()
+            SyntaxLinkList = [],
+            LinkedSymbolsList = []
         };
 
         External = new Node()
         {
             Id = GraphConsts.ExternalRootNodeId,
             Symbol = null,
-            SyntaxLinks = Array.Empty<SyntaxLink>()
+            SyntaxLinkList = [],
+            LinkedSymbolsList = []
         };
 
         Root.ChildList.Add(External);
@@ -39,14 +40,14 @@ internal class GraphData // todo IGraph and kill Graph.cs
             { External.Id, External }
         };
 
-        Links = new List<Link>();
+        Links = new List<Link>(5_000);
     }
 
     public void AddNode(ILogger logger, Node parent, Node node)
     {
         if (NodeMap.TryGetValue(node.Id, out var existingNode))
         {
-            existingNode.LinkedSymbols = MergeLinkedSymbols(existingNode.LinkedSymbols, node.LinkedSymbols);
+            AddLinkedSymbols(existingNode.LinkedSymbolsList, node.LinkedSymbolsList);
             return;
         }
 
@@ -66,10 +67,65 @@ internal class GraphData // todo IGraph and kill Graph.cs
         NodeMap.Add(node.Id, node);
     }
 
-    private static IEnumerable<LinkedSymbol> MergeLinkedSymbols(IEnumerable<LinkedSymbol> a, IEnumerable<LinkedSymbol> b)
+    public Node? AddNode(
+        ILogger logger,
+        string parentId,
+        string id,
+        ISymbol symbol
+        )
     {
-        return b.Any()
-            ? a.Concat(b).GroupBy(ls => ls.SyntaxLink.GetDisplayString()).Select(g => g.First())
-            : a;
+        if (NodeMap.TryGetValue(id, out var node))
+        {
+            return node;
+        }
+
+        if (!NodeMap.TryGetValue(parentId, out var parentNode))
+        {
+            logger.LogWarning($"""
+                Detected attempt add node, parent which not present in map.
+                Parent id: {parentId}.
+                Node id: {id}.
+                """
+            );
+
+            return null;
+        }
+
+        node = new Node()
+        {
+            Id = id,
+            Symbol = symbol,
+            SyntaxLinkList = [],
+            LinkedSymbolsList = []
+        };
+
+        NodeMap.Add(node.Id, node);
+        parentNode.ChildList.Add(node);
+
+        return node;
+    }
+
+    private static void AddLinkedSymbols(List<LinkedSymbol> to, IEnumerable<LinkedSymbol> from)
+    {
+        var uniqueFrom = from.Where(fromItem =>
+        {
+            var fromItemSyntaxLink = fromItem.SyntaxLink;
+
+            foreach (var toItem in to)
+            {
+                var toItemSyntaxLink = toItem.SyntaxLink;
+                if (toItemSyntaxLink.Path == fromItemSyntaxLink.Path
+                    && toItemSyntaxLink.Line == fromItemSyntaxLink.Line
+                    && toItemSyntaxLink.Column == fromItemSyntaxLink.Column
+                    )
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        });
+
+        to.AddRange(uniqueFrom);
     }
 }

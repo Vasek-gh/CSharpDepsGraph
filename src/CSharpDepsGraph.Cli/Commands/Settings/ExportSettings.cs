@@ -12,6 +12,8 @@ internal class ExportSettings
 
     public static class Defaults
     {
-        public static NodeExportLevel ExportLevel { get; } = NodeExportLevel.Assembly;
+        public static NodeExportLevel ExportLevelFull { get; } = NodeExportLevel.All;
+
+        public static NodeExportLevel ExportLevelOneLevel { get; } = NodeExportLevel.Assembly;
     }
 }

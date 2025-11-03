@@ -6,11 +6,6 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.Extensions.Logging;
 
-using ChildSymbolsMapData = System.Collections.Generic.IDictionary<
-    string,
-    System.Collections.Generic.ICollection<CSharpDepsGraph.Building.LinkedSymbol>
-    >;
-
 namespace CSharpDepsGraph.Building;
 
 internal class SyntaxVisitor : CSharpSyntaxWalker
@@ -18,7 +13,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
     private readonly ILogger _logger;
     private readonly SemanticModel _semanticModel;
     private readonly ISymbolIdBuilder _symbolIdBuilder;
-    private readonly ChildSymbolsMapData _childSymbolMap;
+    private readonly LinkedSymbolsMap _linkedSymbolsMap;
     private readonly Stack<string> _parentIdsStack;
     private readonly bool _fileIsGenerated;
 
@@ -26,14 +21,14 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
         ILogger logger,
         SemanticModel semanticModel,
         ISymbolIdBuilder symbolIdBuilder,
-        ChildSymbolsMapData childSymbolsMap,
+        LinkedSymbolsMap linkedSymbolsMap,
         bool fileIsGenerated
         )
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _semanticModel = semanticModel ?? throw new ArgumentNullException(nameof(semanticModel));
         _symbolIdBuilder = symbolIdBuilder ?? throw new ArgumentNullException(nameof(symbolIdBuilder));
-        _childSymbolMap = childSymbolsMap ?? throw new ArgumentNullException(nameof(childSymbolsMap));
+        _linkedSymbolsMap = linkedSymbolsMap ?? throw new ArgumentNullException(nameof(linkedSymbolsMap));
         _fileIsGenerated = fileIsGenerated;
         _parentIdsStack = new Stack<string>();
     }
@@ -480,12 +475,6 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
     {
         var symbolId = _symbolIdBuilder.Execute(symbol);
         _parentIdsStack.Push(symbolId);
-
-        if (!_childSymbolMap.TryGetValue(symbolId, out _))
-        {
-            var symbolsList = new List<LinkedSymbol>();
-            _childSymbolMap.Add(symbolId, symbolsList);
-        }
     }
 
     private void EndHandleSymbol()
@@ -526,7 +515,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
             )
         };
 
-        _childSymbolMap[_parentIdsStack.Peek()].Add(linkedSymbol);
+        _linkedSymbolsMap.Add(_parentIdsStack.Peek(), linkedSymbol);
     }
 
     private ISymbol GetSyntaxSymbol(SyntaxNode syntax)

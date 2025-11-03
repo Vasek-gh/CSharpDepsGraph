@@ -10,7 +10,7 @@ namespace CSharpDepsGraph.Tests.Transformation;
 
 internal static class Mocks
 {
-    public static readonly ISymbolIdBuilder SymbolIdBuilder = new DefaultSymbolIdBuilder(true);
+    public static readonly ISymbolIdBuilder SymbolIdBuilder = new DefaultSymbolIdBuilder();
 
     public static IGraph CreateGraph(IEnumerable<INode> nodes, IEnumerable<ILink> links)
     {

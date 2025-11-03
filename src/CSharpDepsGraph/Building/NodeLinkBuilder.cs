@@ -32,9 +32,9 @@ internal class NodeLinkBuilder
 
     private void HandleNode(Node node)
     {
-        _logger.LogTrace($"HandleNode: {node.Id}");
+        //_logger.LogTrace($"HandleNode: {node.Id}");
 
-        foreach (var linkedSymbol in node.LinkedSymbols)
+        foreach (var linkedSymbol in node.LinkedSymbolsList)
         {
             var symbolId = _symbolIdBuilder.Execute(linkedSymbol.Symbol);
             if (!_graphData.NodeMap.TryGetValue(symbolId, out var targetNode))
@@ -55,7 +55,7 @@ internal class NodeLinkBuilder
     {
         symbol = symbol ?? throw new Exception($"Null symbol for {id ?? "unknown id"}");
 
-        _logger.LogTrace($"Create external node: {id}");
+        //_logger.LogTrace($"Create external node: {id}");
 
         var parentNode = GetExternalParentNode(symbol, fromNode);
 
@@ -63,8 +63,8 @@ internal class NodeLinkBuilder
         {
             Id = id,
             Symbol = symbol,
-            SyntaxLinks = Utils.CreateExternalSyntaxLink(symbol),
-            LinkedSymbols = Array.Empty<LinkedSymbol>()
+            SyntaxLinkList = Utils.CreateExternalSyntaxLink(symbol),
+            LinkedSymbolsList = Utils.GetEmptyList<LinkedSymbol>()
         };
 
         _graphData.AddNode(_logger, parentNode, node);
@@ -93,7 +93,7 @@ internal class NodeLinkBuilder
             return CreateExternalNode(parentSymbol, parentSymbolId, fromNode);
         }
 
-        _logger.LogTrace($"Parent node already exists: {parentSymbolId}");
+        //_logger.LogTrace($"Parent node already exists: {parentSymbolId}");
 
         if (!parentNode.IsExternal())
         {

@@ -16,7 +16,7 @@ internal class LinkConverter : JsonConverter<ILink>
 
     public override void Write(Utf8JsonWriter writer, ILink value, JsonSerializerOptions options)
     {
-        _logger.LogTrace($"Write link: {value.Source.Id} -> {value.Target.Id}");
+        //_logger.LogTrace($"Write link: {value.Source.Id} -> {value.Target.Id}");
 
         writer.WriteStartObject();
 

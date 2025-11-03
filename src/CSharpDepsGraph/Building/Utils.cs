@@ -6,28 +6,41 @@ namespace CSharpDepsGraph.Building;
 
 internal class Utils
 {
+    private static readonly Dictionary<string, List<SyntaxLink>> _externalLinksCache = new();
+
+    //public static readonly List<> _externalLinksCache = new();
+
     public static ILogger CreateLogger<T>(ILoggerFactory factory, string entityName)
     {
         return factory.CreateLogger($"{typeof(T).Name}<{entityName}>");
     }
 
-    public static IEnumerable<SyntaxLink> CreateExternalSyntaxLink(ISymbol symbol)
+    public static List<SyntaxLink> CreateExternalSyntaxLink(ISymbol symbol)
     {
         return CreateAssemblySyntaxLink(symbol, SyntaxFileKind.External);
     }
 
-    public static IEnumerable<SyntaxLink> CreateAssemblySyntaxLink(ISymbol symbol, SyntaxFileKind kind)
+    public static List<SyntaxLink> CreateAssemblySyntaxLink(ISymbol symbol, SyntaxFileKind kind)
     {
-        return new[]
+        var assemblyName = symbol is IAssemblySymbol
+            ? symbol.Name
+            : symbol.ContainingAssembly.Name;
+
+        if (!_externalLinksCache.TryGetValue(assemblyName, out var links))
         {
-            new SyntaxLink()
-            {
-                FileKind = kind,
-                Path = symbol is IAssemblySymbol
-                    ? symbol.Name
-                    : symbol.ContainingAssembly.Name
-            }
-        };
+            links =
+            [
+                new SyntaxLink()
+                {
+                    FileKind = kind,
+                    Path = assemblyName + ".dll"
+                }
+            ];
+
+            _externalLinksCache.Add(assemblyName, links);
+        }
+
+        return links;
     }
 
     public static SyntaxLink CreateSyntaxLink(
@@ -54,5 +67,15 @@ internal class Utils
         var path = span.Path;
 
         return $"{path}:{line}:{column}";
+    }
+
+    public static List<T> GetEmptyList<T>()
+    {
+        return GenericHost<T>.EmptyList;
+    }
+
+    private class GenericHost<T>
+    {
+        public static List<T> EmptyList = [];
     }
 }

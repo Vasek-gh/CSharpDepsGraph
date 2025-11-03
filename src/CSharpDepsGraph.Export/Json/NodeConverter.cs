@@ -17,7 +17,7 @@ internal class NodeConverter : JsonConverter<INode>
 
     public override void Write(Utf8JsonWriter writer, INode value, JsonSerializerOptions options)
     {
-        _logger.LogTrace($"Write node: {value.Id}...");
+        //_logger.LogTrace($"Write node: {value.Id}...");
 
         writer.WriteStartObject();
 

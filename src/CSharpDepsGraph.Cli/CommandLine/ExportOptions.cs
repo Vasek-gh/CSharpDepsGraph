@@ -31,7 +31,7 @@ internal static class ExportOptions
             "el",
             "level",
             "Defines the level below which all nodes are excluded.",
-            ExportSettings.Defaults.ExportLevel,
+            ExportSettings.Defaults.ExportLevelFull,
             Enum.GetValues<NodeExportLevel>()
         );
     });
@@ -43,7 +43,7 @@ internal static class ExportOptions
             "el",
             "level",
             "Defines the level of nodes to export.",
-            ExportSettings.Defaults.ExportLevel,
+            ExportSettings.Defaults.ExportLevelOneLevel,
             [NodeExportLevel.Assembly, NodeExportLevel.Namespace]
         );
     });

@@ -10,14 +10,14 @@ namespace CSharpDepsGraph.Building;
 /// </summary>
 public class DefaultSymbolIdBuilder : ISymbolIdBuilder
 {
-    private readonly bool _withAssemblies;
+    private readonly Dictionary<ISymbol, string> _symbolsCache;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DefaultSymbolIdBuilder"/> class.
     /// </summary>
-    public DefaultSymbolIdBuilder(bool withAssemblies)
+    public DefaultSymbolIdBuilder()
     {
-        _withAssemblies = withAssemblies;
+        _symbolsCache = new(40_000, SymbolEqualityComparer.Default);
     }
 
     /// <inheritdoc/>
@@ -33,7 +33,12 @@ public class DefaultSymbolIdBuilder : ISymbolIdBuilder
             return WithAssembly(symbol, "Main[TopLevel]");
         }
 
-        return symbol.Kind switch
+        if (_symbolsCache.TryGetValue(symbol, out var cachedId))
+        {
+            return cachedId;
+        }
+
+        var result = symbol.Kind switch
         {
             SymbolKind.Assembly => GetAssemblyName(symbol),
             SymbolKind.NetModule => GetModuleName(symbol),
@@ -41,6 +46,10 @@ public class DefaultSymbolIdBuilder : ISymbolIdBuilder
             //SymbolKind.Method => GetMethodName(symbol),
             _ => WithAssembly(symbol, symbol.ToDisplayString())
         };
+
+        _symbolsCache.Add(symbol, result);
+
+        return result;
     }
 
     private static string GetAssemblyName(ISymbol symbol)
@@ -53,25 +62,28 @@ public class DefaultSymbolIdBuilder : ISymbolIdBuilder
         return $"{symbol.Name}.mdl";
     }
 
-    private string GetTypeName(ISymbol symbol)
+    private static string GetTypeName(ISymbol symbol)
     {
-        var baseId = symbol is ITypeSymbol typeSymbol && _predefinedTypes.Contains(typeSymbol.SpecialType)
-            ? $"System.{symbol.ToDisplayString()}"
-            : symbol.ToDisplayString();
+        if (symbol is ITypeSymbol typeSymbol && _predefinedTypes.Contains(typeSymbol.SpecialType))
+        {
+            return GetPredefinedTypeName(typeSymbol);
+        }
 
+        var baseId = symbol.ToDisplayString();
         return WithAssembly(symbol, baseId);
     }
 
-    private string WithAssembly(ISymbol symbol, string baseId)
+    private static string GetPredefinedTypeName(ITypeSymbol symbol)
+    {
+        var baseId = $"System.{symbol.ToDisplayString()}";
+        return WithAssembly(symbol, baseId);
+    }
+
+    private static string WithAssembly(ISymbol symbol, string baseId)
     {
         if (symbol.IsGlobalNamespace())
         {
             baseId = $"global::";
-        }
-
-        if (!_withAssemblies)
-        {
-            return baseId;
         }
 
         if (symbol.ContainingAssembly == null)

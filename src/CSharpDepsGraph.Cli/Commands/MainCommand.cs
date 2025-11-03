@@ -45,6 +45,7 @@ internal sealed class MainCommand
         var props = CreateProps();
 
         using var workspace = MSBuildWorkspace.Create(props);
+        //workspace.LoadMetadataForReferencedProjects = true;
 
         var projects = Path.GetExtension(_settings.FileName) switch
         {
@@ -68,7 +69,7 @@ internal sealed class MainCommand
         CancellationToken cancellationToken
         )
     {
-        _logger.LogDebug("Open solution...");
+        _logger.LogInformation("Open solution...");
 
         var progress = new Progress(_logger);
         var solution = await workspace.OpenSolutionAsync(
@@ -107,6 +108,8 @@ internal sealed class MainCommand
         {
             result.Add(prop.Key, prop.Value);
         }
+
+        //result.Add("DisableBuild", "true");
 
         return result;
     }
@@ -152,7 +155,7 @@ internal sealed class MainCommand
 
         public void Report(ProjectLoadProgress value)
         {
-            _logger.LogTrace($"{value.Operation}: {value.FilePath}");
+            //_logger.LogTrace($"{value.Operation}: {value.FilePath}");
         }
     }
 }

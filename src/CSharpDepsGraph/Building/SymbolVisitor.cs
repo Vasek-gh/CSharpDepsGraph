@@ -4,11 +4,6 @@ using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 
-using LinkedSymbolsMap = System.Collections.Generic.IReadOnlyDictionary<
-    string,
-    System.Collections.Generic.ICollection<CSharpDepsGraph.Building.LinkedSymbol>
-    >;
-
 namespace CSharpDepsGraph.Building;
 
 internal class SymbolVisitor : Microsoft.CodeAnalysis.SymbolVisitor
@@ -18,7 +13,7 @@ internal class SymbolVisitor : Microsoft.CodeAnalysis.SymbolVisitor
     private readonly ISymbolIdBuilder _symbolIdBuilder;
     private readonly LinkedSymbolsMap _linkedSymbolsMap;
     private readonly GraphData _graphData;
-    private readonly Stack<Node> _nodeStack;
+    private readonly Stack<string> _nodeStack;
 
     public SymbolVisitor(
         ILogger logger,
@@ -34,9 +29,9 @@ internal class SymbolVisitor : Microsoft.CodeAnalysis.SymbolVisitor
         _linkedSymbolsMap = linkedSymbolsMap ?? throw new ArgumentNullException(nameof(linkedSymbolsMap));
         _graphData = graphData ?? throw new ArgumentNullException(nameof(graphData));
 
-        _nodeStack = new Stack<Node>();
+        _nodeStack = new Stack<string>();
 
-        _nodeStack.Push(_graphData.Root);
+        _nodeStack.Push(_graphData.Root.Id);
     }
 
     public override void VisitAssembly(IAssemblySymbol symbol)
@@ -132,34 +127,41 @@ internal class SymbolVisitor : Microsoft.CodeAnalysis.SymbolVisitor
         }
     }
 
-    private void PushSymbol(ISymbol roslynSymbol)
+    private void PushSymbol(ISymbol symbol)
     {
-        var node = CreateNode(roslynSymbol);
-        if (_nodeStack.Count > 0)
+        if (_nodeStack.Count == 0)
         {
-            _graphData.AddNode(_logger, _nodeStack.Peek(), node);
+            throw new InvalidOperationException("Node stack is empty");
         }
 
-        _nodeStack.Push(node);
+        var id = _symbolIdBuilder.Execute(symbol);
+        var parentId = _nodeStack.Peek();
+
+        var node = _graphData.AddNode(
+            _logger,
+            parentId,
+            id,
+            symbol
+            );
+
+        if (node is not null)
+        {
+            var linkedSymbols = _linkedSymbolsMap.Get(id);
+            node.AddLinkedSymbols(linkedSymbols);
+
+            if (node.SyntaxLinkList.Count > 0)
+            {
+                var syntaxLinks = GetSyntaxLinks(symbol);
+                node.AddSyntaxLinks(syntaxLinks); // todo skip duplicates
+            }
+        }
+
+        _nodeStack.Push(id);
     }
 
     private void PopSymbol()
     {
         _nodeStack.Pop();
-    }
-
-    private Node CreateNode(ISymbol symbol)
-    {
-        var id = _symbolIdBuilder.Execute(symbol);
-        _linkedSymbolsMap.TryGetValue(id, out var linkedSymbols);
-
-        return new Node()
-        {
-            Id = id,
-            Symbol = symbol,
-            SyntaxLinks = GetSyntaxLinks(symbol),
-            LinkedSymbols = linkedSymbols ?? Array.Empty<LinkedSymbol>()
-        };
     }
 
     private IEnumerable<SyntaxLink> GetSyntaxLinks(ISymbol symbol)

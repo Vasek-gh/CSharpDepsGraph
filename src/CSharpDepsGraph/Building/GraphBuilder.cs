@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using System.IO;
 using System.Globalization;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace CSharpDepsGraph.Building;
 
@@ -19,6 +20,7 @@ public sealed class GraphBuilder
     private readonly CultureInfo _cultureInfo;
     private readonly ILoggerFactory _loggerFactory;
     private readonly ISymbolIdBuilder _symbolIdBuilder;
+    private readonly LinkedSymbolsMap _linkedSymbolsMap;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GraphBuilder"/> class.
@@ -31,9 +33,11 @@ public sealed class GraphBuilder
     {
         _loggerFactory = loggerFactory;
         _cultureInfo = cultureInfo ?? CultureInfo.CurrentCulture;
-        _symbolIdBuilder = symbolIdBuilder ?? new DefaultSymbolIdBuilder(true);
+        _symbolIdBuilder = symbolIdBuilder ?? new DefaultSymbolIdBuilder();
 
         _graphData = new GraphData();
+
+        _linkedSymbolsMap = new();
     }
 
     /// <summary>
@@ -57,13 +61,32 @@ public sealed class GraphBuilder
 
     private async Task CreateProjectNodes(Project project, CancellationToken cancellationToken)
     {
+        Memory<int> m = new Memory<int>([1, 2, 3]);
+        var s = m.Slice(2);
+        var q = s[0];
+
+        var po = project.ParseOptions as CSharpParseOptions
+            ?? throw new InvalidOperationException();
+        var co = project.CompilationOptions as CSharpCompilationOptions
+            ?? throw new InvalidOperationException();
+
+        project = project
+            //.WithParseOptions(po.WithDocumentationMode(DocumentationMode.None))
+            /*.WithCompilationOptions(co
+                //.WithMetadataImportOptions(MetadataImportOptions.Public)
+                //.WithConcurrentBuild(false)
+            );*/
+        ;
+
         var logger = Utils.CreateLogger<GraphBuilder>(_loggerFactory, project.Name);
 
         logger.LogInformation($"Begin handle project...");
 
         var compilation = await GetCompilation(project, logger, cancellationToken);
         var generatedFiles = await GetGeneratedFiles(project, cancellationToken);
-        var linkedSymbolsMap = new Dictionary<string, ICollection<LinkedSymbol>>();
+
+        _linkedSymbolsMap.Clear();
+        var linkedSymbolsMap = _linkedSymbolsMap;
 
         foreach (var syntaxTree in compilation.SyntaxTrees)
         {
@@ -84,7 +107,7 @@ public sealed class GraphBuilder
     private void HandleSyntax(
         SyntaxTree syntaxTree,
         Compilation compilation,
-        Dictionary<string, ICollection<LinkedSymbol>> linkedSymbolsMap,
+        LinkedSymbolsMap linkedSymbolsMap,
         ISet<string> generatedFiles,
         CancellationToken cancellationToken
         )
