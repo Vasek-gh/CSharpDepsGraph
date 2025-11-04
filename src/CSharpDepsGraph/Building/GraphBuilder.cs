@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using System.IO;
 using System.Globalization;
 using Microsoft.CodeAnalysis.CSharp;
+using CSharpDepsGraph.Building.Entities;
 
 namespace CSharpDepsGraph.Building;
 
@@ -61,14 +62,12 @@ public sealed class GraphBuilder
 
     private async Task CreateProjectNodes(Project project, CancellationToken cancellationToken)
     {
-        Memory<int> m = new Memory<int>([1, 2, 3]);
-        var s = m.Slice(2);
-        var q = s[0];
-
         var po = project.ParseOptions as CSharpParseOptions
             ?? throw new InvalidOperationException();
         var co = project.CompilationOptions as CSharpCompilationOptions
             ?? throw new InvalidOperationException();
+        var projectPath = project.FilePath
+            ?? $"{project.Name}.dll";
 
         project = project
             //.WithParseOptions(po.WithDocumentationMode(DocumentationMode.None))
@@ -95,6 +94,7 @@ public sealed class GraphBuilder
 
         var symbolVisitor = new SymbolVisitor(
             Utils.CreateLogger<SymbolVisitor>(_loggerFactory, compilation.Assembly.Name),
+            projectPath,
             generatedFiles,
             _symbolIdBuilder,
             linkedSymbolsMap,

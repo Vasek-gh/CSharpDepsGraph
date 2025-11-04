@@ -26,5 +26,5 @@ public interface INode
     /// <summary>
     /// Links to syntax where the symbol is defined
     /// </summary>
-    IEnumerable<SyntaxLink> SyntaxLinks { get; } // todo у пространстве должны быть ссылки только если используются имено они а ни их подпространства
+    IEnumerable<INodeSyntaxLink> SyntaxLinks { get; }
 }

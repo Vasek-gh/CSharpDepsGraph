@@ -510,7 +510,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
             Symbol = symbol,
             SyntaxLink = Utils.CreateSyntaxLink(
                 syntax,
-                _fileIsGenerated ? SyntaxFileKind.Generated : SyntaxFileKind.Local,
+                _fileIsGenerated ? LocationKind.Generated : LocationKind.Local,
                 lineSpan
             )
         };

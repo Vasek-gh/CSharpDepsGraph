@@ -36,7 +36,7 @@ internal static class Mocks
 
         mock.SyntaxLink.Returns(new SyntaxLink()
         {
-            FileKind = SyntaxFileKind.Local,
+            FileKind = LocationKind.Local,
             Path = ""
         });
 
@@ -66,13 +66,7 @@ internal static class Mocks
         {
             Id = SymbolIdBuilder.Execute(assemblySymbol),
             Symbol = assemblySymbol,
-            SyntaxLinkList = [
-                new SyntaxLink()
-                {
-                    FileKind = SyntaxFileKind.Local,
-                    Path = name
-                }
-            ]
+            SyntaxLinkList = [Utils.CreateAssemblySyntaxLink(name)]
         };
 
         parent?.ChildList.Add(node);

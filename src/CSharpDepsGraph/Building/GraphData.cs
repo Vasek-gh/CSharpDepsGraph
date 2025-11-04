@@ -17,19 +17,13 @@ internal class GraphData
 
     public GraphData()
     {
-        Root = new Node()
+        Root = new Node(GraphConsts.RootNodeId, null)
         {
-            Id = GraphConsts.RootNodeId,
-            Symbol = null,
-            SyntaxLinkList = [],
             LinkedSymbolsList = []
         };
 
-        External = new Node()
+        External = new Node(GraphConsts.ExternalRootNodeId, null)
         {
-            Id = GraphConsts.ExternalRootNodeId,
-            Symbol = null,
-            SyntaxLinkList = [],
             LinkedSymbolsList = []
         };
 
@@ -91,11 +85,8 @@ internal class GraphData
             return null;
         }
 
-        node = new Node()
+        node = new Node(id, symbol)
         {
-            Id = id,
-            Symbol = symbol,
-            SyntaxLinkList = [],
             LinkedSymbolsList = []
         };
 

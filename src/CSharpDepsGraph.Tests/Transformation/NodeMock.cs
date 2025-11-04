@@ -14,9 +14,9 @@ internal class NodeMock : INode
 
     public IEnumerable<INode> Childs => ChildList;
 
-    public List<SyntaxLink> SyntaxLinkList { get; set; } = [];
+    public List<INodeSyntaxLink> SyntaxLinkList { get; set; } = [];
 
-    public IEnumerable<SyntaxLink> SyntaxLinks => SyntaxLinkList;
+    public IEnumerable<INodeSyntaxLink> SyntaxLinks => SyntaxLinkList;
 
     public NodeMock AddNode(string id, ISymbol? symbol = null)
     {

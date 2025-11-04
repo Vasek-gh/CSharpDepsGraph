@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace CSharpDepsGraph.Building;
+namespace CSharpDepsGraph.Building.Entities;
 
 internal class Graph : IGraph
 {

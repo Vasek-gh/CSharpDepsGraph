@@ -3,7 +3,7 @@ namespace CSharpDepsGraph;
 /// <summary>
 /// Gives a definition of the symbol location type
 /// </summary>
-public enum SyntaxFileKind
+public enum LocationKind
 {
     /// <summary>
     /// The symbol was taken from the source code

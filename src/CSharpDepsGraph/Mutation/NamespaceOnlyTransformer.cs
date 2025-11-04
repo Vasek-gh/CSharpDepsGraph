@@ -78,8 +78,8 @@ public class NamespaceOnlyTransformer : IMutator
         var assemblySymbol = node.Symbol as IAssemblySymbol
             ?? throw new InvalidOperationException();
 
-        var assemblyFileKind = node.SyntaxLinks.FirstOrDefault()?.FileKind
-            ?? throw new Exception($"Missing syntax link for assembly {assemblySymbol.Name}");
+        var assemblyLocationKind = node.SyntaxLinks.FirstOrDefault()?.LocationKind
+            ?? throw new InvalidOperationException($"Missing syntax link for assembly {assemblySymbol.Name}");
 
         var assemblyGlobalChildNodes = node.Childs.Where(c => c.Symbol is not INamespaceSymbol)
             .SelectMany(c => c.CollectNodeData(c => c));
@@ -93,7 +93,7 @@ public class NamespaceOnlyTransformer : IMutator
 
         if (hasNodes)
         {
-            globalNamespaceNode.SyntaxLinkList.AddRange(Utils.CreateAssemblySyntaxLink(assemblySymbol, assemblyFileKind));
+            globalNamespaceNode.SyntaxLinkList.AddRange(node.SyntaxLinks);
         }
     }
 
@@ -144,9 +144,9 @@ public class NamespaceOnlyTransformer : IMutator
 
         public IEnumerable<INode> Childs { get; } = [];
 
-        public IEnumerable<SyntaxLink> SyntaxLinks => SyntaxLinkList;
+        public IEnumerable<INodeSyntaxLink> SyntaxLinks => SyntaxLinkList;
 
-        public List<SyntaxLink> SyntaxLinkList { get; } = new List<SyntaxLink>();
+        public List<INodeSyntaxLink> SyntaxLinkList { get; } = new List<INodeSyntaxLink>();
 
         public NamespaceNode(string id)
         {

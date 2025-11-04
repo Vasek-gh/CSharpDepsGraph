@@ -17,7 +17,7 @@ public sealed class SyntaxLink
     /// <summary>
     /// Location type
     /// </summary>
-    public required SyntaxFileKind FileKind { get; init; }
+    public required LocationKind FileKind { get; init; }
 
     /// <summary>
     /// Source code file path. For external symbols path equal assembly name

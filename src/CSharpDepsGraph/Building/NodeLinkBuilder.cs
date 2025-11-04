@@ -59,11 +59,8 @@ internal class NodeLinkBuilder
 
         var parentNode = GetExternalParentNode(symbol, fromNode);
 
-        var node = new Node()
+        var node = new Node(id, symbol, Utils.CreateExternalSyntaxLink(symbol))
         {
-            Id = id,
-            Symbol = symbol,
-            SyntaxLinkList = Utils.CreateExternalSyntaxLink(symbol),
             LinkedSymbolsList = Utils.GetEmptyList<LinkedSymbol>()
         };
 

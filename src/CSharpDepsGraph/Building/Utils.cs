@@ -1,26 +1,21 @@
 using System.Collections.Generic;
+using CSharpDepsGraph.Building.Entities;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 
 namespace CSharpDepsGraph.Building;
 
-internal class Utils
+internal static class Utils
 {
-    private static readonly Dictionary<string, List<SyntaxLink>> _externalLinksCache = new();
-
-    //public static readonly List<> _externalLinksCache = new();
+    private static readonly Dictionary<string, INodeSyntaxLink> _assemblyLinksCache = new();
+    private static readonly Dictionary<string, List<INodeSyntaxLink>> _externalLinksCache = new();
 
     public static ILogger CreateLogger<T>(ILoggerFactory factory, string entityName)
     {
         return factory.CreateLogger($"{typeof(T).Name}<{entityName}>");
     }
 
-    public static List<SyntaxLink> CreateExternalSyntaxLink(ISymbol symbol)
-    {
-        return CreateAssemblySyntaxLink(symbol, SyntaxFileKind.External);
-    }
-
-    public static List<SyntaxLink> CreateAssemblySyntaxLink(ISymbol symbol, SyntaxFileKind kind)
+    public static List<INodeSyntaxLink> CreateExternalSyntaxLink(ISymbol symbol)
     {
         var assemblyName = symbol is IAssemblySymbol
             ? symbol.Name
@@ -28,24 +23,27 @@ internal class Utils
 
         if (!_externalLinksCache.TryGetValue(assemblyName, out var links))
         {
-            links =
-            [
-                new SyntaxLink()
-                {
-                    FileKind = kind,
-                    Path = assemblyName + ".dll"
-                }
-            ];
-
+            links = [new ExternalNodeSyntaxLink(assemblyName)];
             _externalLinksCache.Add(assemblyName, links);
         }
 
         return links;
     }
 
+    public static INodeSyntaxLink CreateAssemblySyntaxLink(string path)
+    {
+        if (!_assemblyLinksCache.TryGetValue(path, out var link))
+        {
+            link = new AssemblyNodeSyntaxLink(path);
+            _assemblyLinksCache.Add(path, link);
+        }
+
+        return link;
+    }
+
     public static SyntaxLink CreateSyntaxLink(
         SyntaxNode syntax,
-        SyntaxFileKind syntaxFileKind,
+        LocationKind syntaxFileKind,
         FileLinePositionSpan lineSpan
         )
     {

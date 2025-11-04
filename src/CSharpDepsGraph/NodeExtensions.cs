@@ -31,7 +31,7 @@ public static class NodeExtensions
     /// </summary>
     public static bool IsExternal(this INode node)
     {
-        return node.SyntaxLinks.All(sl => sl.FileKind == SyntaxFileKind.External);
+        return node.SyntaxLinks.All(sl => sl.LocationKind == LocationKind.External);
     }
 
     /// <summary>
@@ -39,7 +39,7 @@ public static class NodeExtensions
     /// </summary>
     public static bool IsGenerated(this INode node)
     {
-        return node.SyntaxLinks.All(sl => sl.FileKind == SyntaxFileKind.Generated);
+        return node.SyntaxLinks.All(sl => sl.LocationKind == LocationKind.Generated);
     }
 
     /// <summary>

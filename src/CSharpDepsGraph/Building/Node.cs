@@ -1,7 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using CSharpDepsGraph.Building.Entities;
 using Microsoft.CodeAnalysis;
 
 namespace CSharpDepsGraph.Building;
@@ -9,28 +9,65 @@ namespace CSharpDepsGraph.Building;
 [DebuggerDisplay("{Id}")]
 internal class Node : INode
 {
-    public required string Id { get; set; }
+    private List<INodeSyntaxLink> _syntaxLinkList;
 
-    public required ISymbol? Symbol { get; set; }
+    public string Id { get; }
+
+    public ISymbol? Symbol { get; }
 
     public IEnumerable<INode> Childs => ChildList;
 
-    public IEnumerable<SyntaxLink> SyntaxLinks => SyntaxLinkList;
+    public IEnumerable<INodeSyntaxLink> SyntaxLinks => _syntaxLinkList;
 
     public List<Node> ChildList { get; } = [];
 
-    public required List<SyntaxLink> SyntaxLinkList { get; init; }
-
     public required List<LinkedSymbol> LinkedSymbolsList { get; init; }
 
-    public void AddSyntaxLinks(IEnumerable<SyntaxLink> items)
+    public Node(string id, ISymbol? symbol, List<INodeSyntaxLink>? syntaxLinks = null)
     {
-        if (SyntaxLinkList.Count > 0)
+        Id = id;
+        Symbol = symbol;
+
+        _syntaxLinkList = syntaxLinks ?? Utils.GetEmptyList<INodeSyntaxLink>();
+    }
+
+    public void AddSyntaxReference(LocationKind locationKind, SyntaxReference syntaxReference)
+    {
+        var path = syntaxReference.SyntaxTree.FilePath;
+        var span = syntaxReference.Span;
+
+        foreach (var item in _syntaxLinkList)
         {
-            return;
+            if (item is NodeSyntaxLink nodeSyntaxLink && nodeSyntaxLink.IsSame(locationKind, syntaxReference))
+            {
+                return;
+            }
         }
 
-        SyntaxLinkList.AddRange(items);
+        AddNodeSyntaxLink(new NodeSyntaxLink(locationKind, syntaxReference));
+    }
+
+    public void AddAssemblySyntaxLink(string path)
+    {
+        foreach (var item in _syntaxLinkList)
+        {
+            if (item is AssemblyNodeSyntaxLink assemblyNodeSyntaxLink && assemblyNodeSyntaxLink.IsSame(path))
+            {
+                return;
+            }
+        }
+
+        AddNodeSyntaxLink(Utils.CreateAssemblySyntaxLink(path));
+    }
+
+    private void AddNodeSyntaxLink(INodeSyntaxLink syntaxLink)
+    {
+        if (_syntaxLinkList.Count == 0)
+        {
+            _syntaxLinkList = new();
+        }
+
+        _syntaxLinkList.Add(syntaxLink);
     }
 
     public void AddLinkedSymbol(LinkedSymbol item)

@@ -9,6 +9,7 @@ namespace CSharpDepsGraph.Building;
 internal class SymbolVisitor : Microsoft.CodeAnalysis.SymbolVisitor
 {
     private readonly ILogger _logger;
+    private readonly string _projectPath;
     private readonly ISet<string> _generatedFiles;
     private readonly ISymbolIdBuilder _symbolIdBuilder;
     private readonly LinkedSymbolsMap _linkedSymbolsMap;
@@ -17,6 +18,7 @@ internal class SymbolVisitor : Microsoft.CodeAnalysis.SymbolVisitor
 
     public SymbolVisitor(
         ILogger logger,
+        string projectPath,
         ISet<string> generatedFiles,
         ISymbolIdBuilder symbolIdBuilder,
         LinkedSymbolsMap linkedSymbolsMap,
@@ -24,6 +26,7 @@ internal class SymbolVisitor : Microsoft.CodeAnalysis.SymbolVisitor
         )
     {
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _projectPath = projectPath;
         _generatedFiles = generatedFiles ?? throw new ArgumentNullException(nameof(generatedFiles));
         _symbolIdBuilder = symbolIdBuilder ?? throw new ArgumentNullException(nameof(symbolIdBuilder));
         _linkedSymbolsMap = linkedSymbolsMap ?? throw new ArgumentNullException(nameof(linkedSymbolsMap));
@@ -148,12 +151,7 @@ internal class SymbolVisitor : Microsoft.CodeAnalysis.SymbolVisitor
         {
             var linkedSymbols = _linkedSymbolsMap.Get(id);
             node.AddLinkedSymbols(linkedSymbols);
-
-            if (node.SyntaxLinkList.Count > 0)
-            {
-                var syntaxLinks = GetSyntaxLinks(symbol);
-                node.AddSyntaxLinks(syntaxLinks); // todo skip duplicates
-            }
+            AddSyntaxLinks(node, symbol);
         }
 
         _nodeStack.Push(id);
@@ -164,29 +162,48 @@ internal class SymbolVisitor : Microsoft.CodeAnalysis.SymbolVisitor
         _nodeStack.Pop();
     }
 
-    private IEnumerable<SyntaxLink> GetSyntaxLinks(ISymbol symbol)
+    private void AddSyntaxLinks(Node node, ISymbol symbol)
     {
         if (symbol is IAssemblySymbol)
         {
-            return Utils.CreateAssemblySyntaxLink(symbol, SyntaxFileKind.Local);
+            node.AddAssemblySyntaxLink(_projectPath);
+            return;
         }
 
-        var result = new List<SyntaxLink>();
-        var syntaxRefs = symbol.GetSyntaxReference();
-
-        foreach (var syntaxRef in syntaxRefs)
+        ForEachSyntaxReference(symbol, (syntaxReference) =>
         {
-            var lineSpan = syntaxRef.SyntaxTree.GetLineSpan(syntaxRef.Span);
+            var location = syntaxReference.SyntaxTree.FilePath;
+            var locationKind = _generatedFiles.Contains(location) ? LocationKind.Generated : LocationKind.Local;
 
-            var syntaxLink = Utils.CreateSyntaxLink(
-                syntaxRef.GetSyntax(),
-                _generatedFiles.Contains(lineSpan.Path) ? SyntaxFileKind.Generated : SyntaxFileKind.Local,
-                lineSpan
-            );
+            node.AddSyntaxReference(locationKind, syntaxReference);
+        });
+    }
 
-            result.Add(syntaxLink);
+    internal static void ForEachSyntaxReference(ISymbol symbol, Action<SyntaxReference> action)
+    {
+        if (symbol is IMethodSymbol methodSymbol)
+        {
+            ForEachSyntaxReference(methodSymbol.DeclaringSyntaxReferences, action);
+
+            if (methodSymbol.PartialDefinitionPart != null)
+            {
+                ForEachSyntaxReference(methodSymbol.PartialDefinitionPart.DeclaringSyntaxReferences, action);
+            }
+
+            if (methodSymbol.PartialImplementationPart != null)
+            {
+                ForEachSyntaxReference(methodSymbol.PartialImplementationPart.DeclaringSyntaxReferences, action);
+            }
         }
 
-        return result;
+        ForEachSyntaxReference(symbol.DeclaringSyntaxReferences, action);
+    }
+
+    private static void ForEachSyntaxReference(IEnumerable<SyntaxReference> syntaxReferences, Action<SyntaxReference> action)
+    {
+        foreach (var item in syntaxReferences)
+        {
+            action(item);
+        }
     }
 }

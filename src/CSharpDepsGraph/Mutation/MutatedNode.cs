@@ -14,7 +14,7 @@ internal class MutatedNode : INode
 
     public required IEnumerable<INode> Childs { get; init; }
 
-    public required IEnumerable<SyntaxLink> SyntaxLinks { get; set; }
+    public required IEnumerable<INodeSyntaxLink> SyntaxLinks { get; set; }
 
     public static MutatedNode Copy(INode node, IEnumerable<INode> childs)
     {
