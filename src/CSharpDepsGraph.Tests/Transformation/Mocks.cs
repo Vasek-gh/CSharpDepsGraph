@@ -28,17 +28,15 @@ internal static class Mocks
 
     public static ILink CreateLink(INode source, INode target)
     {
+        var syntaxLinkMock = Substitute.For<ILinkSyntaxLink>();
+        syntaxLinkMock.LocationKind.Returns(LocationKind.Local);
+
         var mock = Substitute.For<ILink>();
         mock.Source.Returns(source);
         mock.OriginalSource.Returns(source);
         mock.Target.Returns(target);
         mock.OriginalTarget.Returns(target);
-
-        mock.SyntaxLink.Returns(new SyntaxLink()
-        {
-            FileKind = LocationKind.Local,
-            Path = ""
-        });
+        mock.SyntaxLink.Returns(syntaxLinkMock);
 
         return mock;
     }

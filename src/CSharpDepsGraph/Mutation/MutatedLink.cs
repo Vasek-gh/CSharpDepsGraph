@@ -13,7 +13,7 @@ internal class MutatedLink : ILink
 
     public INode OriginalTarget { get; }
 
-    public required SyntaxLink SyntaxLink { get; init; }
+    public required ILinkSyntaxLink SyntaxLink { get; init; }
 
     private MutatedLink(ILink src)
     {
@@ -28,7 +28,7 @@ internal class MutatedLink : ILink
         {
             Source = source,
             Target = target,
-            SyntaxLink = link.SyntaxLink
+            SyntaxLink = link.SyntaxLink,
         };
     }
 }

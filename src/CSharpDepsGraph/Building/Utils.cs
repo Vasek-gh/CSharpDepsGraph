@@ -41,22 +41,6 @@ internal static class Utils
         return link;
     }
 
-    public static SyntaxLink CreateSyntaxLink(
-        SyntaxNode syntax,
-        LocationKind syntaxFileKind,
-        FileLinePositionSpan lineSpan
-        )
-    {
-        return new SyntaxLink()
-        {
-            FileKind = syntaxFileKind,
-            Path = lineSpan.Path,
-            Syntax = syntax,
-            Line = lineSpan.StartLinePosition.Line + 1,
-            Column = lineSpan.StartLinePosition.Character + 1
-        };
-    }
-
     public static string GetSyntaxLocation(SyntaxNode syntax)
     {
         var span = syntax.SyntaxTree.GetLineSpan(syntax.Span);

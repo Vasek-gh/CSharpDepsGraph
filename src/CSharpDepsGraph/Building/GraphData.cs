@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 
@@ -37,35 +36,12 @@ internal class GraphData
         Links = new List<Link>(5_000);
     }
 
-    public void AddNode(ILogger logger, Node parent, Node node)
-    {
-        if (NodeMap.TryGetValue(node.Id, out var existingNode))
-        {
-            AddLinkedSymbols(existingNode.LinkedSymbolsList, node.LinkedSymbolsList);
-            return;
-        }
-
-        if (!NodeMap.TryGetValue(parent.Id, out var existingParentNode))
-        {
-            logger.LogWarning($"""
-                Detected attempt add node, parent which not present in map.
-                Parent id: {parent.Id}.
-                Node id: {node.Id}.
-                """
-            );
-
-            return;
-        }
-
-        existingParentNode.ChildList.Add(node);
-        NodeMap.Add(node.Id, node);
-    }
-
     public Node? AddNode(
         ILogger logger,
         string parentId,
         string id,
-        ISymbol symbol
+        ISymbol symbol,
+        List<INodeSyntaxLink>? syntaxLinks = null
         )
     {
         if (NodeMap.TryGetValue(id, out var node))
@@ -85,7 +61,7 @@ internal class GraphData
             return null;
         }
 
-        node = new Node(id, symbol)
+        node = new Node(id, symbol, syntaxLinks)
         {
             LinkedSymbolsList = []
         };
@@ -94,29 +70,5 @@ internal class GraphData
         parentNode.ChildList.Add(node);
 
         return node;
-    }
-
-    private static void AddLinkedSymbols(List<LinkedSymbol> to, IEnumerable<LinkedSymbol> from)
-    {
-        var uniqueFrom = from.Where(fromItem =>
-        {
-            var fromItemSyntaxLink = fromItem.SyntaxLink;
-
-            foreach (var toItem in to)
-            {
-                var toItemSyntaxLink = toItem.SyntaxLink;
-                if (toItemSyntaxLink.Path == fromItemSyntaxLink.Path
-                    && toItemSyntaxLink.Line == fromItemSyntaxLink.Line
-                    && toItemSyntaxLink.Column == fromItemSyntaxLink.Column
-                    )
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        });
-
-        to.AddRange(uniqueFrom);
     }
 }

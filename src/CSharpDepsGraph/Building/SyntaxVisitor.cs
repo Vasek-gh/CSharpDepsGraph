@@ -508,11 +508,8 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
         var linkedSymbol = new LinkedSymbol()
         {
             Symbol = symbol,
-            SyntaxLink = Utils.CreateSyntaxLink(
-                syntax,
-                _fileIsGenerated ? LocationKind.Generated : LocationKind.Local,
-                lineSpan
-            )
+            Syntax = syntax,
+            LocationKind = _fileIsGenerated ? LocationKind.Generated : LocationKind.Local
         };
 
         _linkedSymbolsMap.Add(_parentIdsStack.Peek(), linkedSymbol);

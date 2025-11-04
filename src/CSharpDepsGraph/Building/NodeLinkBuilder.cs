@@ -46,7 +46,8 @@ internal class NodeLinkBuilder
             {
                 Source = node,
                 Target = targetNode,
-                SyntaxLink = linkedSymbol.SyntaxLink,
+                Syntax = linkedSymbol.Syntax,
+                LocationKind = linkedSymbol.LocationKind,
             });
         }
     }
@@ -59,12 +60,8 @@ internal class NodeLinkBuilder
 
         var parentNode = GetExternalParentNode(symbol, fromNode);
 
-        var node = new Node(id, symbol, Utils.CreateExternalSyntaxLink(symbol))
-        {
-            LinkedSymbolsList = Utils.GetEmptyList<LinkedSymbol>()
-        };
-
-        _graphData.AddNode(_logger, parentNode, node);
+        var node = _graphData.AddNode(_logger, parentNode.Id, id, symbol, Utils.CreateExternalSyntaxLink(symbol))
+            ?? throw new Exception($"Create node {id} fail");
 
         return node;
     }
