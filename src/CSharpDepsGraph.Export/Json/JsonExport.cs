@@ -1,4 +1,5 @@
 using System.IO;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
@@ -28,6 +29,7 @@ public class JsonExport
         {
             WriteIndented = _format,
             ReferenceHandler = ReferenceHandler.IgnoreCycles,
+            Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
             Converters = {
                 new NodeConverter(_logger),
                 new LinkConverter(_logger)

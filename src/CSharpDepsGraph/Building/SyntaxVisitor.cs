@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using CSharpDepsGraph.Building.Entities;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -12,7 +13,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
 {
     private readonly ILogger _logger;
     private readonly SemanticModel _semanticModel;
-    private readonly ISymbolIdBuilder _symbolIdBuilder;
+    private readonly ISymbolIdGenerator _symbolIdBuilder;
     private readonly LinkedSymbolsMap _linkedSymbolsMap;
     private readonly Stack<string> _parentIdsStack;
     private readonly bool _fileIsGenerated;
@@ -20,7 +21,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
     public SyntaxVisitor(
         ILogger logger,
         SemanticModel semanticModel,
-        ISymbolIdBuilder symbolIdBuilder,
+        ISymbolIdGenerator symbolIdBuilder,
         LinkedSymbolsMap linkedSymbolsMap,
         bool fileIsGenerated
         )

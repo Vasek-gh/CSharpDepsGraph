@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using CSharpDepsGraph.Building.Entities;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 
@@ -6,6 +7,8 @@ namespace CSharpDepsGraph.Building;
 
 internal class GraphData
 {
+    private readonly Counters _counters;
+
     public Node Root { get; }
 
     public Node External { get; }
@@ -14,7 +17,7 @@ internal class GraphData
 
     public List<Link> Links { get; }
 
-    public GraphData()
+    public GraphData(Counters counters)
     {
         Root = new Node(GraphConsts.RootNodeId, null)
         {
@@ -34,6 +37,7 @@ internal class GraphData
         };
 
         Links = new List<Link>(5_000);
+        _counters = counters;
     }
 
     public Node? AddNode(
@@ -68,6 +72,7 @@ internal class GraphData
 
         NodeMap.Add(node.Id, node);
         parentNode.ChildList.Add(node);
+        _counters.AddNode();
 
         return node;
     }

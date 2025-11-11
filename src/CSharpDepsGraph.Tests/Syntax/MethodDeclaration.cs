@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using System.Runtime;
 
 namespace CSharpDepsGraph.Tests.Syntax;
 
@@ -25,7 +26,19 @@ public class MethodDeclaration : BaseTests
             }
         ");
 
-        GraphAssert.HasSymbol(graph, "Test.Test()");
+        GraphAssert.HasSymbol(graph, "Test.ctor()");
+    }
+
+    [Test]
+    public void SymbolMapHaveStaticConstructor()
+    {
+        var graph = Build(@"
+            public class Test {
+                static Test() {}
+            }
+        ");
+
+        GraphAssert.HasSymbol(graph, "Test.cctor()");
     }
 
     [Test]
@@ -37,7 +50,7 @@ public class MethodDeclaration : BaseTests
             }
         ");
 
-        GraphAssert.HasSymbol(graph, "Test.~Test()");
+        GraphAssert.HasSymbol(graph, "Test.~()");
     }
 
     [Test]
@@ -56,6 +69,8 @@ public class MethodDeclaration : BaseTests
         GraphAssert.HasSymbol(graph, "Test.TestMethod(int)");
         GraphAssert.HasSymbol(graph, "Test.TestMethod(string)");
         GraphAssert.HasSymbol(graph, "Test.TestMethod(int, string)");
+
+        Assert.Fail("Надо проверить что перегружаются так генерик методы");
     }
 
     [Test]
@@ -89,7 +104,7 @@ public class MethodDeclaration : BaseTests
             }
         ");
 
-        GraphAssert.HasLink(graph, "Test.Test()",
+        GraphAssert.HasLink(graph, "Test.ctor()",
             (AsmName.TestProject, "TestProject.Statics"),
             (AsmName.TestProject, "TestProject.Statics.StrStatic1")
         );
@@ -107,11 +122,11 @@ public class MethodDeclaration : BaseTests
             }
         ");
 
-        GraphAssert.HasLink(graph, "Test.Test(TestProject.Entities.Car)",
+        GraphAssert.HasLink(graph, "Test.ctor(TestProject.Entities.Car)",
             (AsmName.TestProject, "TestProject.Entities.Car")
         );
 
-        GraphAssert.HasLink(graph, "Test.Test(TestProject.Entities.Car, TestProject.Entities.Size)",
+        GraphAssert.HasLink(graph, "Test.ctor(TestProject.Entities.Car, TestProject.Entities.Size)",
             (AsmName.TestProject, "TestProject.Entities.Car"),
             (AsmName.TestProject, "TestProject.Entities.Size")
         );

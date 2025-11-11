@@ -1,5 +1,7 @@
 using CSharpDepsGraph.Building;
+using CSharpDepsGraph.Building.Generators;
 using Microsoft.CodeAnalysis;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using NSubstitute;
 using System;
@@ -10,7 +12,10 @@ namespace CSharpDepsGraph.Tests.Transformation;
 
 internal static class Mocks
 {
-    public static readonly ISymbolIdBuilder SymbolIdBuilder = new DefaultSymbolIdBuilder();
+    public static readonly ISymbolIdGenerator SymbolIdBuilder = new SimpleSymbolIdGenerator(
+        NullLogger<SimpleSymbolIdGenerator>.Instance,
+        true
+        );
 
     public static IGraph CreateGraph(IEnumerable<INode> nodes, IEnumerable<ILink> links)
     {
@@ -117,13 +122,14 @@ internal static class Mocks
         var namespaceSymbol = Substitute.For<INamespaceSymbol>();
         namespaceSymbol.Name.Returns(name);
         namespaceSymbol.Kind.Returns(SymbolKind.Namespace);
+        //namespaceSymbol.Conta
         namespaceSymbol.ContainingModule.Returns(moduleSymbol);
         namespaceSymbol.ContainingAssembly.Returns(assemblySymbol);
         namespaceSymbol.ToDisplayString().Returns(name);
 
         var node = new NodeMock()
         {
-            Id = SymbolIdBuilder.Execute(namespaceSymbol),
+            Id = $"{parent?.Id}.{name}",
             Symbol = namespaceSymbol
         };
 

@@ -1,41 +1,40 @@
+using Microsoft.CodeAnalysis;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.CodeAnalysis;
 
-namespace CSharpDepsGraph.Building;
+namespace CSharpDepsGraph.Building.Generators;
 
-/// <summary>
-/// The default unique identifier creator
-/// </summary>
-public class DefaultSymbolIdBuilder : ISymbolIdBuilder
+internal class LegacySymbolIdGenerator : ISymbolIdGenerator
 {
-    private readonly Dictionary<ISymbol, string> _symbolsCache;
+    private readonly ILogger<LegacySymbolIdGenerator> _logger;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="DefaultSymbolIdBuilder"/> class.
-    /// </summary>
-    public DefaultSymbolIdBuilder()
+    private int _callCount;
+    private int _charsCount;
+    private int _typeCount;
+
+    public LegacySymbolIdGenerator(ILogger<LegacySymbolIdGenerator> logger)
     {
-        _symbolsCache = new(40_000, SymbolEqualityComparer.Default);
+        _logger = logger;
+    }
+
+    /// <inheritdoc/>
+    public void WriteStatistic()
+    {
+        _logger.LogDebug($"Call count: {_callCount}");
+        _logger.LogDebug($"Chars count: {_charsCount}");
+        _logger.LogDebug($"Types count: {_typeCount}");
     }
 
     /// <inheritdoc/>
     public string Execute(ISymbol symbol)
     {
+        _callCount++;
+
         if (symbol is IArrayTypeSymbol arrayTypeSymbol)
         {
             symbol = arrayTypeSymbol.ElementType;
-        }
-
-        if (symbol.IsTopLevelStatement())
-        {
-            return WithAssembly(symbol, "Main[TopLevel]");
-        }
-
-        if (_symbolsCache.TryGetValue(symbol, out var cachedId))
-        {
-            return cachedId;
         }
 
         var result = symbol.Kind switch
@@ -43,11 +42,10 @@ public class DefaultSymbolIdBuilder : ISymbolIdBuilder
             SymbolKind.Assembly => GetAssemblyName(symbol),
             SymbolKind.NetModule => GetModuleName(symbol),
             SymbolKind.NamedType => GetTypeName(symbol),
-            //SymbolKind.Method => GetMethodName(symbol),
-            _ => WithAssembly(symbol, symbol.ToDisplayString())
+            _ => GetSymbolName(symbol)
         };
 
-        _symbolsCache.Add(symbol, result);
+        _charsCount += result.Length;
 
         return result;
     }
@@ -62,9 +60,10 @@ public class DefaultSymbolIdBuilder : ISymbolIdBuilder
         return $"{symbol.Name}.mdl";
     }
 
-    private static string GetTypeName(ISymbol symbol)
+    private string GetTypeName(ISymbol symbol)
     {
-        if (symbol is ITypeSymbol typeSymbol && _predefinedTypes.Contains(typeSymbol.SpecialType))
+        _typeCount++;
+        if (symbol is ITypeSymbol typeSymbol && GeneratorsUtils.IsTypePrimitive(typeSymbol))
         {
             return GetPredefinedTypeName(typeSymbol);
         }
@@ -75,8 +74,18 @@ public class DefaultSymbolIdBuilder : ISymbolIdBuilder
 
     private static string GetPredefinedTypeName(ITypeSymbol symbol)
     {
-        var baseId = $"System.{symbol.ToDisplayString()}";
+        var baseId = symbol.ToDisplayString();
         return WithAssembly(symbol, baseId);
+    }
+
+    private static string GetSymbolName(ISymbol symbol)
+    {
+        if (symbol.IsTopLevelStatement())
+        {
+            return WithAssembly(symbol, "Main[TopLevel]");
+        }
+
+        return WithAssembly(symbol, symbol.ToDisplayString());
     }
 
     private static string WithAssembly(ISymbol symbol, string baseId)

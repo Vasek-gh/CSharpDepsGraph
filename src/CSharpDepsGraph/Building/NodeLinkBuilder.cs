@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using CSharpDepsGraph.Building.Entities;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 
@@ -9,12 +10,19 @@ namespace CSharpDepsGraph.Building;
 internal class NodeLinkBuilder
 {
     private readonly ILogger _logger;
+    private readonly Counters _counters;
     private readonly GraphData _graphData;
-    private readonly ISymbolIdBuilder _symbolIdBuilder;
+    private readonly ISymbolIdGenerator _symbolIdBuilder;
 
-    public NodeLinkBuilder(ILogger<NodeLinkBuilder> logger, ISymbolIdBuilder symbolIdBuilder, GraphData graphData)
+    public NodeLinkBuilder(
+        ILogger<NodeLinkBuilder> logger,
+        Counters counters,
+        ISymbolIdGenerator symbolIdBuilder,
+        GraphData graphData
+        )
     {
         _logger = logger;
+        _counters = counters;
         _symbolIdBuilder = symbolIdBuilder;
         _graphData = graphData;
     }
@@ -42,6 +50,7 @@ internal class NodeLinkBuilder
                 targetNode = CreateExternalNode(linkedSymbol.Symbol, symbolId, node);
             }
 
+            _counters.AddLink();
             _graphData.Links.Add(new Link()
             {
                 Source = node,

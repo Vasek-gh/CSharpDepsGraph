@@ -1,7 +1,7 @@
 using Microsoft.CodeAnalysis;
 using System.Diagnostics;
 
-namespace CSharpDepsGraph.Building;
+namespace CSharpDepsGraph.Building.Entities;
 
 [DebuggerDisplay("{Source.Id} -> {Target.Id}")]
 internal class Link : ILink, ILinkSyntaxLink

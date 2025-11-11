@@ -6,3 +6,9 @@
 .vs/
 .vscode/
 .out/
+
+*.dmp
+*.txt
+*.json
+*.nettrace
+*.speedscope.json

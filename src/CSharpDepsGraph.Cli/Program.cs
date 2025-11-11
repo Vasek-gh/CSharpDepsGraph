@@ -21,7 +21,8 @@ internal class Program
             .Build()
             .InvokeAsync(args);
 
-        Console.WriteLine("Wait");
+        Console.WriteLine(GC.GetTotalMemory(false).ToString("N0")); // todo kill
+        Console.WriteLine("Wait"); // todo kill
         Console.ReadKey();
 
         return 0;

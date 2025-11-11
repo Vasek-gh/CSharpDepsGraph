@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using CSharpDepsGraph.Building.Entities;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 
@@ -11,7 +12,7 @@ internal class SymbolVisitor : Microsoft.CodeAnalysis.SymbolVisitor
     private readonly ILogger _logger;
     private readonly string _projectPath;
     private readonly ISet<string> _generatedFiles;
-    private readonly ISymbolIdBuilder _symbolIdBuilder;
+    private readonly ISymbolIdGenerator _symbolIdBuilder;
     private readonly LinkedSymbolsMap _linkedSymbolsMap;
     private readonly GraphData _graphData;
     private readonly Stack<string> _nodeStack;
@@ -20,7 +21,7 @@ internal class SymbolVisitor : Microsoft.CodeAnalysis.SymbolVisitor
         ILogger logger,
         string projectPath,
         ISet<string> generatedFiles,
-        ISymbolIdBuilder symbolIdBuilder,
+        ISymbolIdGenerator symbolIdBuilder,
         LinkedSymbolsMap linkedSymbolsMap,
         GraphData graphData
         )

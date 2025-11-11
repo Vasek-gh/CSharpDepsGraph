@@ -9,6 +9,7 @@ using System.IO;
 using System.Globalization;
 using Microsoft.CodeAnalysis.CSharp;
 using CSharpDepsGraph.Building.Entities;
+using CSharpDepsGraph.Building.Generators;
 
 namespace CSharpDepsGraph.Building;
 
@@ -17,10 +18,12 @@ namespace CSharpDepsGraph.Building;
 /// </summary>
 public sealed class GraphBuilder
 {
+    private readonly ILogger _logger;
+    private readonly Counters _counters;
     private readonly GraphData _graphData;
     private readonly CultureInfo _cultureInfo;
     private readonly ILoggerFactory _loggerFactory;
-    private readonly ISymbolIdBuilder _symbolIdBuilder;
+    private readonly ISymbolIdGenerator _symbolIdBuilder;
     private readonly LinkedSymbolsMap _linkedSymbolsMap;
 
     /// <summary>
@@ -29,16 +32,17 @@ public sealed class GraphBuilder
     public GraphBuilder(
         ILoggerFactory loggerFactory,
         CultureInfo? cultureInfo = null,
-        ISymbolIdBuilder? symbolIdBuilder = null
+        ISymbolIdGenerator? symbolIdBuilder = null
         )
     {
+        _logger = loggerFactory.CreateLogger<GraphBuilder>();
         _loggerFactory = loggerFactory;
         _cultureInfo = cultureInfo ?? CultureInfo.CurrentCulture;
-        _symbolIdBuilder = symbolIdBuilder ?? new DefaultSymbolIdBuilder();
 
-        _graphData = new GraphData();
-
-        _linkedSymbolsMap = new();
+        _counters = new Counters();
+        _graphData = new GraphData(_counters);
+        _linkedSymbolsMap = new(_counters);
+        _symbolIdBuilder = symbolIdBuilder ?? new SymbolIdGenerator(loggerFactory, false, false);
     }
 
     /// <summary>
@@ -51,7 +55,10 @@ public sealed class GraphBuilder
             await CreateProjectNodes(project, cancellationToken);
         }
 
-        new NodeLinkBuilder(_loggerFactory.CreateLogger<NodeLinkBuilder>(), _symbolIdBuilder, _graphData).Run();
+        new NodeLinkBuilder(_loggerFactory.CreateLogger<NodeLinkBuilder>(), _counters, _symbolIdBuilder, _graphData).Run();
+
+        _counters.Report(_logger); // todo kill
+        _symbolIdBuilder.WriteStatistic();
 
         return new Graph()
         {
@@ -62,20 +69,8 @@ public sealed class GraphBuilder
 
     private async Task CreateProjectNodes(Project project, CancellationToken cancellationToken)
     {
-        var po = project.ParseOptions as CSharpParseOptions
-            ?? throw new InvalidOperationException();
-        var co = project.CompilationOptions as CSharpCompilationOptions
-            ?? throw new InvalidOperationException();
         var projectPath = project.FilePath
             ?? $"{project.Name}.dll";
-
-        project = project
-            //.WithParseOptions(po.WithDocumentationMode(DocumentationMode.None))
-            /*.WithCompilationOptions(co
-                //.WithMetadataImportOptions(MetadataImportOptions.Public)
-                //.WithConcurrentBuild(false)
-            );*/
-        ;
 
         var logger = Utils.CreateLogger<GraphBuilder>(_loggerFactory, project.Name);
 

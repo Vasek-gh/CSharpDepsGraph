@@ -19,7 +19,7 @@ public class LinkTypeDetect : BaseTests
         ");
 
         var ctorLinks = GetOutgoingLinks(graph, "Test.TestMethod()",
-            (AsmName.CoreLib, "System.Threading.CancellationToken.CancellationToken(bool)")
+            (AsmName.CoreLib, "System.Threading.CancellationToken.ctor(bool)")
         );
 
         Assert.That(ctorLinks.Single().GetLinkType() == LinkType.Call);

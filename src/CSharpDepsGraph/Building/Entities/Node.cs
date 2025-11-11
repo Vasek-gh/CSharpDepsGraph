@@ -1,10 +1,9 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using CSharpDepsGraph.Building.Entities;
 using Microsoft.CodeAnalysis;
 
-namespace CSharpDepsGraph.Building;
+namespace CSharpDepsGraph.Building.Entities;
 
 [DebuggerDisplay("{Id}")]
 internal class Node : INode

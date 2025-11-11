@@ -1,14 +1,17 @@
+using CSharpDepsGraph.Building.Entities;
 using System.Collections.Generic;
 
 namespace CSharpDepsGraph.Building;
 
 internal class LinkedSymbolsMap
 {
+    private readonly Counters _counters;
     private readonly Dictionary<string, List<LinkedSymbol>> _items;
 
-    public LinkedSymbolsMap()
+    public LinkedSymbolsMap(Counters counters)
     {
         _items = new(10_000);
+        _counters = counters;
     }
 
     public void Clear()
@@ -25,6 +28,7 @@ internal class LinkedSymbolsMap
         }
 
         collection.Add(linkedSymbol);
+        _counters.AddLinkedSymbol();
     }
 
     public List<LinkedSymbol> Get(string symbolId)

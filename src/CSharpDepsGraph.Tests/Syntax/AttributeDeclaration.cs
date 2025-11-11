@@ -17,7 +17,7 @@ public class AttributeDeclaration : BaseTests
         ");
 
         GraphAssert.HasLink(graph, "Test.Prop",
-            (AsmName.TestProject, "TestProject.Attributes.SimpleAttribute.SimpleAttribute(int, string)"),
+            (AsmName.TestProject, "TestProject.Attributes.SimpleAttribute.ctor(int, string)"),
             (AsmName.TestProject, "TestProject.Constants.IntConst1"),
             (AsmName.TestProject, "TestProject.Constants.StrConst1"),
             (AsmName.TestProject, "TestProject.Constants.StrConst2")
@@ -37,7 +37,7 @@ public class AttributeDeclaration : BaseTests
         ");
 
         GraphAssert.HasLink(graph, "Test._field",
-            (AsmName.TestProject, "TestProject.Attributes.SimpleAttribute.SimpleAttribute(int, string)"),
+            (AsmName.TestProject, "TestProject.Attributes.SimpleAttribute.ctor(int, string)"),
             (AsmName.TestProject, "TestProject.Constants.IntConst1"),
             (AsmName.TestProject, "TestProject.Constants.StrConst1"),
             (AsmName.TestProject, "TestProject.Constants.StrConst2")
@@ -55,7 +55,7 @@ public class AttributeDeclaration : BaseTests
         ");
 
         GraphAssert.HasLink(graph, "Test",
-            (AsmName.TestProject, "TestProject.Attributes.SimpleAttribute.SimpleAttribute(int, string)"),
+            (AsmName.TestProject, "TestProject.Attributes.SimpleAttribute.ctor(int, string)"),
             (AsmName.TestProject, "TestProject.Constants.IntConst1"),
             (AsmName.TestProject, "TestProject.Constants.StrConst1"),
             (AsmName.TestProject, "TestProject.Constants.StrConst2")
@@ -75,7 +75,7 @@ public class AttributeDeclaration : BaseTests
         ");
 
         GraphAssert.HasLink(graph, "Test.Method()",
-            (AsmName.TestProject, "TestProject.Attributes.SimpleAttribute.SimpleAttribute(int, string)"),
+            (AsmName.TestProject, "TestProject.Attributes.SimpleAttribute.ctor(int, string)"),
             (AsmName.TestProject, "TestProject.Constants.IntConst1"),
             (AsmName.TestProject, "TestProject.Constants.StrConst1"),
             (AsmName.TestProject, "TestProject.Constants.StrConst2")
@@ -94,7 +94,7 @@ public class AttributeDeclaration : BaseTests
         ");
 
         GraphAssert.HasLink(graph, "Test.Method(int)",
-            (AsmName.TestProject, "TestProject.Attributes.SimpleAttribute.SimpleAttribute(int, string)"),
+            (AsmName.TestProject, "TestProject.Attributes.SimpleAttribute.ctor(int, string)"),
             (AsmName.TestProject, "TestProject.Constants.IntConst1"),
             (AsmName.TestProject, "TestProject.Constants.StrConst1"),
             (AsmName.TestProject, "TestProject.Constants.StrConst2")
@@ -114,7 +114,7 @@ public class AttributeDeclaration : BaseTests
         ");
 
         GraphAssert.HasLink(graph, "Test.Method()",
-            (AsmName.TestProject, "TestProject.Attributes.SimpleAttribute.SimpleAttribute(int, string)"),
+            (AsmName.TestProject, "TestProject.Attributes.SimpleAttribute.ctor(int, string)"),
             (AsmName.TestProject, "TestProject.Constants.IntConst1"),
             (AsmName.TestProject, "TestProject.Constants.StrConst1"),
             (AsmName.TestProject, "TestProject.Constants.StrConst2")
@@ -135,7 +135,7 @@ public class AttributeDeclaration : BaseTests
         ");
 
         GraphAssert.HasLink(graph, "Test.TestMethod()",
-            (AsmName.TestProject, "TestProject.Attributes.SimpleAttribute.SimpleAttribute(int, string)"),
+            (AsmName.TestProject, "TestProject.Attributes.SimpleAttribute.ctor(int, string)"),
             (AsmName.TestProject, "TestProject.Constants.IntConst1")
         );
     }
@@ -155,7 +155,7 @@ public class AttributeDeclaration : BaseTests
         ");
 
         GraphAssert.HasLink(graph, "Test.TestMethod()",
-            (AsmName.TestProject, "TestProject.Attributes.SimpleAttribute.SimpleAttribute(int, string)"),
+            (AsmName.TestProject, "TestProject.Attributes.SimpleAttribute.ctor(int, string)"),
             (AsmName.TestProject, "TestProject.Constants.IntConst1")
         );
     }

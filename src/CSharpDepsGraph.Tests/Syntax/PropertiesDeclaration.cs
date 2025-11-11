@@ -32,7 +32,7 @@ public class PropertiesDeclaration : BaseTests
 
         GraphAssert.HasLink(graph, "Test.Prop1",
             (AsmName.TestProject, "TestProject.Entities.Vehicle"),
-            (AsmName.TestProject, "TestProject.Entities.Car.Car()")
+            (AsmName.TestProject, "TestProject.Entities.Car.ctor()")
         );
     }
 
@@ -52,7 +52,7 @@ public class PropertiesDeclaration : BaseTests
 
         GraphAssert.HasLink(graph, "Test.Prop1",
             (AsmName.TestProject, "TestProject.Entities.Vehicle"),
-            (AsmName.TestProject, "TestProject.Entities.Car.Car()"),
+            (AsmName.TestProject, "TestProject.Entities.Car.ctor()"),
             (AsmName.TestProject, "TestProject.Entities.Airplane")
         );
     }
@@ -68,7 +68,7 @@ public class PropertiesDeclaration : BaseTests
         ");
 
         GraphAssert.HasLink(graph, "Test.Prop1",
-            (AsmName.TestProject, "TestProject.Entities.Car.Car()")
+            (AsmName.TestProject, "TestProject.Entities.Car.ctor()")
         );
     }
 
@@ -88,7 +88,7 @@ public class PropertiesDeclaration : BaseTests
 
         GraphAssert.HasLink(graph, "Test.Prop1",
             (AsmName.TestProject, "TestProject.Entities.Vehicle"),
-            (AsmName.TestProject, "TestProject.Entities.Car.Car()"),
+            (AsmName.TestProject, "TestProject.Entities.Car.ctor()"),
             (AsmName.TestProject, "TestProject.Entities.Airplane")
         );
     }
