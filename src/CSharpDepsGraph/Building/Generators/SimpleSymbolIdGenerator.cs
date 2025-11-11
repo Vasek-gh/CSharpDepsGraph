@@ -268,7 +268,7 @@ public class SimpleSymbolIdGenerator : ISymbolIdGenerator
 
     }
 
-    private void AppendTypeArguments(ImmutableArray<ITypeSymbol> typeArguments, string delimiter = ", ")
+    private void AppendTypeArguments(ImmutableArray<ITypeSymbol> typeArguments, string delimiter = ",")
     {
         if (typeArguments.Length == 0)
         {
@@ -290,7 +290,7 @@ public class SimpleSymbolIdGenerator : ISymbolIdGenerator
         Append(">");
     }
 
-    private void AppendParameters(ImmutableArray<IParameterSymbol> parameters, string delimiter = ", ")
+    private void AppendParameters(ImmutableArray<IParameterSymbol> parameters, string delimiter = ",")
     {
         if (parameters.Length == 0)
         {

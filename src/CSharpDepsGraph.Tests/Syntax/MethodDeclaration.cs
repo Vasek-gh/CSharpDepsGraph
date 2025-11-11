@@ -68,7 +68,7 @@ public class MethodDeclaration : BaseTests
         GraphAssert.HasSymbol(graph, "Test.TestMethod()");
         GraphAssert.HasSymbol(graph, "Test.TestMethod(int)");
         GraphAssert.HasSymbol(graph, "Test.TestMethod(string)");
-        GraphAssert.HasSymbol(graph, "Test.TestMethod(int, string)");
+        GraphAssert.HasSymbol(graph, "Test.TestMethod(int,string)");
 
         Assert.Fail("Надо проверить что перегружаются так генерик методы");
     }
@@ -126,7 +126,7 @@ public class MethodDeclaration : BaseTests
             (AsmName.TestProject, "TestProject.Entities.Car")
         );
 
-        GraphAssert.HasLink(graph, "Test.ctor(TestProject.Entities.Car, TestProject.Entities.Size)",
+        GraphAssert.HasLink(graph, "Test.ctor(TestProject.Entities.Car,TestProject.Entities.Size)",
             (AsmName.TestProject, "TestProject.Entities.Car"),
             (AsmName.TestProject, "TestProject.Entities.Size")
         );
@@ -148,7 +148,7 @@ public class MethodDeclaration : BaseTests
             }
         ");
 
-        GraphAssert.HasLink(graph, "Test.TestMethod(int, System.Threading.CancellationToken)",
+        GraphAssert.HasLink(graph, "Test.TestMethod(int,System.Threading.CancellationToken)",
             (AsmName.TestProject, "TestProject.Constants.IntConst1"),
             (AsmName.CoreLib, "System.Threading.CancellationToken")
         );
