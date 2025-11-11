@@ -65,12 +65,8 @@ public class SimpleSymbolIdGenerator : ISymbolIdGenerator
 
         _excludeAssembly = true;
 
-        if (_assemblyFullNames)
-        {
-            Append(symbol.Name);
-            Append(".dll");
-        }
-        else
+        var name = symbol.Name;
+        if (!_assemblyFullNames)
         {
             if (!_assemblyIdsMap.TryGetValue(symbol.Name, out var id))
             {
@@ -78,9 +74,11 @@ public class SimpleSymbolIdGenerator : ISymbolIdGenerator
                 _assemblyIdsMap.Add(symbol.Name, id);
             }
 
-            Append(id);
+            name = id;
         }
 
+        Append(name);
+        Append(".dll");
         if (!last)
         {
             Append("/");
@@ -100,8 +98,6 @@ public class SimpleSymbolIdGenerator : ISymbolIdGenerator
         }
 
         Append(symbol.Name);
-        Append(".mdl");
-
         if (!last)
         {
             Append("/");
@@ -162,13 +158,10 @@ public class SimpleSymbolIdGenerator : ISymbolIdGenerator
             return;
         }
 
-        var symbolName = GeneratorsUtils.GetTypeSymbolName(symbol);
-        var symbolParent = GeneratorsUtils.GetTypeSymbolParent(symbol, _parameterMode);
-        if (symbolParent is not null)
-        {
-            Append(symbolParent, false);
-        }
+        var symbolName = GeneratorsUtils.GetTypeName(symbol);
+        var symbolParent = GeneratorsUtils.GetTypeParent(symbol, _parameterMode);
 
+        Append(symbolParent, false);
         Append(symbolName);
 
         if (symbol is INamedTypeSymbol namedTypeSymbol)
@@ -381,7 +374,7 @@ public class SimpleSymbolIdGenerator : ISymbolIdGenerator
         Append(symbol.Name);
     }
 
-    private void Append(string value)
+    private void Append(string? value)
     {
         _stringBuilder.Append(value);
     }

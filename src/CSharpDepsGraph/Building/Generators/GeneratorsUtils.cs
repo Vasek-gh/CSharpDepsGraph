@@ -28,22 +28,22 @@ internal static class GeneratorsUtils
 
     public static bool IsTypePrimitive(ITypeSymbol typeSymbol)
     {
-        return _primitiveTypes.Contains(typeSymbol.SpecialType);
+        return GetPrimitiveTypeName(typeSymbol) is not null;
     }
 
-    public static string GetTypeSymbolName(ITypeSymbol typeSymbol)
+    public static string GetTypeName(ITypeSymbol typeSymbol)
     {
-        return GetPrimitiveParamTypeName3(typeSymbol) ?? typeSymbol.Name;
+        return GetPrimitiveTypeName(typeSymbol) ?? typeSymbol.Name;
     }
 
-    public static ISymbol? GetTypeSymbolParent(ITypeSymbol typeSymbol, bool parametersMode)
+    public static ISymbol? GetTypeParent(ITypeSymbol typeSymbol, bool parametersMode)
     {
         if (typeSymbol is ITypeParameterSymbol)
         {
             return null;
         }
 
-        if (parametersMode && GetPrimitiveParamTypeName3(typeSymbol) is not null)
+        if (parametersMode && GetPrimitiveTypeName(typeSymbol) is not null)
         {
             return null;
         }
@@ -51,7 +51,7 @@ internal static class GeneratorsUtils
         return typeSymbol.ContainingSymbol;
     }
 
-    public static string? GetPrimitiveParamTypeName3(ITypeSymbol typeSymbol)
+    public static string? GetPrimitiveTypeName(ITypeSymbol typeSymbol)
     {
         // todo надо это убить и тесты написать
         if (typeSymbol.ContainingAssembly.Name == "System.Runtime" && typeSymbol.ContainingAssembly.Identity.Version.Major >= 8)
