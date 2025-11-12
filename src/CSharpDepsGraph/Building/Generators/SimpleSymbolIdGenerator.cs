@@ -78,7 +78,6 @@ public class SimpleSymbolIdGenerator : ISymbolIdGenerator
         }
 
         Append(name);
-        Append(".dll");
         if (!last)
         {
             Append("/");

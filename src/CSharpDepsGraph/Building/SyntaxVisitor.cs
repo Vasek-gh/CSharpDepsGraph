@@ -575,7 +575,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
 
     private void VisitNodes<T>(IEnumerable<T>? nodes) where T : CSharpSyntaxNode
     {
-        foreach (var node in nodes ?? Array.Empty<T>())
+        foreach (var node in nodes ?? [])
         {
             node.Accept(this);
         }
