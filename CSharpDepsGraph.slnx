@@ -1,6 +1,6 @@
 <Solution>
   <Project Path="src/CSharpDepsGraph/CSharpDepsGraph.csproj" />
   <Project Path="src/CSharpDepsGraph.Export/CSharpDepsGraph.Export.csproj" />
-  <Project Path="src/CSharpDepsGraph.Tests/CSharpDepsGraph.Tests.csproj" />
   <Project Path="src/CSharpDepsGraph.Cli/CSharpDepsGraph.Cli.csproj" />
+  <Project Path="tests/CSharpDepsGraph.Tests/CSharpDepsGraph.Tests.csproj" />
 </Solution>

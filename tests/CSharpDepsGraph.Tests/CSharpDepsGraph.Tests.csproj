@@ -21,8 +21,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\CSharpDepsGraph\CSharpDepsGraph.csproj" />
-        <ProjectReference Include="..\CSharpDepsGraph.Export\CSharpDepsGraph.Export.csproj" />
+        <ProjectReference Include="..\..\src\CSharpDepsGraph\CSharpDepsGraph.csproj" />
+        <ProjectReference Include="..\..\src\CSharpDepsGraph.Export\CSharpDepsGraph.Export.csproj" />
     </ItemGroup>
 
     <ItemGroup>
