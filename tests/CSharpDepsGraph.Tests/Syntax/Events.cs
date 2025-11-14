@@ -3,7 +3,7 @@ using NUnit.Framework;
 
 namespace CSharpDepsGraph.Tests.Syntax;
 
-public class EventsDeclaration : BaseTests
+public class EventsDeclaration : BaseSyntaxTests
 {
     [Test]
     public void EventParsed()
@@ -18,12 +18,12 @@ public class EventsDeclaration : BaseTests
             }
         ");
 
-        GraphAssert.HasLink(graph, "Test.TestEvent",
-            (AsmName.CoreLib, "System.Action")
+        GraphAssert.HasLink(graph, "Test/TestEvent",
+            (AsmName.CoreLib, "System/Action")
         );
 
-        GraphAssert.HasLink(graph, "Test.Method()",
-            (AsmName.Test, "Test.TestEvent")
+        GraphAssert.HasLink(graph, "Test/Method()",
+            (AsmName.Test, "Test/TestEvent")
         );
     }
 
@@ -46,9 +46,9 @@ public class EventsDeclaration : BaseTests
             }
         ");
 
-        GraphAssert.HasLink(graph, "Test.TestEvent",
-            (AsmName.CoreLib, "System.Action"),
-            (AsmName.Test, "Test._testEvent")
+        GraphAssert.HasLink(graph, "Test/TestEvent",
+            (AsmName.CoreLib, "System/Action"),
+            (AsmName.Test, "Test/_testEvent")
         );
 
         var testClassNode = graph.GetNode("Test");
@@ -64,17 +64,40 @@ public class EventsDeclaration : BaseTests
             public interface ITest {
                 public event Action TestEvent;
             }
-            public class Test : ITest {
+            public interface ITest<T> {
+                public event Action TestEvent;
+            }
+            public class Test : ITest, ITest<int> {
                 event Action ITest.TestEvent {
+                    add {}
+                    remove {}
+                }
+
+                event Action ITest<int>.TestEvent {
+                    add {}
+                    remove {}
+                }
+
+                public event Action TestEvent {
                     add {}
                     remove {}
                 }
             }
         ");
 
-        GraphAssert.HasLink(graph, "Test.[ITest.TestEvent]",
-            (AsmName.CoreLib, "System.Action"),
+        GraphAssert.HasLink(graph, "Test/ITest.TestEvent",
+            (AsmName.CoreLib, "System/Action"),
             (AsmName.Test, "ITest")
+        );
+
+        GraphAssert.HasLink(graph, "Test/ITest<int>.TestEvent",
+            (AsmName.CoreLib, "System/Action"),
+            (AsmName.CoreLib, "System/int"),
+            (AsmName.Test, "ITest<T>")
+        );
+
+        GraphAssert.HasLink(graph, "Test/TestEvent",
+            (AsmName.CoreLib, "System/Action")
         );
     }
 }

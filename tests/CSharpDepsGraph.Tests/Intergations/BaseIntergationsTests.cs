@@ -1,24 +1,22 @@
+using CSharpDepsGraph.Building;
+using Microsoft.Extensions.Logging;
+using NUnit.Framework;
 using System;
 using System.Linq;
 using System.Threading;
-using Microsoft.CodeAnalysis;
-using NUnit.Framework;
-using CSharpDepsGraph.Building;
-using Microsoft.Extensions.Logging;
-using System.Threading.Tasks;
 
-namespace CSharpDepsGraph.Tests;
+namespace CSharpDepsGraph.Tests.Intergations;
 
 [System.Diagnostics.CodeAnalysis.SuppressMessage(
     "Usage",
     "CA1001",
     Justification = "TestLoggerFactory is fake, no need for disposing"
     )]
-public class BaseTests
+public class BaseIntergationsTests
 {
     private readonly TestLoggerFactory _loggerFactory;
 
-    public BaseTests()
+    public BaseIntergationsTests()
     {
         _loggerFactory = new TestLoggerFactory();
     }
@@ -43,18 +41,11 @@ public class BaseTests
         }
     }
 
-    protected IGraph Build(string? sourceText = null)
+    public IGraph GetGraph()
     {
-        return BuildAsync(sourceText, CancellationToken.None)
+        return new GraphBuilder(_loggerFactory)
+            .Run(ProjectSource.Solution.Projects, CancellationToken.None)
             .GetAwaiter()
             .GetResult();
-    }
-
-    protected async Task<IGraph> BuildAsync(string? sourceText = null, CancellationToken cancellationToken = default)
-    {
-        var solution = await TestContext.Instance.CreateSolutionAsync(sourceText, cancellationToken);
-
-        return await new GraphBuilder(_loggerFactory)
-            .Run(solution.Projects, CancellationToken.None);
     }
 }

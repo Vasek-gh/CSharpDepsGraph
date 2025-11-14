@@ -3,7 +3,7 @@ using NUnit.Framework;
 
 namespace CSharpDepsGraph.Tests.Syntax;
 
-public class PropertiesDeclaration : BaseTests
+public class PropertiesDeclaration : BaseSyntaxTests
 {
     [Test]
     public void TypeParsed()
@@ -15,8 +15,8 @@ public class PropertiesDeclaration : BaseTests
             }
         ");
 
-        GraphAssert.HasLink(graph, "Test.Prop1",
-            (AsmName.TestProject, "TestProject.Entities.Car")
+        GraphAssert.HasLink(graph, "Test/Prop1",
+            (AsmName.TestProject, "TestProject/Entities/Car")
         );
     }
 
@@ -30,9 +30,9 @@ public class PropertiesDeclaration : BaseTests
             }
         ");
 
-        GraphAssert.HasLink(graph, "Test.Prop1",
-            (AsmName.TestProject, "TestProject.Entities.Vehicle"),
-            (AsmName.TestProject, "TestProject.Entities.Car.ctor()")
+        GraphAssert.HasLink(graph, "Test/Prop1",
+            (AsmName.TestProject, "TestProject/Entities/Vehicle"),
+            (AsmName.TestProject, "TestProject/Entities/Car/Car()")
         );
     }
 
@@ -50,10 +50,10 @@ public class PropertiesDeclaration : BaseTests
             }
         ");
 
-        GraphAssert.HasLink(graph, "Test.Prop1",
-            (AsmName.TestProject, "TestProject.Entities.Vehicle"),
-            (AsmName.TestProject, "TestProject.Entities.Car.ctor()"),
-            (AsmName.TestProject, "TestProject.Entities.Airplane")
+        GraphAssert.HasLink(graph, "Test/Prop1",
+            (AsmName.TestProject, "TestProject/Entities/Vehicle"),
+            (AsmName.TestProject, "TestProject/Entities/Car/Car()"),
+            (AsmName.TestProject, "TestProject/Entities/Airplane")
         );
     }
 
@@ -67,8 +67,8 @@ public class PropertiesDeclaration : BaseTests
             }
         ");
 
-        GraphAssert.HasLink(graph, "Test.Prop1",
-            (AsmName.TestProject, "TestProject.Entities.Car.ctor()")
+        GraphAssert.HasLink(graph, "Test/Prop1",
+            (AsmName.TestProject, "TestProject/Entities/Car/Car()")
         );
     }
 
@@ -86,10 +86,10 @@ public class PropertiesDeclaration : BaseTests
             }
         ");
 
-        GraphAssert.HasLink(graph, "Test.Prop1",
-            (AsmName.TestProject, "TestProject.Entities.Vehicle"),
-            (AsmName.TestProject, "TestProject.Entities.Car.ctor()"),
-            (AsmName.TestProject, "TestProject.Entities.Airplane")
+        GraphAssert.HasLink(graph, "Test/Prop1",
+            (AsmName.TestProject, "TestProject/Entities/Vehicle"),
+            (AsmName.TestProject, "TestProject/Entities/Car/Car()"),
+            (AsmName.TestProject, "TestProject/Entities/Airplane")
         );
     }
 
@@ -100,14 +100,29 @@ public class PropertiesDeclaration : BaseTests
             public interface ITest {
                 string Prop1 { get; }
             }
-            public class Test : ITest  {
+            public interface ITest<T> {
+                string Prop1 { get; }
+            }
+            public class Test : ITest, ITest<int>  {
                 string ITest.Prop1 { get; }
+                string ITest<int>.Prop1 { get; }
+                public string Prop1 { get; }
             }
         ");
 
-        GraphAssert.HasLink(graph, "Test.[ITest.Prop1]",
-            (AsmName.CoreLib, "System.string"),
+        GraphAssert.HasLink(graph, "Test/ITest.Prop1",
+            (AsmName.CoreLib, "System/string"),
             (AsmName.Test, "ITest")
+        );
+
+        GraphAssert.HasLink(graph, "Test/ITest<int>.Prop1",
+            (AsmName.CoreLib, "System/string"),
+            (AsmName.CoreLib, "System/int"),
+            (AsmName.Test, "ITest<T>")
+        );
+
+        GraphAssert.HasLink(graph, "Test/Prop1",
+            (AsmName.CoreLib, "System/string")
         );
     }
 
@@ -120,10 +135,10 @@ public class PropertiesDeclaration : BaseTests
             }
         ");
 
-        GraphAssert.HasSymbol(graph, "Test.Prop1");
+        GraphAssert.HasSymbol(graph, "Test/Prop1");
         GraphAssert.HasNotSymbol(graph,
-            (AsmName.Test, "Test.Prop1.get"),
-            (AsmName.Test, "Test.Prop1.set")
+            (AsmName.Test, "Test/Prop1/get"),
+            (AsmName.Test, "Test/Prop1/set")
         );
     }
 
@@ -140,9 +155,9 @@ public class PropertiesDeclaration : BaseTests
         ");
 
         GraphAssert.HasSymbol(graph, "Test");
-        GraphAssert.HasSymbol(graph, "Test.Car");
-        GraphAssert.HasSymbol(graph, "Test.Airplane");
-        GraphAssert.HasSymbol(graph, "Test.Size");
+        GraphAssert.HasSymbol(graph, "Test/Car");
+        GraphAssert.HasSymbol(graph, "Test/Airplane");
+        GraphAssert.HasSymbol(graph, "Test/Size");
 
         Assert.That(
             graph.GetNode(AsmName.Test, "Test").Childs

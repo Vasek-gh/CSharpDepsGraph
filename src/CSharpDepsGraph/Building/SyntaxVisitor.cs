@@ -508,6 +508,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
 
         var linkedSymbol = new LinkedSymbol()
         {
+            Id = _symbolIdBuilder.Execute(symbol),
             Symbol = symbol,
             Syntax = syntax,
             LocationKind = _fileIsGenerated ? LocationKind.Generated : LocationKind.Local

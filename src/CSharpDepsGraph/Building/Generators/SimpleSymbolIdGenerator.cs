@@ -175,6 +175,30 @@ public class SimpleSymbolIdGenerator : ISymbolIdGenerator
         }
     }
 
+    private void AppendEvent(IEventSymbol symbol)
+    {
+        Append(symbol.ContainingSymbol, false);
+
+        if (symbol.ExplicitInterfaceImplementations.Length > 0)
+        {
+            // todo C# не поддерживает явную реализацию двух интерфесов. Но есть поддержка на уровне IL и этим
+            // пользуется vb. Надо подумать как тут лучше реализовать
+            if (symbol.ExplicitInterfaceImplementations.Length > 1)
+            {
+                throw new NotImplementedException();
+            }
+
+            // todo что тут будет с генериком? Не возмет ли он генерики из декларации типа а не метода?
+            var explicitSymbol = symbol.ExplicitInterfaceImplementations[0];
+            AppendType(explicitSymbol.ContainingType, false);
+            symbol = explicitSymbol;
+        }
+
+        var symbolName = symbol.Name;
+
+        Append(symbolName);
+    }
+
     private void AppendProperty(IPropertySymbol symbol)
     {
         Append(symbol.ContainingSymbol, false);
@@ -354,6 +378,12 @@ public class SimpleSymbolIdGenerator : ISymbolIdGenerator
         if (symbol is ITypeSymbol typeSymbol)
         {
             AppendType(typeSymbol, last);
+            return;
+        }
+
+        if (symbol is IEventSymbol eventSymbol)
+        {
+            AppendEvent(eventSymbol);
             return;
         }
 

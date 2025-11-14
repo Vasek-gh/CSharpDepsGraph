@@ -44,10 +44,9 @@ internal class NodeLinkBuilder
 
         foreach (var linkedSymbol in node.LinkedSymbolsList)
         {
-            var symbolId = _symbolIdBuilder.Execute(linkedSymbol.Symbol);
-            if (!_graphData.NodeMap.TryGetValue(symbolId, out var targetNode))
+            if (!_graphData.NodeMap.TryGetValue(linkedSymbol.Id, out var targetNode))
             {
-                targetNode = CreateExternalNode(linkedSymbol.Symbol, symbolId, node);
+                targetNode = CreateExternalNode(linkedSymbol.Symbol, linkedSymbol.Id, node);
             }
 
             _counters.AddLink();

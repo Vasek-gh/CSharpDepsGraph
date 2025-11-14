@@ -2,7 +2,7 @@ using NUnit.Framework;
 
 namespace CSharpDepsGraph.Tests.Syntax;
 
-public class FieldsDeclaration : BaseTests
+public class FieldsDeclaration : BaseSyntaxTests
 {
     [Test]
     public void TypeParsed()
@@ -14,8 +14,8 @@ public class FieldsDeclaration : BaseTests
             }
         ");
 
-        GraphAssert.HasLink(graph, "Test._field1",
-            (AsmName.TestProject, "TestProject.Entities.Car")
+        GraphAssert.HasLink(graph, "Test/_field1",
+            (AsmName.TestProject, "TestProject/Entities/Car")
         );
     }
 
@@ -29,9 +29,9 @@ public class FieldsDeclaration : BaseTests
             }
         ");
 
-        GraphAssert.HasLink(graph, "Test._field1",
-            (AsmName.TestProject, "TestProject.Entities.Vehicle"),
-            (AsmName.TestProject, "TestProject.Entities.Car.ctor()")
+        GraphAssert.HasLink(graph, "Test/_field1",
+            (AsmName.TestProject, "TestProject/Entities/Vehicle"),
+            (AsmName.TestProject, "TestProject/Entities/Car/Car()")
         );
     }
 
@@ -45,14 +45,14 @@ public class FieldsDeclaration : BaseTests
             }
         ");
 
-        GraphAssert.HasLink(graph, "Test._field1",
-            (AsmName.TestProject, "TestProject.Entities.Vehicle"),
-            (AsmName.TestProject, "TestProject.Entities.Car.ctor()")
+        GraphAssert.HasLink(graph, "Test/_field1",
+            (AsmName.TestProject, "TestProject/Entities/Vehicle"),
+            (AsmName.TestProject, "TestProject/Entities/Car/Car()")
         );
 
-        GraphAssert.HasLink(graph, "Test._field2",
-            (AsmName.TestProject, "TestProject.Entities.Vehicle"),
-            (AsmName.TestProject, "TestProject.Entities.Airplane")
+        GraphAssert.HasLink(graph, "Test/_field2",
+            (AsmName.TestProject, "TestProject/Entities/Vehicle"),
+            (AsmName.TestProject, "TestProject/Entities/Airplane")
         );
     }
 
@@ -65,7 +65,7 @@ public class FieldsDeclaration : BaseTests
             }
         ");
 
-        GraphAssert.HasSymbol(graph, "Test.Prop1");
+        GraphAssert.HasSymbol(graph, "Test/Prop1");
         GraphAssert.HasNotSymbol(graph, (AsmName.Test, "Test.<Prop1>k__BackingField"));
     }
 }

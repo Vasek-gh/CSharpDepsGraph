@@ -1,0 +1,7 @@
+<Project>
+    <PropertyGroup>
+        <LangVersion>latest</LangVersion>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <NoWarn>IDE0040, IDE0051, IDE0060, IDE0130, CS0219, CS1591, CS1822</NoWarn>
+    </PropertyGroup>
+</Project>

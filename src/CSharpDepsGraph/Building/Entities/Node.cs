@@ -79,8 +79,9 @@ internal class Node : INode
             {
                 var toItemSyntax = linkedSymbol.Syntax;
 
-                if (toItemSyntax.SyntaxTree.FilePath == fromItemSyntax.SyntaxTree.FilePath
+                if (linkedSymbol.Id == fromItem.Id
                     && toItemSyntax.Span == fromItemSyntax.Span
+                    && toItemSyntax.SyntaxTree.FilePath == fromItemSyntax.SyntaxTree.FilePath
                     && linkedSymbol.LocationKind == fromItem.LocationKind
                     )
                 {

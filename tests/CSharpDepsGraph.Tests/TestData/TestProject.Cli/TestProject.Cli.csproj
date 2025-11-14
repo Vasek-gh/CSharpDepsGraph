@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFrameworks>netstandard2.1;net6.0;net8.0</TargetFrameworks>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TestProject.SameSymbols1\TestProject.SameSymbols1.csproj" />
+    <ProjectReference Include="..\TestProject.SameSymbols2\TestProject.SameSymbols2.csproj" />
+    <ProjectReference Include="..\TestProject\TestProject.csproj" />
+  </ItemGroup>
+
+</Project>

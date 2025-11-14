@@ -4,7 +4,7 @@ using NUnit.Framework;
 namespace CSharpDepsGraph.Tests.Syntax;
 
 #pragma warning disable CA1724
-public class Expressions : BaseTests //todo rename
+public class Expressions : BaseSyntaxTests //todo rename
 #pragma warning restore CA2000
 {
     [Test]

@@ -1,8 +1,8 @@
 using NUnit.Framework;
 
-namespace CSharpDepsGraph.Tests.Misc;
+namespace CSharpDepsGraph.Tests.Syntax;
 
-public class Aliases : BaseTests
+public class Aliases : BaseSyntaxTests
 {
     [Test]
     public void UsingAlias()
@@ -17,8 +17,8 @@ public class Aliases : BaseTests
             }
         ");
 
-        GraphAssert.HasLink(graph, "Test.Method(System.Action<int>)",
-            (AsmName.CoreLib, "System.Action<T>")
+        GraphAssert.HasLink(graph, "Test/Method(System.Action<int>)",
+            (AsmName.CoreLib, "System/Action<T>")
         );
     }
 }

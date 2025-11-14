@@ -2,7 +2,7 @@ using NUnit.Framework;
 
 namespace CSharpDepsGraph.Tests.Syntax;
 
-public class MethodDeclaration : BaseTests
+public class MethodDeclaration : BaseSyntaxTests
 {
     [Test]
     public void SymbolMapHaveMethod()
@@ -13,7 +13,7 @@ public class MethodDeclaration : BaseTests
             }
         ");
 
-        GraphAssert.HasSymbol(graph, "Test.TestMethod()");
+        GraphAssert.HasSymbol(graph, "Test/TestMethod()");
     }
 
     [Test]

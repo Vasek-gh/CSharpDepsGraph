@@ -2,7 +2,7 @@ using NUnit.Framework;
 
 namespace CSharpDepsGraph.Tests.Syntax;
 
-public class TypeDeclaration : BaseTests
+public class TypeDeclaration : BaseSyntaxTests
 {
     [Test]
     public void BaseParsed()
@@ -17,9 +17,9 @@ public class TypeDeclaration : BaseTests
         ");
 
         GraphAssert.HasLink(graph, "Test",
-            (AsmName.TestProject, "TestProject.Entities.Car"),
-            (AsmName.CoreLib, "System.IDisposable"),
-            (AsmName.CoreLib, "System.IComparable<T>"),
+            (AsmName.TestProject, "TestProject/Entities/Car"),
+            (AsmName.CoreLib, "System/IDisposable"),
+            (AsmName.CoreLib, "System/IComparable<T>"),
             (AsmName.Test, "Test")
         );
     }
@@ -33,7 +33,7 @@ public class TypeDeclaration : BaseTests
         ");
 
         GraphAssert.HasLink(graph, "Test<T>",
-            (AsmName.TestProject, "TestProject.Entities.Vehicle")
+            (AsmName.TestProject, "TestProject/Entities/Vehicle")
         );
     }
 
@@ -47,7 +47,7 @@ public class TypeDeclaration : BaseTests
         ");
 
         GraphAssert.HasSymbol(graph, "TestClass");
-        GraphAssert.HasSymbol(graph, "TestClass.Method()");
+        GraphAssert.HasSymbol(graph, "TestClass/Method()");
     }
 
     [Test]
@@ -60,7 +60,7 @@ public class TypeDeclaration : BaseTests
         ");
 
         GraphAssert.HasSymbol(graph, "ITest");
-        GraphAssert.HasSymbol(graph, "ITest.Method()");
+        GraphAssert.HasSymbol(graph, "ITest/Method()");
     }
 
     [Test]
@@ -73,7 +73,7 @@ public class TypeDeclaration : BaseTests
         ");
 
         GraphAssert.HasSymbol(graph, "Test");
-        GraphAssert.HasSymbol(graph, "Test.Method()");
+        GraphAssert.HasSymbol(graph, "Test/Method()");
     }
 
     [Test]
@@ -88,8 +88,8 @@ public class TypeDeclaration : BaseTests
         ");
 
         GraphAssert.HasSymbol(graph, "TestClass");
-        GraphAssert.HasSymbol(graph, "TestClass.InnerClass");
-        GraphAssert.HasSymbol(graph, "TestClass.InnerClass.Method()");
+        GraphAssert.HasSymbol(graph, "TestClass/InnerClass");
+        GraphAssert.HasSymbol(graph, "TestClass/InnerClass/Method()");
     }
 
     [Test]
@@ -108,16 +108,16 @@ public class TypeDeclaration : BaseTests
             }
         ");
 
-        GraphAssert.HasSymbol(graph, "Test.A");
-        GraphAssert.HasSymbol(graph, "Test.B");
+        GraphAssert.HasSymbol(graph, "Test/A");
+        GraphAssert.HasSymbol(graph, "Test/B");
 
         GraphAssert.HasLink(graph, "Test",
-            (AsmName.CoreLib, "System.byte")
+            (AsmName.CoreLib, "System/byte")
         );
 
-        GraphAssert.HasLink(graph, "SomeClass.Method()",
+        GraphAssert.HasLink(graph, "SomeClass/Method()",
             (AsmName.Test, "Test"),
-            (AsmName.Test, "Test.B")
+            (AsmName.Test, "Test/B")
         );
     }
 
@@ -130,8 +130,8 @@ public class TypeDeclaration : BaseTests
         ");
 
         GraphAssert.HasLink(graph, "Test",
-            (AsmName.CoreLib, "System.object"),
-            (AsmName.CoreLib, "System.int")
+            (AsmName.CoreLib, "System/object"),
+            (AsmName.CoreLib, "System/int")
         );
     }
 }

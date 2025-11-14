@@ -1,8 +1,6 @@
-﻿#pragma warning disable CS0219
-#pragma warning disable IDE0059
-namespace TestProject.TargetFrameworks;
+namespace TestProject;
 
-public class TestClass
+public class Preprocessor1
 {
     public void TestMethod1()
     {
@@ -38,4 +36,3 @@ public class TestClass
     }
 #endif
 }
-#pragma warning restore CS0219

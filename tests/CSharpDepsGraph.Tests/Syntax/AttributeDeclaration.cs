@@ -2,7 +2,7 @@ using NUnit.Framework;
 
 namespace CSharpDepsGraph.Tests.Syntax;
 
-public class AttributeDeclaration : BaseTests
+public class AttributeDeclaration : BaseSyntaxTests
 {
     [Test]
     public void PropertyAttribute()

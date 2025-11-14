@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using CSharpDepsGraph.Export;
+using CSharpDepsGraph.Tests.Syntax;
 
 namespace CSharpDepsGraph.Tests.Export;
 
-public class LinkTypeDetect : BaseTests
+public class LinkTypeDetect : BaseSyntaxTests
 {
     [Test]
     public void ConstructorCall()

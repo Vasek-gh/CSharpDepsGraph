@@ -7,7 +7,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using System.IO;
 using System.Globalization;
-using Microsoft.CodeAnalysis.CSharp;
 using CSharpDepsGraph.Building.Entities;
 using CSharpDepsGraph.Building.Generators;
 
