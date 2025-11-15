@@ -53,12 +53,55 @@ public static class NodeExtensions
         {
             _ when node.Symbol is IEventSymbol => node.Symbol.ToDisplayString(MemberDisplayFormat),
             _ when node.Symbol is IPropertySymbol => node.Symbol.ToDisplayString(MemberDisplayFormat),
-            _ when node.Symbol is IMethodSymbol => node.Symbol.ToDisplayString(MemberDisplayFormat),
+            _ when node.Symbol is IMethodSymbol methodSymbol => GetMethodName(methodSymbol),
             _ when node.Symbol is ITypeSymbol => node.Symbol.ToDisplayString(GeneralDisplayFormat),
             _ when node.Symbol is INamedTypeSymbol => node.Symbol.ToDisplayString(GeneralDisplayFormat),
+            _ when node.Symbol is IAssemblySymbol assemblySymbol => GetAssemblyName(assemblySymbol),
             _ when node.Symbol is not null => node.Symbol.Name,
             _ => node.Id
         };
+    }
+
+    private static string GetAssemblyName(IAssemblySymbol assemblySymbol)
+    {
+        return assemblySymbol is ISourceAssemblySymbol
+            ? assemblySymbol.Name
+            : $"{assemblySymbol.Name}_{assemblySymbol.Identity.Version}";
+    }
+
+    private static string GetMethodName(IMethodSymbol methodSymbol)
+    {
+        var methodKind = methodSymbol.MethodKind;
+        var methodNamePart = true;
+
+        var displayParts = methodSymbol.ToDisplayParts(MemberDisplayFormat)
+            .Select(p =>
+            {
+                var ctorCandidate = methodNamePart
+                    && (
+                        p.Kind == SymbolDisplayPartKind.ClassName
+                        || p.Kind == SymbolDisplayPartKind.StructName
+                        || p.Kind == SymbolDisplayPartKind.RecordClassName
+                    )
+                    ;
+
+                var name = ctorCandidate switch
+                {
+                    true when methodKind == MethodKind.Constructor => "ctor",
+                    true when methodKind == MethodKind.StaticConstructor => "sctor",
+                    _ => p.ToString()
+                };
+
+                if (ctorCandidate)
+                {
+                    methodNamePart = false;
+                }
+
+                return name;
+            });
+
+
+        return string.Concat(displayParts);
     }
 
     private static SymbolDisplayFormat GeneralDisplayFormat { get; } =

@@ -19,14 +19,14 @@ public class LinkTypeDetect : BaseSyntaxTests
             }
         ");
 
-        var ctorLinks = GetOutgoingLinks(graph, "Test.TestMethod()",
-            (AsmName.CoreLib, "System.Threading.CancellationToken.ctor(bool)")
+        var ctorLinks = GetOutgoingLinks(graph, "Test/TestMethod()",
+            (AsmName.CoreLib, "System/Threading/CancellationToken/ctor(bool)")
         );
 
         Assert.That(ctorLinks.Single().GetLinkType() == LinkType.Call);
 
-        var typeLinks = GetOutgoingLinks(graph, "Test.TestMethod()",
-            (AsmName.CoreLib, "System.Threading.CancellationToken")
+        var typeLinks = GetOutgoingLinks(graph, "Test/TestMethod()",
+            (AsmName.CoreLib, "System/Threading/CancellationToken")
         );
 
         Assert.That(typeLinks.Single().GetLinkType() == LinkType.Reference);
@@ -42,8 +42,8 @@ public class LinkTypeDetect : BaseSyntaxTests
             }
         ");
 
-        var links = GetOutgoingLinks(graph, "Test.TestMethod()",
-            (AsmName.CoreLib, "System.Threading.CancellationToken")
+        var links = GetOutgoingLinks(graph, "Test/TestMethod()",
+            (AsmName.CoreLib, "System/Threading/CancellationToken")
         );
 
         Assert.That(links.Count(), Is.EqualTo(2));
@@ -64,8 +64,8 @@ public class LinkTypeDetect : BaseSyntaxTests
             }
         ");
 
-        var links = GetOutgoingLinks(graph, "Test.TestMethod()",
-            (AsmName.CoreLib, "System.Threading.CancellationToken.ThrowIfCancellationRequested()")
+        var links = GetOutgoingLinks(graph, "Test/TestMethod()",
+            (AsmName.CoreLib, "System/Threading/CancellationToken/ThrowIfCancellationRequested()")
         );
 
         Assert.That(links.Single().GetLinkType() == LinkType.Call);
@@ -82,11 +82,11 @@ public class LinkTypeDetect : BaseSyntaxTests
         ");
 
         var inheritsLinks = GetOutgoingLinks(graph, "Test",
-            (AsmName.CoreLib, "System.Collections.ArrayList")
+            (AsmName.CoreLib, "System/Collections/ArrayList")
         );
 
         var implementsLinks = GetOutgoingLinks(graph, "Test",
-            (AsmName.CoreLib, "System.IDisposable")
+            (AsmName.CoreLib, "System/IDisposable")
         );
 
         Assert.That(inheritsLinks.Single().GetLinkType() == LinkType.Inherits);
@@ -103,7 +103,7 @@ public class LinkTypeDetect : BaseSyntaxTests
         ");
 
         var inheritsLinks = GetOutgoingLinks(graph, "ITest",
-            (AsmName.CoreLib, "System.IDisposable")
+            (AsmName.CoreLib, "System/IDisposable")
         );
 
         Assert.That(inheritsLinks.Single().GetLinkType() == LinkType.Inherits);

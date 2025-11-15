@@ -1,6 +1,5 @@
 using System.IO;
 using System.Linq;
-using CSharpDepsGraph.Building.Entities;
 using NUnit.Framework;
 
 namespace CSharpDepsGraph.Tests.Intergations;
@@ -12,27 +11,35 @@ public class PreprocessorDirectivesTests : BaseIntergationsTests
     {
         var graph = GetGraph();
 
-        var intTypeNode = graph.GetNode(AsmName.Runtime, "System/int");
-        var decimalTypeNode = graph.GetNode(AsmName.Runtime, "System/decimal");
+        var intTypeS21Node = graph.GetNode(AsmName.Netstandard, "System/int");
+        var intTypeR60Node = graph.GetNode(AsmName.Runtime60, "System/int");
+        var intTypeR80Node = graph.GetNode(AsmName.Runtime80, "System/int");
+        var decimalR60TypeNode = graph.GetNode(AsmName.Runtime60, "System/decimal");
+        var decimalR80TypeNode = graph.GetNode(AsmName.Runtime80, "System/decimal");
         var longTypeNode = graph.GetNode(AsmName.Netstandard, "System/long");
 
-        CheckMethodLinks(graph, "Preprocessor1.TestMethod1",
-            (intTypeNode, "Preprocessor1.cs:9:17"),
-            (longTypeNode, "Preprocessor1.cs:11:17"),
-            (decimalTypeNode, "Preprocessor1.cs:13:17")
+        CheckMethodLinks(graph, "Preprocessor1/TestMethod1()",
+            (intTypeS21Node, "Preprocessor1.cs:7:17"),
+            (intTypeR60Node, "Preprocessor1.cs:7:17"),
+            (intTypeR80Node, "Preprocessor1.cs:7:17"),
+            (longTypeNode, "Preprocessor1.cs:9:17"),
+            (decimalR60TypeNode, "Preprocessor1.cs:11:17"),
+            (decimalR80TypeNode, "Preprocessor1.cs:11:17")
         );
 
-        CheckMethodLinks(graph, "Preprocessor1.TestMethod2",
-            (longTypeNode, "Preprocessor1.cs:20:17")
+        CheckMethodLinks(graph, "Preprocessor1/TestMethod2()",
+            (longTypeNode, "Preprocessor1.cs:18:17")
         );
 
-        CheckMethodLinks(graph, "Preprocessor1.TestMethod3",
-            (decimalTypeNode, "Preprocessor1.cs:25:17")
+        CheckMethodLinks(graph, "Preprocessor1/TestMethod3()",
+            (decimalR60TypeNode, "Preprocessor1.cs:23:17"),
+            (decimalR80TypeNode, "Preprocessor1.cs:23:17")
         );
 
-        CheckMethodLinks(graph, "Preprocessor1.TestMethod4",
-            (longTypeNode, "Preprocessor1.cs:32:17"),
-            (decimalTypeNode, "Preprocessor1.cs:37:17")
+        CheckMethodLinks(graph, "Preprocessor1/TestMethod4()",
+            (longTypeNode, "Preprocessor1.cs:30:17"),
+            (decimalR60TypeNode, "Preprocessor1.cs:35:17"),
+            (decimalR80TypeNode, "Preprocessor1.cs:35:17")
         );
     }
 
@@ -88,7 +95,7 @@ public class PreprocessorDirectivesTests : BaseIntergationsTests
     {
         var methdodNode = graph.GetNode(
             AsmName.TestProject,
-            $"TestProject.{methodName}()"
+            $"TestProject/{methodName}"
             );
 
         var links = graph.GetOutgoingLinks(methdodNode).ToArray();

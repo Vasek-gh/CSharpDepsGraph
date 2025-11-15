@@ -12,8 +12,8 @@ namespace CSharpDepsGraph.Tests.Transformation;
 
 internal static class Mocks
 {
-    public static readonly ISymbolIdGenerator SymbolIdBuilder = new SimpleSymbolIdGenerator(
-        NullLogger<SimpleSymbolIdGenerator>.Instance,
+    public static readonly ISymbolIdGenerator SymbolIdBuilder = new FullyQualifiedIdGenerator(
+        NullLogger<FullyQualifiedIdGenerator>.Instance,
         true
         );
 
@@ -52,9 +52,12 @@ internal static class Mocks
         moduleSymbolMock.Name.Returns("Module1");
         moduleSymbolMock.Kind.Returns(SymbolKind.NetModule);
 
+        var assemblyIdentity = new AssemblyIdentity(name: name);
+
         var assemblySymbolMock = Substitute.For<IAssemblySymbol>();
         assemblySymbolMock.Name.Returns(name);
         assemblySymbolMock.Kind.Returns(SymbolKind.Assembly);
+        assemblySymbolMock.Identity.Returns(assemblyIdentity);
         assemblySymbolMock.Modules.Returns<IEnumerable<IModuleSymbol>>(new[] { moduleSymbolMock });
         assemblySymbolMock.ToDisplayString().Returns(name);
 
@@ -122,7 +125,6 @@ internal static class Mocks
         var namespaceSymbol = Substitute.For<INamespaceSymbol>();
         namespaceSymbol.Name.Returns(name);
         namespaceSymbol.Kind.Returns(SymbolKind.Namespace);
-        //namespaceSymbol.Conta
         namespaceSymbol.ContainingModule.Returns(moduleSymbol);
         namespaceSymbol.ContainingAssembly.Returns(assemblySymbol);
         namespaceSymbol.ToDisplayString().Returns(name);

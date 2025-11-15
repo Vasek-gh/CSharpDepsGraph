@@ -17,7 +17,6 @@
         <PackageReference Include="NUnit3TestAdapter" Version="5.2.0" />
         <PackageReference Include="Microsoft.Build.Locator" Version="1.9.1" />
         <PackageReference Include="Microsoft.CodeAnalysis.Workspaces.MSBuild" Version="4.14.0" />
-        <PackageReference Include="Microsoft.Extensions.Hosting" Version="9.0.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -26,9 +25,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Remove="TestProject/**" />
-        <Content Include="TestProject/**" CopyToOutputDirectory="Always" />
-
         <Compile Remove="TestData/**" />
         <Content Include="TestData/**" CopyToOutputDirectory="Always" />
     </ItemGroup>

@@ -17,7 +17,7 @@ public class Aliases : BaseSyntaxTests
             }
         ");
 
-        GraphAssert.HasLink(graph, "Test/Method(System.Action<int>)",
+        GraphAssert.HasLink(graph, "Test/Method(Action<int>)",
             (AsmName.CoreLib, "System/Action<T>")
         );
     }

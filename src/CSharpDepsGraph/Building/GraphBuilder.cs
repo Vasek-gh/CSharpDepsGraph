@@ -49,6 +49,8 @@ public sealed class GraphBuilder
     /// </summary>
     public async Task<IGraph> Run(IEnumerable<Project> projects, CancellationToken cancellationToken)
     {
+        var ppp = projects.ToLookup(p => p.AssemblyName); // todo
+
         foreach (var project in projects)
         {
             await CreateProjectNodes(project, cancellationToken);

@@ -26,11 +26,11 @@ public class SymbolIdGenerator : ISymbolIdGenerator
     {
         _logger = loggerFactory.CreateLogger<SymbolIdGenerator>();
 
-        var simpleGenerator = new SimpleSymbolIdGenerator(loggerFactory.CreateLogger<SimpleSymbolIdGenerator>(), true);
+        var fullyQualifiedGenerator = new FullyQualifiedIdGenerator(loggerFactory.CreateLogger<FullyQualifiedIdGenerator>(), true);
 
         _generator = disableCache
-            ? simpleGenerator
-            : new CachedSymbolIdGenerator(loggerFactory.CreateLogger<CachedSymbolIdGenerator>(), simpleGenerator);
+            ? fullyQualifiedGenerator
+            : new CachedSymbolIdGenerator(loggerFactory.CreateLogger<CachedSymbolIdGenerator>(), fullyQualifiedGenerator);
 
         _legacyValidate = legacyValidate;
         _legacyDiffItems = new();

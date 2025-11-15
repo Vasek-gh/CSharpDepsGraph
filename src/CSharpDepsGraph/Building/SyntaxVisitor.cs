@@ -504,11 +504,22 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
             return;
         }
 
-        var lineSpan = syntax.SyntaxTree.GetLineSpan(syntax.Span);
+        var symbolId = _symbolIdBuilder.Execute(symbol);
+        if (_parentIdsStack.Peek() == "Confluent.SchemaRegistry.Serdes.UnitTests/Confluent.SchemaRegistry.Serdes.UnitTests.JsonSerializeDeserializeTests.ValidationFailureReturnsPath()")
+        {
+            if (syntax.ToString() == "new JsonSerializer<NonNullStringValue>(schemaRegistryClient)")
+            {
+                // todo kill
+            }
+            if (symbolId == "Confluent.SchemaRegistry.Serdes.Json/Confluent.SchemaRegistry.Serdes.JsonSerializer<T>.ctor(Confluent.SchemaRegistry.ISchemaRegistryClient,Confluent.SchemaRegistry.Serdes.JsonSerializerConfig,NJsonSchema.Generation.JsonSchemaGeneratorSettings,Confluent.SchemaRegistry.RuleRegistry)")
+            {
+
+            }
+        }
 
         var linkedSymbol = new LinkedSymbol()
         {
-            Id = _symbolIdBuilder.Execute(symbol),
+            Id = symbolId,
             Symbol = symbol,
             Syntax = syntax,
             LocationKind = _fileIsGenerated ? LocationKind.Generated : LocationKind.Local

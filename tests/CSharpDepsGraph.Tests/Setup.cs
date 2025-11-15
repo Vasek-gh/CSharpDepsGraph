@@ -5,7 +5,7 @@ using System;
 namespace CSharpDepsGraph.Tests;
 
 [SetUpFixture]
-public static class Setup
+public static class SetUp
 {
     [OneTimeSetUp]
     public static void Init()
@@ -13,5 +13,13 @@ public static class Setup
         Environment.SetEnvironmentVariable(TestData.SkipBuildVar, "1");
 
         MSBuildLocator.RegisterDefaults();
+
+        GraphFactory.Init();
+    }
+
+    [OneTimeTearDown]
+    public static void Done()
+    {
+        GraphFactory.Done();
     }
 }

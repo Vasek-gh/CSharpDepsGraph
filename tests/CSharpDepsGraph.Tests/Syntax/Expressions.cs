@@ -20,19 +20,19 @@ public class Expressions : BaseSyntaxTests //todo rename
             }
         ");
 
-        GraphAssert.HasLink(graph, "Test.Method()",
-            (AsmName.TestProject, "TestProject.Entities.Car.ctor()"),
-            (AsmName.TestProject, "TestProject.Entities.Car.ctor(TestProject.Entities.Size)"),
-            (AsmName.TestProject, "TestProject.Entities.Size")
+        GraphAssert.HasLink(graph, "Test/Method()",
+            (AsmName.TestProject, "TestProject/Entities/Car/ctor()"),
+            (AsmName.TestProject, "TestProject/Entities/Car/ctor(Size)"),
+            (AsmName.TestProject, "TestProject/Entities/Size")
         );
 
-        GraphAssert.HasNotLink(graph, "Test.Method()",
+        GraphAssert.HasNotLink(graph, "Test/Method()",
             (AsmName.TestProject, "TestProject"),
-            (AsmName.TestProject, "TestProject.Entities"),
-            (AsmName.TestProject, "TestProject.Entities.Car")
+            (AsmName.TestProject, "TestProject/Entities"),
+            (AsmName.TestProject, "TestProject/Entities/Car")
         );
 
-        GraphAssert.HasNotSymbol(graph, (AsmName.TestProject, "TestProject.Entities.Size.Size()"));
+        GraphAssert.HasNotSymbol(graph, (AsmName.TestProject, "TestProject/Entities/Size/Size()"));
     }
 
     [Test]
@@ -50,21 +50,21 @@ public class Expressions : BaseSyntaxTests //todo rename
             }
         ");
 
-        GraphAssert.HasLink(graph, "Test.TestMethod()",
-            (AsmName.TestProject, "TestProject.GenericClass1<T>.ctor()"),
-            (AsmName.TestProject, "TestProject.GenericClass1<T>.ctor(T)"),
-            (AsmName.TestProject, "TestProject.GenericClass2<T>"),
-            (AsmName.TestProject, "TestProject.Entities.Car"),
-            (AsmName.TestProject, "TestProject.Entities.Vehicle")
+        GraphAssert.HasLink(graph, "Test/TestMethod()",
+            (AsmName.TestProject, "TestProject/GenericClass1<T>/ctor()"),
+            (AsmName.TestProject, "TestProject/GenericClass1<T>/ctor(T)"),
+            (AsmName.TestProject, "TestProject/GenericClass2<T>"),
+            (AsmName.TestProject, "TestProject/Entities/Car"),
+            (AsmName.TestProject, "TestProject/Entities/Vehicle")
         );
 
-        GraphAssert.HasNotLink(graph, "Test.TestMethod()",
+        GraphAssert.HasNotLink(graph, "Test/TestMethod()",
             (AsmName.TestProject, "TestProject"),
-            (AsmName.TestProject, "TestProject.Entities"),
-            (AsmName.TestProject, "TestProject.GenericClass1<T>")
+            (AsmName.TestProject, "TestProject/Entities"),
+            (AsmName.TestProject, "TestProject/GenericClass1<T>")
         );
 
-        GraphAssert.HasNotSymbol(graph, (AsmName.TestProject, "TestProject.GenericClass2<T>.GenericClass2()"));
+        GraphAssert.HasNotSymbol(graph, (AsmName.TestProject, "TestProject/GenericClass2<T>/GenericClass2()"));
     }
 
     [Test]
@@ -80,17 +80,17 @@ public class Expressions : BaseSyntaxTests //todo rename
             }
         ");
 
-        GraphAssert.HasLink(graph, "Test.Method()",
-            (AsmName.TestProject, "TestProject.Entities.Car.ctor()"),
-            (AsmName.TestProject, "TestProject.Entities.Car.ctor(TestProject.Entities.Size)"),
-            (AsmName.TestProject, "TestProject.Entities.Size")
+        GraphAssert.HasLink(graph, "Test/Method()",
+            (AsmName.TestProject, "TestProject/Entities/Car/ctor()"),
+            (AsmName.TestProject, "TestProject/Entities/Car/ctor(Size)"),
+            (AsmName.TestProject, "TestProject/Entities/Size")
         );
 
-        GraphAssert.HasNotLink(graph, "Test.Method()",
-            (AsmName.TestProject, "TestProject.Entities.Car")
+        GraphAssert.HasNotLink(graph, "Test/Method()",
+            (AsmName.TestProject, "TestProject/Entities/Car")
         );
 
-        GraphAssert.HasNotSymbol(graph, (AsmName.TestProject, "TestProject.Entities.Size.Size()"));
+        GraphAssert.HasNotSymbol(graph, (AsmName.TestProject, "TestProject/Entities/Size/Size()"));
     }
 
 
@@ -109,19 +109,19 @@ public class Expressions : BaseSyntaxTests //todo rename
             }
         ");
 
-        GraphAssert.HasLink(graph, "Test.TestMethod()",
-            (AsmName.TestProject, "TestProject.GenericClass1<T>.ctor()"),
-            (AsmName.TestProject, "TestProject.GenericClass1<T>.ctor(T)"),
-            (AsmName.TestProject, "TestProject.GenericClass2<T>"),
-            (AsmName.TestProject, "TestProject.Entities.Car"),
-            (AsmName.TestProject, "TestProject.Entities.Vehicle")
+        GraphAssert.HasLink(graph, "Test/TestMethod()",
+            (AsmName.TestProject, "TestProject/GenericClass1<T>/ctor()"),
+            (AsmName.TestProject, "TestProject/GenericClass1<T>/ctor(T)"),
+            (AsmName.TestProject, "TestProject/GenericClass2<T>"),
+            (AsmName.TestProject, "TestProject/Entities/Car"),
+            (AsmName.TestProject, "TestProject/Entities/Vehicle")
         );
 
-        GraphAssert.HasNotLink(graph, "Test.TestMethod()",
-            (AsmName.TestProject, "TestProject.GenericClass1<T>")
+        GraphAssert.HasNotLink(graph, "Test/TestMethod()",
+            (AsmName.TestProject, "TestProject/GenericClass1<T>")
         );
 
-        GraphAssert.HasNotSymbol(graph, (AsmName.TestProject, "TestProject.GenericClass2<T>.GenericClass2()"));
+        GraphAssert.HasNotSymbol(graph, (AsmName.TestProject, "TestProject/GenericClass2<T>/GenericClass2()"));
     }
 
     [Test]
@@ -141,12 +141,12 @@ public class Expressions : BaseSyntaxTests //todo rename
             }
         ");
 
-        GraphAssert.HasLink(graph, "Test.Method()",
-            (AsmName.TestProject, "TestProject.Entities.Car.ctor()"),
-            (AsmName.TestProject, "TestProject.Entities.Vehicle.Price"),
-            (AsmName.TestProject, "TestProject.Entities.Car.Size"),
-            (AsmName.TestProject, "TestProject.Entities.Size"),
-            (AsmName.TestProject, "TestProject.Entities.Size.Width")
+        GraphAssert.HasLink(graph, "Test/Method()",
+            (AsmName.TestProject, "TestProject/Entities/Car/ctor()"),
+            (AsmName.TestProject, "TestProject/Entities/Vehicle/Price"),
+            (AsmName.TestProject, "TestProject/Entities/Car/Size"),
+            (AsmName.TestProject, "TestProject/Entities/Size"),
+            (AsmName.TestProject, "TestProject/Entities/Size/Width")
         );
     }
 
@@ -166,11 +166,11 @@ public class Expressions : BaseSyntaxTests //todo rename
             }
         ");
 
-        GraphAssert.HasLink(graph, "Test.Method()",
-            (AsmName.CoreLib, "System.Collections.Generic.List<T>.ctor()"),
-            (AsmName.TestProject, "TestProject.Entities.Vehicle"),
-            (AsmName.TestProject, "TestProject.Entities.Car.ctor()"),
-            (AsmName.TestProject, "TestProject.Entities.Airplane")
+        GraphAssert.HasLink(graph, "Test/Method()",
+            (AsmName.CoreLib, "System/Collections/Generic/List<T>/ctor()"),
+            (AsmName.TestProject, "TestProject/Entities/Vehicle"),
+            (AsmName.TestProject, "TestProject/Entities/Car/ctor()"),
+            (AsmName.TestProject, "TestProject/Entities/Airplane")
         );
     }
 
@@ -186,8 +186,8 @@ public class Expressions : BaseSyntaxTests //todo rename
             }
         ");
 
-        GraphAssert.HasLink(graph, "Test.Method<T>()",
-            (AsmName.TestProject, "TestProject.Entities.Vehicle")
+        GraphAssert.HasLink(graph, "Test/Method<T>() where T : Vehicle, new()",
+            (AsmName.TestProject, "TestProject/Entities/Vehicle")
         );
     }
 
@@ -203,9 +203,9 @@ public class Expressions : BaseSyntaxTests //todo rename
             }
         ");
 
-        GraphAssert.HasLink(graph, "Test.Method()",
-            (AsmName.CoreLib, "System.Action"),
-            ("System.Console", "System.Console")
+        GraphAssert.HasLink(graph, "Test/Method()",
+            (AsmName.CoreLib, "System/Action"),
+            ("External/System.Console_8.0.0.0", "System/Console")
         );
     }
 
@@ -227,10 +227,10 @@ public class Expressions : BaseSyntaxTests //todo rename
             }
         ");
 
-        GraphAssert.HasLink(graph, "Test.Method(TestProject.Entities.Car)",
-            (AsmName.TestProject, "TestProject.Entities.Car"),
-            (AsmName.TestProject, "TestProject.Entities.Car.ctor()"),
-            (AsmName.TestProject, "TestProject.Entities.Size")
+        GraphAssert.HasLink(graph, "Test/Method(Car)",
+            (AsmName.TestProject, "TestProject/Entities/Car"),
+            (AsmName.TestProject, "TestProject/Entities/Car/ctor()"),
+            (AsmName.TestProject, "TestProject/Entities/Size")
         );
     }
 
@@ -306,18 +306,18 @@ public class Expressions : BaseSyntaxTests //todo rename
             }
         ");
 
-        GraphAssert.HasLink(graph, "Test.Method()",
-            (AsmName.Test, "SimpleClass.F"),
-            (AsmName.Test, "SimpleClass.P"),
-            (AsmName.Test, "SimpleClass.M()"),
-            (AsmName.Test, "SimpleClass.E"),
-            (AsmName.Test, "SimpleClass.InnerF"),
-            (AsmName.Test, "SimpleClass.InnerP"),
-            (AsmName.Test, "SimpleClass.Inner.F"),
-            (AsmName.Test, "SimpleClass.Inner.P"),
-            (AsmName.Test, "SimpleClass.Inner.M()"),
-            (AsmName.Test, "SimpleClass.Inner.E"),
-            (AsmName.TestProject, "TestProject.Entities.Car.Size")
+        GraphAssert.HasLink(graph, "Test/Method()",
+            (AsmName.Test, "SimpleClass/F"),
+            (AsmName.Test, "SimpleClass/P"),
+            (AsmName.Test, "SimpleClass/M()"),
+            (AsmName.Test, "SimpleClass/E"),
+            (AsmName.Test, "SimpleClass/InnerF"),
+            (AsmName.Test, "SimpleClass/InnerP"),
+            (AsmName.Test, "SimpleClass/Inner/F"),
+            (AsmName.Test, "SimpleClass/Inner/P"),
+            (AsmName.Test, "SimpleClass/Inner/M()"),
+            (AsmName.Test, "SimpleClass/Inner/E"),
+            (AsmName.TestProject, "TestProject/Entities/Car/Size")
         );
     }
 
@@ -360,28 +360,28 @@ public class Expressions : BaseSyntaxTests //todo rename
             }
         ");
 
-        GraphAssert.HasLink(graph, "Test.f1",
+        GraphAssert.HasLink(graph, "Test/f1",
             (AsmName.Test, "GenClass<TX>"),
-            (AsmName.CoreLib, "System.sbyte")
+            (AsmName.CoreLib, "System/sbyte")
         );
 
-        GraphAssert.HasLink(graph, "Test.f2",
-            (AsmName.Test, "GenClass<TX>.Inner<TY>"),
-            (AsmName.CoreLib, "System.byte"),
-            (AsmName.CoreLib, "System.short")
+        GraphAssert.HasLink(graph, "Test/f2",
+            (AsmName.Test, "GenClass<TX>/Inner<TY>"),
+            (AsmName.CoreLib, "System/byte"),
+            (AsmName.CoreLib, "System/short")
         );
 
-        GraphAssert.HasLink(graph, "Test.Method()",
-            (AsmName.Test, "GenClass<TX>.F"),
-            (AsmName.Test, "GenClass<TX>.P"),
-            (AsmName.Test, "GenClass<TX>.Method1()"),
-            (AsmName.Test, "GenClass<TX>.Method2<TY>()"),
-            (AsmName.Test, "GenClass<TX>.Inner<TY>.F"),
-            (AsmName.Test, "GenClass<TX>.Inner<TY>.P"),
-            (AsmName.Test, "GenClass<TX>.Inner<TY>.Method1()"),
-            (AsmName.Test, "GenClass<TX>.Inner<TY>.Method2<TZ>()"),
-            (AsmName.CoreLib, "System.ushort"),
-            (AsmName.CoreLib, "System.int")
+        GraphAssert.HasLink(graph, "Test/Method()",
+            (AsmName.Test, "GenClass<TX>/F"),
+            (AsmName.Test, "GenClass<TX>/P"),
+            (AsmName.Test, "GenClass<TX>/Method1()"),
+            (AsmName.Test, "GenClass<TX>/Method2<TY>()"),
+            (AsmName.Test, "GenClass<TX>/Inner<TY>/F"),
+            (AsmName.Test, "GenClass<TX>/Inner<TY>/P"),
+            (AsmName.Test, "GenClass<TX>/Inner<TY>/Method1()"),
+            (AsmName.Test, "GenClass<TX>/Inner<TY>/Method2<TZ>()"),
+            (AsmName.CoreLib, "System/ushort"),
+            (AsmName.CoreLib, "System/int")
         );
     }
 
@@ -407,13 +407,13 @@ public class Expressions : BaseSyntaxTests //todo rename
             }
         ");
 
-        GraphAssert.HasLink(graph, "Test.Method()",
+        GraphAssert.HasLink(graph, "Test/Method()",
             (AsmName.Test, "Utils"),
-            (AsmName.Test, "Utils.F"),
-            (AsmName.Test, "Utils.P"),
-            (AsmName.Test, "Utils.M()"),
-            (AsmName.Test, "Utils.E"),
-            (AsmName.TestProject, "TestProject.Entities.Car.Size")
+            (AsmName.Test, "Utils/F"),
+            (AsmName.Test, "Utils/P"),
+            (AsmName.Test, "Utils/M()"),
+            (AsmName.Test, "Utils/E"),
+            (AsmName.TestProject, "TestProject/Entities/Car/Size")
         );
     }
 
@@ -440,18 +440,18 @@ public class Expressions : BaseSyntaxTests //todo rename
             }
         ");
 
-        GraphAssert.HasLink(graph, "Test.Method()",
+        GraphAssert.HasLink(graph, "Test/Method()",
             (AsmName.Test, "Utils<T>"),
-            (AsmName.Test, "Utils<T>.F"),
-            (AsmName.Test, "Utils<T>.P"),
-            (AsmName.Test, "Utils<T>.M<Y>()"),
-            (AsmName.Test, "Utils<T>.E"),
-            (AsmName.TestProject, "TestProject.GenericClass1<T>.Val"),
-            (AsmName.CoreLib, "System.int"),
-            (AsmName.CoreLib, "System.uint"),
-            (AsmName.CoreLib, "System.long"),
-            (AsmName.CoreLib, "System.byte"),
-            (AsmName.CoreLib, "System.double")
+            (AsmName.Test, "Utils<T>/F"),
+            (AsmName.Test, "Utils<T>/P"),
+            (AsmName.Test, "Utils<T>/M<Y>()"),
+            (AsmName.Test, "Utils<T>/E"),
+            (AsmName.TestProject, "TestProject/GenericClass1<T>/Val"),
+            (AsmName.CoreLib, "System/int"),
+            (AsmName.CoreLib, "System/uint"),
+            (AsmName.CoreLib, "System/long"),
+            (AsmName.CoreLib, "System/byte"),
+            (AsmName.CoreLib, "System/double")
         );
     }
 
@@ -470,12 +470,12 @@ public class Expressions : BaseSyntaxTests //todo rename
             }
         ");
 
-        GraphAssert.HasLink(graph, "Test.Method()",
-            (AsmName.Test, "Test.GetMethod()")
+        GraphAssert.HasLink(graph, "Test/Method()",
+            (AsmName.Test, "Test/GetMethod()")
         );
 
-        GraphAssert.HasNotLink(graph, "Test.Method()",
-            (AsmName.TestProject, "TestProject.Entities.Car")
+        GraphAssert.HasNotLink(graph, "Test/Method()",
+            (AsmName.TestProject, "TestProject/Entities/Car")
         );
     }
 
@@ -497,13 +497,13 @@ public class Expressions : BaseSyntaxTests //todo rename
             }
         ");
 
-        var node = graph.GetNode(AsmName.Test, "Test.Method(TestProject.Entities.Car)");
+        var node = graph.GetNode(AsmName.Test, "Test/Method(Car)");
 
         Assert.That(node.Childs.Count(), Is.EqualTo(0));
         Assert.That(graph.GetOutgoingLinks(node).Count(), Is.EqualTo(3));
-        GraphAssert.HasLink(graph, "Test.Method(TestProject.Entities.Car)",
-            (AsmName.TestProject, "TestProject.Entities.Car"),
-            (AsmName.TestProject, "TestProject.Entities.Car.ctor()")
+        GraphAssert.HasLink(graph, "Test/Method(Car)",
+            (AsmName.TestProject, "TestProject/Entities/Car"),
+            (AsmName.TestProject, "TestProject/Entities/Car/ctor()")
         );
     }
 
@@ -520,9 +520,9 @@ public class Expressions : BaseSyntaxTests //todo rename
             }
         ");
 
-        GraphAssert.HasLink(graph, "Test.Method()",
-            (AsmName.TestProject, "TestProject.Entities.Vehicle"),
-            (AsmName.TestProject, "TestProject.Entities.Car.ctor()")
+        GraphAssert.HasLink(graph, "Test/Method()",
+            (AsmName.TestProject, "TestProject/Entities/Vehicle"),
+            (AsmName.TestProject, "TestProject/Entities/Car/ctor()")
         );
     }
 
@@ -539,9 +539,9 @@ public class Expressions : BaseSyntaxTests //todo rename
             }
         ");
 
-        GraphAssert.HasLink(graph, "Test.Method()",
-            (AsmName.CoreLib, "System.int"),
-            (AsmName.TestProject, "TestProject.Entities.Car")
+        GraphAssert.HasLink(graph, "Test/Method()",
+            (AsmName.CoreLib, "System/int"),
+            (AsmName.TestProject, "TestProject/Entities/Car")
 
         );
     }
@@ -563,10 +563,10 @@ public class Expressions : BaseSyntaxTests //todo rename
             }
         ");
 
-        GraphAssert.HasLink(graph, "Test.Method()",
-            (AsmName.Test, "Test.GetMethod()"),
-            (AsmName.TestProject, "TestProject.Entities.Vehicle"),
-            (AsmName.CoreLib, "System.string")
+        GraphAssert.HasLink(graph, "Test/Method()",
+            (AsmName.Test, "Test/GetMethod()"),
+            (AsmName.TestProject, "TestProject/Entities/Vehicle"),
+            (AsmName.CoreLib, "System/string")
         );
     }
 
@@ -583,8 +583,8 @@ public class Expressions : BaseSyntaxTests //todo rename
             }
         ");
 
-        var node = graph.GetNode(AsmName.Test, "Test.Method()");
-        var nodeCar = graph.GetNode(AsmName.TestProject, "TestProject.Entities.Car.ctor()");
+        var node = graph.GetNode(AsmName.Test, "Test/Method()");
+        var nodeCar = graph.GetNode(AsmName.TestProject, "TestProject/Entities/Car/ctor()");
         Assert.That(graph.GetOutgoingLinks(node).Count(l => l.Target.Id == nodeCar.Id), Is.EqualTo(2));
     }
 
@@ -612,12 +612,12 @@ public class Expressions : BaseSyntaxTests //todo rename
             }
         ");
 
-        GraphAssert.HasLink(graph, "Test.Method()",
-            (AsmName.Test, "BaseClass.F1"),
-            (AsmName.Test, "BaseClass.P1"),
-            (AsmName.Test, "BaseClass.BaseMethod()"),
-            (AsmName.Test, "Test.F2"),
-            (AsmName.Test, "Test.P2")
+        GraphAssert.HasLink(graph, "Test/Method()",
+            (AsmName.Test, "BaseClass/F1"),
+            (AsmName.Test, "BaseClass/P1"),
+            (AsmName.Test, "BaseClass/BaseMethod()"),
+            (AsmName.Test, "Test/F2"),
+            (AsmName.Test, "Test/P2")
         );
     }
 
@@ -634,16 +634,16 @@ public class Expressions : BaseSyntaxTests //todo rename
             }
         ");
 
-        GraphAssert.HasLink(graph, "Test.Method()",
-            (AsmName.CoreLib, "System.Threading.Thread"),
-            (AsmName.CoreLib, "System.Threading.Thread.CurrentThread"),
-            (AsmName.TestProject, "TestProject.Statics.StrStatic1")
+        GraphAssert.HasLink(graph, "Test/Method()",
+            (AsmName.CoreLib, "System/Threading/Thread"),
+            (AsmName.CoreLib, "System/Threading/Thread/CurrentThread"),
+            (AsmName.TestProject, "TestProject/Statics/StrStatic1")
         );
 
-        GraphAssert.HasNotLink(graph, "Test.Method()",
+        GraphAssert.HasNotLink(graph, "Test/Method()",
             (AsmName.TestProject, "TestProject"),
             (AsmName.CoreLib, "System"),
-            (AsmName.CoreLib, "System.Threading")
+            (AsmName.CoreLib, "System/Threading")
         );
     }
 
@@ -659,9 +659,9 @@ public class Expressions : BaseSyntaxTests //todo rename
             }
         ");
 
-        GraphAssert.HasLink(graph, "Test.Method()",
-            (AsmName.TestProject, "TestProject.Entities.Car.ctor()"),
-            (AsmName.TestProject, "TestProject.Entities.Size")
+        GraphAssert.HasLink(graph, "Test/Method()",
+            (AsmName.TestProject, "TestProject/Entities/Car/ctor()"),
+            (AsmName.TestProject, "TestProject/Entities/Size")
         );
     }
 
@@ -678,9 +678,9 @@ public class Expressions : BaseSyntaxTests //todo rename
             }
         ");
 
-        GraphAssert.HasLink(graph, "Test.Method()",
-            (AsmName.CoreLib, "System.int"),
-            (AsmName.CoreLib, "System.long")
+        GraphAssert.HasLink(graph, "Test/Method()",
+            (AsmName.CoreLib, "System/int"),
+            (AsmName.CoreLib, "System/long")
         );
     }
 
@@ -698,14 +698,14 @@ public class Expressions : BaseSyntaxTests //todo rename
         ");
 
         Assert.That(
-            !graph.GetNode(AsmName.Test, "Test.TestMethod()")
+            !graph.GetNode(AsmName.Test, "Test/TestMethod()")
                 .Childs
-                .Any(c => c.Id.EndsWith("InnerMethod(TestProject.Entities.Vehicle)"))
+                .Any(c => c.Id.EndsWith("InnerMethod(TestProject/Entities/Vehicle)"))
         );
 
-        GraphAssert.HasLink(graph, "Test.TestMethod()",
-            (AsmName.TestProject, "TestProject.Entities.Car.ctor()"),
-            (AsmName.TestProject, "TestProject.Entities.Vehicle")
+        GraphAssert.HasLink(graph, "Test/TestMethod()",
+            (AsmName.TestProject, "TestProject/Entities/Car/ctor()"),
+            (AsmName.TestProject, "TestProject/Entities/Vehicle")
         );
     }
 
@@ -731,9 +731,9 @@ public class Expressions : BaseSyntaxTests //todo rename
             }
         ");
 
-        GraphAssert.HasLink(graph, "Test.TestMethod()",
-            (AsmName.Test, "Extensions.Invoke1<T>(T)"),
-            (AsmName.Test, "Extensions.Invoke2<T>(object)")
+        GraphAssert.HasLink(graph, "Test/TestMethod()",
+            (AsmName.Test, "Extensions/Invoke1<T>(T)"),
+            (AsmName.Test, "Extensions/Invoke2<T>(object)")
         );
     }
 
@@ -755,7 +755,7 @@ public class Expressions : BaseSyntaxTests //todo rename
         ");
 
         Assert.That(
-            !graph.GetNode(AsmName.Test, "Test.TestMethod()")
+            !graph.GetNode(AsmName.Test, "Test/TestMethod()")
                 .Childs
                 .Any()
         );

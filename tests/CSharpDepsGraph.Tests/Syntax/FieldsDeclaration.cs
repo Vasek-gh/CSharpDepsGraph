@@ -31,7 +31,7 @@ public class FieldsDeclaration : BaseSyntaxTests
 
         GraphAssert.HasLink(graph, "Test/_field1",
             (AsmName.TestProject, "TestProject/Entities/Vehicle"),
-            (AsmName.TestProject, "TestProject/Entities/Car/Car()")
+            (AsmName.TestProject, "TestProject/Entities/Car/ctor()")
         );
     }
 
@@ -47,7 +47,7 @@ public class FieldsDeclaration : BaseSyntaxTests
 
         GraphAssert.HasLink(graph, "Test/_field1",
             (AsmName.TestProject, "TestProject/Entities/Vehicle"),
-            (AsmName.TestProject, "TestProject/Entities/Car/Car()")
+            (AsmName.TestProject, "TestProject/Entities/Car/ctor()")
         );
 
         GraphAssert.HasLink(graph, "Test/_field2",

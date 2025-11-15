@@ -35,14 +35,6 @@ public static class NodeExtensions
     }
 
     /// <summary>
-    /// Determines if the node created for generated code
-    /// </summary>
-    public static bool IsGenerated(this INode node)
-    {
-        return node.SyntaxLinks.All(sl => sl.LocationKind == LocationKind.Generated);
-    }
-
-    /// <summary>
     /// Collecting child nodes based on a predicate
     /// </summary>
     public static IEnumerable<INode> CollectChildNodes(this INode node, Func<INode, bool>? predicate = null)

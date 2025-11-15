@@ -3,19 +3,23 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
 using System.Text;
 
 namespace CSharpDepsGraph.Building.Generators;
 
-// todo append assembly always
-public class SimpleSymbolIdGenerator : ISymbolIdGenerator
+/// <summary>
+/// Generates a human-readable unique identifier for a symbol
+/// </summary>
+public class FullyQualifiedIdGenerator : ISymbolIdGenerator
 {
     private readonly ILogger _logger;
     private readonly bool _assemblyFullNames;
     private readonly StringBuilder _stringBuilder;
-    private readonly Dictionary<string, string> _assemblyIdsMap;
+    private readonly Dictionary<Version, string> _versionCache;
+    private readonly Dictionary<(string, Version), string> _assemblyIdsMap;
 
     private int _idCounter;
     private int _callCount;
@@ -24,13 +28,14 @@ public class SimpleSymbolIdGenerator : ISymbolIdGenerator
     private bool _parameterMode;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="SimpleSymbolIdGenerator"/> class.
+    /// Initializes a new instance of the <see cref="FullyQualifiedIdGenerator"/> class.
     /// </summary>s
-    public SimpleSymbolIdGenerator(ILogger<SimpleSymbolIdGenerator> logger, bool assemblyFullNames)
+    public FullyQualifiedIdGenerator(ILogger<FullyQualifiedIdGenerator> logger, bool assemblyFullNames)
     {
         _logger = logger;
         _stringBuilder = new(200);
-        _assemblyIdsMap = new(30);
+        _versionCache = new();
+        _assemblyIdsMap = new();
         _assemblyFullNames = assemblyFullNames;
     }
 
@@ -65,19 +70,33 @@ public class SimpleSymbolIdGenerator : ISymbolIdGenerator
 
         _excludeAssembly = true;
 
-        var name = symbol.Name;
+        var info = (symbol.Name, symbol.Identity.Version);
+
         if (!_assemblyFullNames)
         {
-            if (!_assemblyIdsMap.TryGetValue(symbol.Name, out var id))
+            if (!_assemblyIdsMap.TryGetValue(info, out var id))
             {
                 id = _idCounter++.ToString(CultureInfo.InvariantCulture);
-                _assemblyIdsMap.Add(symbol.Name, id);
+                _assemblyIdsMap.Add(info, id);
             }
 
-            name = id;
+            info.Name = id;
         }
 
-        Append(name);
+        Append(info.Name);
+
+        if (symbol is not ISourceAssemblySymbol)
+        {
+            if (!_versionCache.TryGetValue(info.Version, out var versionString))
+            {
+                versionString = info.Version.ToString();
+                _versionCache.Add(info.Version, versionString);
+            }
+
+            Append("_");
+            Append(versionString);
+        }
+
         if (!last)
         {
             Append("/");
@@ -179,20 +198,7 @@ public class SimpleSymbolIdGenerator : ISymbolIdGenerator
     {
         Append(symbol.ContainingSymbol, false);
 
-        if (symbol.ExplicitInterfaceImplementations.Length > 0)
-        {
-            // todo C# не поддерживает явную реализацию двух интерфесов. Но есть поддержка на уровне IL и этим
-            // пользуется vb. Надо подумать как тут лучше реализовать
-            if (symbol.ExplicitInterfaceImplementations.Length > 1)
-            {
-                throw new NotImplementedException();
-            }
-
-            // todo что тут будет с генериком? Не возмет ли он генерики из декларации типа а не метода?
-            var explicitSymbol = symbol.ExplicitInterfaceImplementations[0];
-            AppendType(explicitSymbol.ContainingType, false);
-            symbol = explicitSymbol;
-        }
+        symbol = HandleExplicitInterfaceImplementations(symbol, symbol.ExplicitInterfaceImplementations);
 
         var symbolName = symbol.Name;
 
@@ -203,20 +209,7 @@ public class SimpleSymbolIdGenerator : ISymbolIdGenerator
     {
         Append(symbol.ContainingSymbol, false);
 
-        if (symbol.ExplicitInterfaceImplementations.Length > 0)
-        {
-            // todo C# не поддерживает явную реализацию двух интерфесов. Но есть поддержка на уровне IL и этим
-            // пользуется vb. Надо подумать как тут лучше реализовать
-            if (symbol.ExplicitInterfaceImplementations.Length > 1)
-            {
-                throw new NotImplementedException();
-            }
-
-            // todo что тут будет с генериком? Не возмет ли он генерики из декларации типа а не метода?
-            var explicitSymbol = symbol.ExplicitInterfaceImplementations[0];
-            AppendType(explicitSymbol.ContainingType, false);
-            symbol = explicitSymbol;
-        }
+        symbol = HandleExplicitInterfaceImplementations(symbol, symbol.ExplicitInterfaceImplementations);
 
         var symbolName = symbol.Name;
         if (symbolName == "this[]")
@@ -233,6 +226,8 @@ public class SimpleSymbolIdGenerator : ISymbolIdGenerator
             Append("]");
         }
     }
+
+
 
     private void AppendMethod(IMethodSymbol symbol)
     {
@@ -254,22 +249,8 @@ public class SimpleSymbolIdGenerator : ISymbolIdGenerator
         }
         else if (symbol.MethodKind == MethodKind.ExplicitInterfaceImplementation)
         {
-            // todo C# не поддерживает явную реализацию двух интерфесов. Но есть поддержка на уровне IL и этим
-            // пользуется vb. Надо подумать как тут лучше реализовать
-            if (symbol.ExplicitInterfaceImplementations.Length > 1)
-            {
-                throw new NotImplementedException();
-            }
-
-            if (symbol.ExplicitInterfaceImplementations.Length == 1)
-            {
-                // todo что тут будет с генериком? Не возмет ли он генерики из декларации типа а не метода?
-                var explicitSymbol = symbol.ExplicitInterfaceImplementations[0];
-                AppendType(explicitSymbol.ContainingType, false);
-
-                symbol = explicitSymbol;
-                symbolName = explicitSymbol.Name;
-            }
+            symbol = HandleExplicitInterfaceImplementations(symbol, symbol.ExplicitInterfaceImplementations);
+            symbolName = symbol.Name;
         }
 
         Append(symbolName);
@@ -279,9 +260,24 @@ public class SimpleSymbolIdGenerator : ISymbolIdGenerator
         Append(")");
     }
 
-    private void AppendExplicitInterfaceImplementation(ImmutableArray<IMethodSymbol> interfaces)
+    private T HandleExplicitInterfaceImplementations<T>(T symbol, ImmutableArray<T> items)
+        where T : ISymbol
     {
+        if (items.Length == 0)
+        {
+            return symbol;
+        }
 
+        // C# doesn't support explicit implementation of two interfaces. However, there is
+        // support at the IL level, and VB uses this
+        if (items.Length > 1)
+        {
+            throw new NotImplementedException("Multiple explicit interface implementations");
+        }
+
+        var explicitSymbol = items[0];
+        AppendType(explicitSymbol.ContainingType, false);
+        return explicitSymbol;
     }
 
     private void AppendTypeArguments(ImmutableArray<ITypeSymbol> typeArguments, string delimiter = ",")

@@ -1,31 +1,9 @@
 using Microsoft.CodeAnalysis;
-using System.Collections.Generic;
 
 namespace CSharpDepsGraph.Building.Generators;
 
 internal static class GeneratorsUtils
 {
-    private static readonly HashSet<SpecialType> _primitiveTypes = new() {
-        SpecialType.System_Void,
-        SpecialType.System_Object,
-        SpecialType.System_Boolean,
-        SpecialType.System_Char,
-        SpecialType.System_SByte,
-        SpecialType.System_Byte,
-        SpecialType.System_Int16,
-        SpecialType.System_UInt16,
-        SpecialType.System_Int32,
-        SpecialType.System_UInt32,
-        SpecialType.System_Int64,
-        SpecialType.System_UInt64,
-        SpecialType.System_Decimal,
-        SpecialType.System_Single,
-        SpecialType.System_Double,
-        SpecialType.System_String,
-        SpecialType.System_IntPtr,
-        SpecialType.System_UIntPtr,
-    };
-
     public static bool IsTypePrimitive(ITypeSymbol typeSymbol)
     {
         return GetPrimitiveTypeName(typeSymbol) is not null;

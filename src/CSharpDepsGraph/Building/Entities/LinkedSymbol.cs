@@ -1,7 +1,9 @@
 using Microsoft.CodeAnalysis;
+using System.Diagnostics;
 
 namespace CSharpDepsGraph.Building.Entities;
 
+[DebuggerDisplay("{Id}")]
 internal class LinkedSymbol
 {
     public required string Id { get; init; }
