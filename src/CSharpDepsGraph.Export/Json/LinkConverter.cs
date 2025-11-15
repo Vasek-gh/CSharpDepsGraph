@@ -23,14 +23,20 @@ internal class LinkConverter : JsonConverter<ILink>
         writer.WritePropertyName(nameof(value.Source));
         writer.WriteStringValue(value.Source.Id);
 
-        writer.WritePropertyName(nameof(value.OriginalSource));
-        writer.WriteStringValue(value.OriginalSource.Id);
+        if (value.Source.Id != value.OriginalSource.Id)
+        {
+            writer.WritePropertyName(nameof(value.OriginalSource));
+            writer.WriteStringValue(value.OriginalSource.Id);
+        }
 
         writer.WritePropertyName(nameof(value.Target));
         writer.WriteStringValue(value.Target.Id);
 
-        writer.WritePropertyName(nameof(value.OriginalTarget));
-        writer.WriteStringValue(value.OriginalTarget.Id);
+        if (value.Target.Id != value.OriginalTarget.Id)
+        {
+            writer.WritePropertyName(nameof(value.OriginalTarget));
+            writer.WriteStringValue(value.OriginalTarget.Id);
+        }
 
         writer.WritePropertyName("Type");
         writer.WriteStringValue(value.GetLinkType().ToString());
