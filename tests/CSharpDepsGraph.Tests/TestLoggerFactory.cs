@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Extensions.Logging;
+using NUnit.Framework;
 
 namespace CSharpDepsGraph.Tests;
 
@@ -21,6 +23,24 @@ public class TestLoggerFactory : ILoggerFactory
         return Logger;
     }
 
+    public void Clear()
+    {
+        Logger.Items.Clear();
+    }
+
+    public void Check()
+    {
+        foreach (var item in Logger.Items)
+        {
+            TestContext.Error.WriteLine($"[{item.Level}] {item.Message}");
+        }
+
+        if (Logger.Items.Count > 0)
+        {
+            throw new Exception("Detect errors in log");
+        }
+    }
+
     public class Entry
     {
         public LogLevel Level { get; set; }
@@ -30,11 +50,6 @@ public class TestLoggerFactory : ILoggerFactory
     public class TestLogger : ILogger
     {
         public List<Entry> Items { get; } = new();
-
-        public void Clear()
-        {
-            Items.Clear();
-        }
 
         public IDisposable? BeginScope<TState>(TState state) where TState : notnull
         {

@@ -166,4 +166,28 @@ public class PropertiesDeclaration : BaseSyntaxTests
             Is.EqualTo(0)
             );
     }
+
+    [Test]
+    public void PartialDefinition()
+    {
+        var graph = Build(@"
+            public partial class Test {
+                public partial int TestProp { get; set; }
+            }
+            public partial class Test {
+                private int _field;
+                public partial int TestProp {
+                    get => _field;
+                    set => _field = value;
+                    }
+            }
+        ");
+
+        var node = graph.GetNode("Test/TestProp");
+        var nodeLocations = node.SyntaxLinks.ToArray();
+
+        Assert.That(nodeLocations.Length, Is.EqualTo(2));
+        Assert.That(nodeLocations[0].GetDisplayString(), Is.EqualTo($"{GraphFactory.TestFileName}:3:17"));
+        Assert.That(nodeLocations[1].GetDisplayString(), Is.EqualTo($"{GraphFactory.TestFileName}:7:17"));
+    }
 }

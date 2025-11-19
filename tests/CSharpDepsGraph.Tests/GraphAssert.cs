@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using System.Linq;
 
 namespace CSharpDepsGraph.Tests;
 
@@ -36,7 +37,7 @@ internal static class GraphAssert
         params (string assemblyName, string fullQualifiedName)[] targets
         )
     {
-        HasLink(graph, (AsmName.Test, testAsmFullQualifiedName), targets);
+        CheckLinks(graph, false, (AsmName.Test, testAsmFullQualifiedName), targets);
     }
 
     public static void HasLink(
@@ -45,19 +46,44 @@ internal static class GraphAssert
         params (string assemblyName, string fullQualifiedName)[] targets
         )
     {
-        var sourceNode = graph.GetNode(source.assemblyName, source.fullQualifiedName);
-        foreach (var target in targets)
-        {
-            var targetNode = graph.GetNode(target.assemblyName, target.fullQualifiedName);
-            HasLink(graph, sourceNode, targetNode);
-        }
+        CheckLinks(graph, false, source, targets);
     }
 
-    public static void HasLink(IGraph graph, INode source, INode target)
+    public static void HasExactLink(
+        IGraph graph,
+        string testAsmFullQualifiedName,
+        params (string assemblyName, string fullQualifiedName)[] targets
+        )
     {
-        if (!graph.HasLink(source, target))
+        CheckLinks(graph, true, (AsmName.Test, testAsmFullQualifiedName), targets);
+    }
+
+    private static void CheckLinks(
+        IGraph graph,
+        bool exact,
+        (string assemblyName, string fullQualifiedName) source,
+        params (string assemblyName, string fullQualifiedName)[] targets
+        )
+    {
+        var sourceNode = graph.GetNode(source.assemblyName, source.fullQualifiedName);
+        var targetNodes = targets.Select(t => graph.GetNode(t.assemblyName, t.fullQualifiedName))
+            .ToDictionary(i => i.Id) // check duplicates
+            .Select(kv => kv.Value);
+
+        var outgoingLinks = graph.GetOutgoingLinks(sourceNode)
+            .GroupBy(n => n.Target.Id)
+            .Select(g => g.First())
+            .ToArray();
+
+        if (exact && outgoingLinks.Length != targets.Length)
         {
-            throw new AssertionException($"{source.Id} has link to {target.Id}");
+            throw new AssertionException($"The node({sourceNode.Id}) has unwanted links");
+        }
+
+        foreach (var targetNode in targetNodes)
+        {
+            var link = outgoingLinks.SingleOrDefault(l => l.Target.Id == targetNode.Id)
+                ?? throw new AssertionException($"{sourceNode.Id} has link to {targetNode.Id}");
         }
     }
 
@@ -85,7 +111,7 @@ internal static class GraphAssert
         var sourceNode = graph.GetNode(source.assemblyName, source.fullQualifiedName);
         var targetNode = graph.GetNode(target.assemblyName, target.fullQualifiedName);
 
-        if (graph.HasLink(sourceNode, targetNode))
+        if (graph.GetLinks(sourceNode, targetNode).Length > 0)
         {
             throw new AssertionException($"{sourceNode.Id} has link to {targetNode.Id}");
         }

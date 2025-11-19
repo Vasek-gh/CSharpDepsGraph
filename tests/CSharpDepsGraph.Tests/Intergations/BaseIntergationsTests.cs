@@ -1,8 +1,5 @@
 using CSharpDepsGraph.Building;
-using Microsoft.Extensions.Logging;
 using NUnit.Framework;
-using System;
-using System.Linq;
 using System.Threading;
 
 namespace CSharpDepsGraph.Tests.Intergations;
@@ -24,21 +21,13 @@ public class BaseIntergationsTests
     [SetUp]
     public void Init()
     {
-        _loggerFactory.Logger.Clear();
+        _loggerFactory.Clear();
     }
 
     [TearDown]
     public void Done()
     {
-        if (_loggerFactory.Logger.Items.Any(e => e.Level >= LogLevel.Warning))
-        {
-            foreach (var item in _loggerFactory.Logger.Items)
-            {
-                NUnit.Framework.TestContext.Error.WriteLine($"[{item.Level}] {item.Message}");
-            }
-
-            throw new Exception("Detect errors in log");
-        }
+        _loggerFactory.Check();
     }
 
     public IGraph GetGraph()

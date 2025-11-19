@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using CSharpDepsGraph.Building.Entities;
 using Microsoft.CodeAnalysis;
@@ -182,26 +183,34 @@ internal class SymbolVisitor : Microsoft.CodeAnalysis.SymbolVisitor
 
     internal static void ForEachSyntaxReference(ISymbol symbol, Action<SyntaxReference> action)
     {
+        ForEachSyntaxReference(symbol.DeclaringSyntaxReferences, action);
+
         if (symbol is IMethodSymbol methodSymbol)
         {
-            ForEachSyntaxReference(methodSymbol.DeclaringSyntaxReferences, action);
-
-            if (methodSymbol.PartialDefinitionPart != null)
-            {
-                ForEachSyntaxReference(methodSymbol.PartialDefinitionPart.DeclaringSyntaxReferences, action);
-            }
-
-            if (methodSymbol.PartialImplementationPart != null)
-            {
-                ForEachSyntaxReference(methodSymbol.PartialImplementationPart.DeclaringSyntaxReferences, action);
-            }
+            ForEachSyntaxReference(methodSymbol.PartialDefinitionPart?.DeclaringSyntaxReferences, action);
+            ForEachSyntaxReference(methodSymbol.PartialImplementationPart?.DeclaringSyntaxReferences, action);
         }
 
-        ForEachSyntaxReference(symbol.DeclaringSyntaxReferences, action);
+        if (symbol is IEventSymbol eventSymbol)
+        {
+            ForEachSyntaxReference(eventSymbol.PartialDefinitionPart?.DeclaringSyntaxReferences, action);
+            ForEachSyntaxReference(eventSymbol.PartialImplementationPart?.DeclaringSyntaxReferences, action);
+        }
+
+        if (symbol is IPropertySymbol propertySymbol)
+        {
+            ForEachSyntaxReference(propertySymbol.PartialDefinitionPart?.DeclaringSyntaxReferences, action);
+            ForEachSyntaxReference(propertySymbol.PartialImplementationPart?.DeclaringSyntaxReferences, action);
+        }
     }
 
-    private static void ForEachSyntaxReference(IEnumerable<SyntaxReference> syntaxReferences, Action<SyntaxReference> action)
+    private static void ForEachSyntaxReference(ImmutableArray<SyntaxReference>? syntaxReferences, Action<SyntaxReference> action)
     {
+        if (syntaxReferences is null)
+        {
+            return;
+        }
+
         foreach (var item in syntaxReferences)
         {
             action(item);

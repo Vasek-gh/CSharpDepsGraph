@@ -1,7 +1,4 @@
-using Microsoft.Extensions.Logging;
 using NUnit.Framework;
-using System;
-using System.Linq;
 
 namespace CSharpDepsGraph.Tests.Syntax;
 
@@ -22,21 +19,13 @@ public class BaseSyntaxTests
     [SetUp]
     public void Init()
     {
-        _loggerFactory.Logger.Clear();
+        _loggerFactory.Clear();
     }
 
     [TearDown]
     public void Done()
     {
-        if (_loggerFactory.Logger.Items.Any(e => e.Level >= LogLevel.Warning))
-        {
-            foreach (var item in _loggerFactory.Logger.Items)
-            {
-                TestContext.Error.WriteLine($"[{item.Level}] {item.Message}");
-            }
-
-            throw new Exception("Detect errors in log");
-        }
+        _loggerFactory.Check();
     }
 
     protected IGraph Build(string sourceText)

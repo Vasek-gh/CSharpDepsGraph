@@ -100,4 +100,30 @@ public class EventsDeclaration : BaseSyntaxTests
             (AsmName.CoreLib, "System/Action")
         );
     }
+
+    [Test]
+    [Ignore("todo check in lang version")]
+    public void PartialDefinition()
+    {
+        var graph = Build(@"
+            using System;
+            public partial class Test {
+                public partial event Action TestEvent { get; set; }
+            }
+            public partial class Test {
+                private Action _testEvent;
+                public partial event Action TestEvent {
+                    add { _testEvent += value; }
+                    remove { _testEvent -= value; }
+                    }
+            }
+        ");
+
+        var node = graph.GetNode("Test/TestEvent");
+        var nodeLocations = node.SyntaxLinks.ToArray();
+
+        Assert.That(nodeLocations.Length, Is.EqualTo(2));
+        Assert.That(nodeLocations[0].GetDisplayString(), Is.EqualTo($"{GraphFactory.TestFileName}:4:17"));
+        Assert.That(nodeLocations[1].GetDisplayString(), Is.EqualTo($"{GraphFactory.TestFileName}:8:17"));
+    }
 }

@@ -1,5 +1,6 @@
 using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 using NUnit.Framework;
+using System.Linq;
 
 namespace CSharpDepsGraph.Tests.Syntax;
 
@@ -60,18 +61,22 @@ public class MethodDeclaration : BaseSyntaxTests
             public class Test {
                 public void TestMethod() {}
                 public void TestMethod(int arg1) {}
+                public void TestMethod(int? arg1) {}
                 public void TestMethod(string arg1) {}
                 public void TestMethod(int arg1, string arg) {}
                 public void TestMethod<T1>(T1 arg1) {}
+                public void TestMethod<T1>(int arg1) {}
                 public void TestMethod<T1, T2>(T1 arg1, T2 arg2) {}
             }
         ");
 
         GraphAssert.HasSymbol(graph, "Test/TestMethod()");
         GraphAssert.HasSymbol(graph, "Test/TestMethod(int)");
+        GraphAssert.HasSymbol(graph, "Test/TestMethod(int?)");
         GraphAssert.HasSymbol(graph, "Test/TestMethod(string)");
         GraphAssert.HasSymbol(graph, "Test/TestMethod(int, string)");
         GraphAssert.HasSymbol(graph, "Test/TestMethod<T1>(T1)");
+        GraphAssert.HasSymbol(graph, "Test/TestMethod<T1>(int)");
         GraphAssert.HasSymbol(graph, "Test/TestMethod<T1, T2>(T1, T2)");
     }
 
@@ -276,5 +281,25 @@ public class MethodDeclaration : BaseSyntaxTests
             (AsmName.TestProject, "TestProject/Entities/Vehicle"),
             (AsmName.TestProject, "TestProject/Entities/Airplane")
         );
+    }
+
+    [Test]
+    public void PartialDefinition()
+    {
+        var graph = Build(@"
+            public partial class Test {
+                public partial void TestMethod();
+            }
+            public partial class Test {
+                public partial void TestMethod() {}
+            }
+        ");
+
+        var node = graph.GetNode("Test/TestMethod()");
+        var nodeLocations = node.SyntaxLinks.ToArray();
+
+        Assert.That(nodeLocations.Length, Is.EqualTo(2));
+        Assert.That(nodeLocations[0].GetDisplayString(), Is.EqualTo($"{GraphFactory.TestFileName}:3:17"));
+        Assert.That(nodeLocations[1].GetDisplayString(), Is.EqualTo($"{GraphFactory.TestFileName}:6:17"));
     }
 }

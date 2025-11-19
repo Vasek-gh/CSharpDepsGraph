@@ -500,7 +500,7 @@ public class Expressions : BaseSyntaxTests //todo rename
         var node = graph.GetNode(AsmName.Test, "Test/Method(Car)");
 
         Assert.That(node.Childs.Count(), Is.EqualTo(0));
-        Assert.That(graph.GetOutgoingLinks(node).Count(), Is.EqualTo(3));
+        Assert.That(graph.GetOutgoingLinks(node).Length, Is.EqualTo(3));
         GraphAssert.HasLink(graph, "Test/Method(Car)",
             (AsmName.TestProject, "TestProject/Entities/Car"),
             (AsmName.TestProject, "TestProject/Entities/Car/ctor()")
@@ -524,6 +524,12 @@ public class Expressions : BaseSyntaxTests //todo rename
             (AsmName.TestProject, "TestProject/Entities/Vehicle"),
             (AsmName.TestProject, "TestProject/Entities/Car/ctor()")
         );
+    }
+
+    [Test]
+    [Ignore("todo unsafe context")]
+    public void PointerParsed()
+    {
     }
 
     [Test]
@@ -553,8 +559,10 @@ public class Expressions : BaseSyntaxTests //todo rename
             using System.Collections.Generic;
             using TestProject.Entities;
             public class Test  {
-                public void Method() {
+                public void Method1() {
                     var (v1, t1) = GetMethod();
+                }
+                public void Method2() {
                     (Vehicle v2, string t2) = GetMethod();
                 }
                 public (Car car, string title) GetMethod() {
@@ -563,7 +571,11 @@ public class Expressions : BaseSyntaxTests //todo rename
             }
         ");
 
-        GraphAssert.HasLink(graph, "Test/Method()",
+        GraphAssert.HasExactLink(graph, "Test/Method1()",
+            (AsmName.Test, "Test/GetMethod()")
+        );
+
+        GraphAssert.HasLink(graph, "Test/Method2()",
             (AsmName.Test, "Test/GetMethod()"),
             (AsmName.TestProject, "TestProject/Entities/Vehicle"),
             (AsmName.CoreLib, "System/string")

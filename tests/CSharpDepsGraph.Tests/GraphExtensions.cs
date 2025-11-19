@@ -32,23 +32,18 @@ public static class GraphExtensions
             : $"{assemblyName}/{symbolPath}";
     }
 
-    public static bool HasLink(this IGraph graph, INode source, INode target)
+    public static ILink[] GetLinks(this IGraph graph, INode source, INode target)
     {
-        return GetLinks(graph, source, target).Any();
+        return graph.Links.Where(l => l.Source.Id == source.Id && l.Target.Id == target.Id).ToArray();
     }
 
-    public static IEnumerable<ILink> GetLinks(this IGraph graph, INode source, INode target)
+    public static ILink[] GetOutgoingLinks(this IGraph graph, INode node)
     {
-        return graph.Links.Where(l => l.Source.Id == source.Id && l.Target.Id == target.Id);
+        return graph.Links.Where(l => l.Source.Id == node.Id).ToArray();
     }
 
-    public static IEnumerable<ILink> GetOutgoingLinks(this IGraph graph, INode node)
+    public static ILink[] GetIncomingLinks(this IGraph graph, INode node)
     {
-        return graph.Links.Where(l => l.Source.Id == node.Id);
-    }
-
-    public static IEnumerable<ILink> GetIncomingLinks(this IGraph graph, INode node)
-    {
-        return graph.Links.Where(l => l.Target.Id == node.Id);
+        return graph.Links.Where(l => l.Target.Id == node.Id).ToArray();
     }
 }

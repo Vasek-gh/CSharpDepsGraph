@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 
 namespace CSharpDepsGraph;
@@ -22,31 +21,5 @@ public static class SymbolExtensions
     public static bool IsTopLevelStatement(this ISymbol? symbol)
     {
         return symbol != null && symbol.Kind == SymbolKind.Method && symbol.Name == "<Main>$";
-    }
-
-    /// <summary>
-    /// Returns all syntax references for the symbol
-    /// </summary>
-    public static IEnumerable<SyntaxReference> GetSyntaxReference(this ISymbol symbol)
-    {
-        if (symbol is IMethodSymbol methodSymbol)
-        {
-            var result = new List<SyntaxReference>();
-            result.AddRange(methodSymbol.DeclaringSyntaxReferences);
-
-            if (methodSymbol.PartialDefinitionPart != null)
-            {
-                result.AddRange(methodSymbol.PartialDefinitionPart.DeclaringSyntaxReferences);
-            }
-
-            if (methodSymbol.PartialImplementationPart != null)
-            {
-                result.AddRange(methodSymbol.PartialImplementationPart.DeclaringSyntaxReferences);
-            }
-
-            return result;
-        }
-
-        return symbol.DeclaringSyntaxReferences;
     }
 }
