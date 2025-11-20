@@ -35,8 +35,8 @@ public class NamespaceOnlyTransformerTests
         var namespaceNode1Check = graph.Root.Childs.First(n => n.Id == _namespaceName1);
         var namespaceNode2Check = graph.Root.Childs.First(n => n.Id == _namespaceName2);
 
-        Assert.That(namespaceNode1Check.Symbol, Is.Null);
-        Assert.That(namespaceNode2Check.Symbol, Is.Null);
+        Assert.That(namespaceNode1Check.Symbol, Is.Not.Null);
+        Assert.That(namespaceNode2Check.Symbol, Is.Not.Null);
     }
 
     [Test]
@@ -101,7 +101,14 @@ public class NamespaceOnlyTransformerTests
         Assert.That(graph.Root.Childs.Count(), Is.EqualTo(2));
 
         var namespaceNode = graph.Root.Childs.Single(c => c.Id == _namespaceName1);
+        var namespaceNodeSymbol = namespaceNode.Symbol as INamespaceSymbol;
         var globalNamespaceNode = graph.Root.Childs.Single(c => c.Id == NamespaceOnlyTransformer.GlobalId);
+        var globalNamespaceSymbol = globalNamespaceNode.Symbol as INamespaceSymbol;
+
+        Assert.That(namespaceNodeSymbol, Is.Not.Null);
+        Assert.That(namespaceNodeSymbol?.IsGlobalNamespace, Is.EqualTo(false));
+        Assert.That(globalNamespaceSymbol, Is.Not.Null);
+        Assert.That(globalNamespaceSymbol?.IsGlobalNamespace, Is.EqualTo(true));
 
         var links = graph.Links.Where(l =>
             l.Source.Id == _namespaceName1

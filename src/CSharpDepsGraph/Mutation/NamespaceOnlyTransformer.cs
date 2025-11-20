@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis;
-using CSharpDepsGraph.Building;
 
 namespace CSharpDepsGraph.Mutation;
 
@@ -37,12 +36,13 @@ public class NamespaceOnlyTransformer : IMutator
     private IEnumerable<INode> GetNodes(INode node)
     {
         var namespaceMap = new Dictionary<string, NamespaceNode>();
-        var globalNamespaceData = new NamespaceNode(GlobalId);
+        NamespaceNode? globalNamespaceData = null;
 
         node.VisitNodes((node) =>
         {
-            if (node.Symbol is IAssemblySymbol)
+            if (node.Symbol is IAssemblySymbol assemblySymbol)
             {
+                globalNamespaceData ??= new NamespaceNode(GlobalId, assemblySymbol.GlobalNamespace);
                 HandleAssemblyNode(node, globalNamespaceData);
                 return true;
             }
@@ -57,7 +57,7 @@ public class NamespaceOnlyTransformer : IMutator
         });
 
 
-        if (globalNamespaceData.SyntaxLinkList.Count > 0)
+        if (globalNamespaceData?.SyntaxLinkList.Count > 0)
         {
             namespaceMap.Add(globalNamespaceData.Id, globalNamespaceData);
         }
@@ -66,7 +66,7 @@ public class NamespaceOnlyTransformer : IMutator
             new MutatedNode()
             {
                 Id = nd.Id,
-                Symbol = null,
+                Symbol = nd.Symbol,
                 SyntaxLinks = nd.SyntaxLinks,
                 Childs = []
             }
@@ -105,7 +105,7 @@ public class NamespaceOnlyTransformer : IMutator
         var namespaceId = namespaceSymbol.ToDisplayString();
         if (!namespaceMap.TryGetValue(namespaceId, out var namespaceNode))
         {
-            namespaceNode = new NamespaceNode(namespaceId);
+            namespaceNode = new NamespaceNode(namespaceId, namespaceSymbol);
             namespaceMap.Add(namespaceNode.Id, namespaceNode);
         }
 
@@ -148,9 +148,10 @@ public class NamespaceOnlyTransformer : IMutator
 
         public List<INodeSyntaxLink> SyntaxLinkList { get; } = new List<INodeSyntaxLink>();
 
-        public NamespaceNode(string id)
+        public NamespaceNode(string id, ISymbol symbol)
         {
             Id = id;
+            Symbol = symbol;
         }
     }
 }

@@ -52,6 +52,11 @@ internal static class Mocks
         moduleSymbolMock.Name.Returns("Module1");
         moduleSymbolMock.Kind.Returns(SymbolKind.NetModule);
 
+        var globaNamespaceSymbolMock = Substitute.For<INamespaceSymbol>();
+        globaNamespaceSymbolMock.Name.Returns("_global::");
+        globaNamespaceSymbolMock.Kind.Returns(SymbolKind.Namespace);
+        globaNamespaceSymbolMock.IsGlobalNamespace().Returns(true);
+
         var assemblyIdentity = new AssemblyIdentity(name: name);
 
         var assemblySymbolMock = Substitute.For<IAssemblySymbol>();
@@ -59,7 +64,10 @@ internal static class Mocks
         assemblySymbolMock.Kind.Returns(SymbolKind.Assembly);
         assemblySymbolMock.Identity.Returns(assemblyIdentity);
         assemblySymbolMock.Modules.Returns<IEnumerable<IModuleSymbol>>(new[] { moduleSymbolMock });
+        assemblySymbolMock.GlobalNamespace.Returns(globaNamespaceSymbolMock);
         assemblySymbolMock.ToDisplayString().Returns(name);
+
+        globaNamespaceSymbolMock.ContainingAssembly.Returns(assemblySymbolMock);
 
         return assemblySymbolMock;
     }

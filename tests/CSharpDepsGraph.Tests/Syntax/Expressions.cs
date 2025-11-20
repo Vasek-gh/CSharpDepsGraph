@@ -3,14 +3,6 @@ using NUnit.Framework;
 
 namespace CSharpDepsGraph.Tests.Syntax;
 
-using System;
-public class Test {
-    public void Method() {
-        var action = new Action(() => { Console.WriteLine("Action"); });
-        var action2 = new Func<int>(() => 1 );
-    }
-}
-
 #pragma warning disable CA1724
 public class Expressions : BaseSyntaxTests //todo rename
 #pragma warning restore CA2000
