@@ -1,4 +1,3 @@
-using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 using NUnit.Framework;
 using System.Linq;
 
@@ -117,6 +116,41 @@ public class MethodDeclaration : BaseSyntaxTests
 
         GraphAssert.HasLink(graph, "Test/TestMethod()",
             (AsmName.CoreLib, "System/string")
+        );
+    }
+
+    [Test]
+    public void ExplicitGenericInterfaceParsed()
+    {
+        var graph = Build(@"
+            using System;
+            interface ITest<T> {
+                void Foo(T arg1, int arg2);
+            }
+            class Test<T1> : ITest<T1>{
+                void ITest<T1>.Foo(T1 arg1, int arg2) {}
+            }
+            class Test : ITest<string>, ITest<double> {
+                void ITest<string>.Foo(string arg1, int arg2) {}
+                void ITest<double>.Foo(double arg1, int arg2) {}
+            }
+        ");
+
+        GraphAssert.HasLink(graph, "Test<T1>/ITest<T1>.Foo(T1, int)",
+            (AsmName.Test, "ITest<T>"),
+            (AsmName.CoreLib, "System/int")
+        );
+
+        GraphAssert.HasLink(graph, "Test/ITest<string>.Foo(string, int)",
+            (AsmName.Test, "ITest<T>"),
+            (AsmName.CoreLib, "System/int"),
+            (AsmName.CoreLib, "System/string")
+        );
+
+        GraphAssert.HasLink(graph, "Test/ITest<double>.Foo(double, int)",
+            (AsmName.Test, "ITest<T>"),
+            (AsmName.CoreLib, "System/int"),
+            (AsmName.CoreLib, "System/double")
         );
     }
 
@@ -301,5 +335,19 @@ public class MethodDeclaration : BaseSyntaxTests
         Assert.That(nodeLocations.Length, Is.EqualTo(2));
         Assert.That(nodeLocations[0].GetDisplayString(), Is.EqualTo($"{GraphFactory.TestFileName}:3:17"));
         Assert.That(nodeLocations[1].GetDisplayString(), Is.EqualTo($"{GraphFactory.TestFileName}:6:17"));
+    }
+
+    [Test]
+    public void DynamicArgument()
+    {
+        var graph = Build(@"
+            public class Test {
+                public void Foo(dynamic arg) {
+                }
+            }
+        ");
+
+        var node = graph.GetNode("Test/Foo(dynamic)");
+        Assert.That(graph.GetOutgoingLinks(node).Length, Is.EqualTo(0));
     }
 }

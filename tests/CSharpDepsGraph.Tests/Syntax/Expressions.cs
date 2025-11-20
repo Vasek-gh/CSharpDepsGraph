@@ -545,6 +545,25 @@ public class Expressions : BaseSyntaxTests //todo rename
     }
 
     [Test]
+    public void DynamicParsed()
+    {
+        var graph = Build(@"
+            using TestProject.Entities;
+            public class Test {
+                public void Foo() {
+                    dynamic v = new Vehicle();
+                    v.Bar();
+                    v.TurnOn();
+                }
+            }
+        ");
+
+        GraphAssert.HasExactLink(graph, "Test/Foo()",
+            (AsmName.TestProject, "TestProject/Entities/Vehicle")
+        );
+    }
+
+    [Test]
     public void NullableCutOff()
     {
         var graph = Build(@"

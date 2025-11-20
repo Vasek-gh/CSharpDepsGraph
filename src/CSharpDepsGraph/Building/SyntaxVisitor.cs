@@ -516,27 +516,22 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
     {
         if (symbol.IsImplicitlyDeclared)
         {
-            if (node.Parent is AttributeSyntax && node.Parent.Parent is AttributeListSyntax)
-            {
-                var q = symbol.ContainingSymbol;
-            }
-
             return true;
         }
 
-        // References to namespaces in expressions are not interesting for us, so we skip
+        // namespaces are never referenced
         if (symbol is INamespaceSymbol)
         {
             return true;
         }
 
-        // We skip symbols that are generic types
+        // skip symbols that are generic types
         if (symbol is ITypeParameterSymbol)
         {
             return true;
         }
 
-        // todo describe !
+        // ignore dynamic special symbol
         if (symbol is IDynamicTypeSymbol)
         {
             return true;
@@ -560,7 +555,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
             return true;
         }
 
-        // We ignore references to members of an anonymous class
+        // ignore references to members of an anonymous class
         if (node.Parent is MemberAccessExpressionSyntax
             && symbol.ContainingSymbol is ITypeSymbol typeSymbol
             && typeSymbol.IsAnonymousType

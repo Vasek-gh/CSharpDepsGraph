@@ -176,6 +176,13 @@ public class FullyQualifiedIdGenerator : ISymbolIdGenerator
             return;
         }
 
+        if (symbol is IDynamicTypeSymbol dynamicTypeSymbol)
+        {
+            Append(dynamicTypeSymbol.Name);
+            Append(nullableSuffix);
+            return;
+        }
+
         var symbolName = GeneratorsUtils.GetTypeName(symbol);
         var symbolParent = GeneratorsUtils.GetTypeParent(symbol, _parameterMode);
 
