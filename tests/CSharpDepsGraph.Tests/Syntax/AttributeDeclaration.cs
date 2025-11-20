@@ -5,18 +5,16 @@ namespace CSharpDepsGraph.Tests.Syntax;
 public class AttributeDeclaration : BaseSyntaxTests
 {
     [Test]
-    public void PropertyAttribute()
+    public void ClassAttribute()
     {
         var graph = Build(@"
             using TestProject;
             using TestProject.Attributes;
-            public class Test {
-                [Simple(Constants.IntConst1, Constants.StrConst1 + Constants.StrConst2)]
-                public int Prop { get; }
-            }
+            [Simple(Constants.IntConst1, Constants.StrConst1 + Constants.StrConst2)]
+            public class Test {}
         ");
 
-        GraphAssert.HasLink(graph, "Test/Prop",
+        GraphAssert.HasLink(graph, "Test",
             (AsmName.TestProject, "TestProject/Attributes/SimpleAttribute/ctor(int, string)"),
             (AsmName.TestProject, "TestProject/Constants/IntConst1"),
             (AsmName.TestProject, "TestProject/Constants/StrConst1"),
@@ -45,16 +43,18 @@ public class AttributeDeclaration : BaseSyntaxTests
     }
 
     [Test]
-    public void ClassAttribute()
+    public void PropertyAttribute()
     {
         var graph = Build(@"
             using TestProject;
             using TestProject.Attributes;
-            [Simple(Constants.IntConst1, Constants.StrConst1 + Constants.StrConst2)]
-            public class Test {}
+            public class Test {
+                [Simple(Constants.IntConst1, Constants.StrConst1 + Constants.StrConst2)]
+                public int Prop { get; }
+            }
         ");
 
-        GraphAssert.HasLink(graph, "Test",
+        GraphAssert.HasLink(graph, "Test/Prop",
             (AsmName.TestProject, "TestProject/Attributes/SimpleAttribute/ctor(int, string)"),
             (AsmName.TestProject, "TestProject/Constants/IntConst1"),
             (AsmName.TestProject, "TestProject/Constants/StrConst1"),
@@ -157,6 +157,24 @@ public class AttributeDeclaration : BaseSyntaxTests
         GraphAssert.HasLink(graph, "Test/TestMethod()",
             (AsmName.TestProject, "TestProject/Attributes/SimpleAttribute/ctor(int, string)"),
             (AsmName.TestProject, "TestProject/Constants/IntConst1")
+        );
+    }
+
+    [Test]
+    public void ImplicitlyAttributeConstructor()
+    {
+        var graph = Build(@"
+            using System;
+            public class TestAttrAttribute : Attribute {}
+            public class Test {
+                [TestAttr]
+                public void TestMethod() {
+                }
+            }
+        ");
+
+        GraphAssert.HasLink(graph, "Test/TestMethod()",
+            (AsmName.Test, "TestAttrAttribute")
         );
     }
 }

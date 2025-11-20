@@ -18,7 +18,6 @@
 - Проверить IDynamicTypeSymbol в генерации id
 - Проверить IPointerTypeSymbol при парсинге
 
-- Если объявить атрибут юез параметров создается ссылка на коструктор. Причем создается ссылка на несуществующий конструктор. JsonSerializeDeserializeTests.ValidationFailureReturnsPath
 - DateTime.Now создает ссылку на DateTime
 - Похоже что есть проблемы с выражениями которые находтся в инициализаторах свойств
     var q = new{

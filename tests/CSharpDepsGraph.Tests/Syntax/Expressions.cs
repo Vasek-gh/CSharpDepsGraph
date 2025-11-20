@@ -3,6 +3,14 @@ using NUnit.Framework;
 
 namespace CSharpDepsGraph.Tests.Syntax;
 
+using System;
+public class Test {
+    public void Method() {
+        var action = new Action(() => { Console.WriteLine("Action"); });
+        var action2 = new Func<int>(() => 1 );
+    }
+}
+
 #pragma warning disable CA1724
 public class Expressions : BaseSyntaxTests //todo rename
 #pragma warning restore CA2000
@@ -198,14 +206,18 @@ public class Expressions : BaseSyntaxTests //todo rename
             using System;
             public class Test {
                 public void Method() {
-                    var action = new Action(() => { Console.WriteLine(""Action""); });
+                    var action1 = new Action(() => { Console.WriteLine(""Action""); });
+                    var action2 = new Func<int>(() => 1 );
                 }
             }
         ");
 
         GraphAssert.HasLink(graph, "Test/Method()",
             (AsmName.CoreLib, "System/Action"),
-            ("External/System.Console_8.0.0.0", "System/Console")
+            (AsmName.CoreLib, "System/Func<TResult>"),
+            (AsmName.CoreLib, "System/int"),
+            ("External/System.Console_8.0.0.0", "System/Console/WriteLine(string?)"),
+            ("External/System.Console_8.0.0.0", "System/Console") // todo remove
         );
     }
 
