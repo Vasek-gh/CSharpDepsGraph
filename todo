@@ -14,6 +14,7 @@
     один символ. Надо подумать нужно ли у ноды делать много символов
 - Проверить IPointerTypeSymbol при парсинге
 
+- Почему то создается ссылка на "Id": "mscorlib_4.0.0.0/System.Collections.Generic.List<T>.Enumerator.MoveNext()",
 - DateTime.Now создает ссылку на DateTime
 - Похоже что есть проблемы с выражениями которые находтся в инициализаторах свойств
     var q = new{

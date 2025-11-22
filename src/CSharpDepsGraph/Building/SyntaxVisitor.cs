@@ -13,6 +13,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
     private readonly GraphData _graphData;
     private readonly SemanticModel _semanticModel;
     private readonly ISymbolIdGenerator _symbolIdBuilder;
+    private readonly SymbolComparer _symbolComparer;
     private readonly LinkedSymbolsMap _linkedSymbolsMap;
     private readonly Stack<string> _parentIdsStack;
     private readonly bool _fileIsGenerated;
@@ -24,6 +25,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
         GraphData graphData,
         SemanticModel semanticModel,
         ISymbolIdGenerator symbolIdBuilder,
+        SymbolComparer symbolComparer,
         LinkedSymbolsMap linkedSymbolsMap,
         bool fileIsGenerated
         )
@@ -32,16 +34,68 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
         _graphData = graphData;
         _semanticModel = semanticModel;
         _symbolIdBuilder = symbolIdBuilder;
+        _symbolComparer = symbolComparer;
         _linkedSymbolsMap = linkedSymbolsMap;
         _fileIsGenerated = fileIsGenerated;
 
         _nodeStack = new();
         _parentIdsStack = new();
+
+        _nodeStack.Push(_graphData.Root);
+    }
+
+    private void HandleDeclaration(SyntaxNode syntaxNode, Action? action = null)
+    {
+        var symbol = _semanticModel.GetDeclaredSymbol(syntaxNode)
+            ?? throw new Exception($"Symbol for {syntaxNode} not found");
+
+        HandleDeclaration(syntaxNode, symbol, action);
+    }
+
+    private void HandleDeclaration(SyntaxNode syntaxNode, ISymbol symbol, Action? action = null)
+    {
+        if (symbol.IsImplicitlyDeclared && !symbol.IsGlobalNamespace())
+        {
+            return;
+        }
+
+        PushSymbol(symbol);
+        action?.Invoke();
+        PopSymbol();
+    }
+
+    private void PushSymbol(ISymbol symbol)
+    {
+        var parentNode = _nodeStack.Peek();
+        var currentNode = _graphData.AddNode(parentNode, symbol);
+        _nodeStack.Push(currentNode);
+    }
+
+    private void PopSymbol()
+    {
+        var parentNode = _nodeStack.Pop();
     }
 
     public override void VisitCompilationUnit(CompilationUnitSyntax node)
     {
+        PushSymbol(_semanticModel.Compilation.Assembly);
         base.VisitCompilationUnit(node);
+        PopSymbol();
+    }
+
+    public override void VisitNamespaceDeclaration(NamespaceDeclarationSyntax node)
+    {
+        base.VisitNamespaceDeclaration(node);
+    }
+
+    public override void VisitFileScopedNamespaceDeclaration(FileScopedNamespaceDeclarationSyntax node)
+    {
+        var q = node.Name;
+        if (q is QualifiedNameSyntax t)
+        {
+            //var t1 = t.
+        }
+        base.VisitFileScopedNamespaceDeclaration(node);
     }
 
     public override void VisitUsingDirective(UsingDirectiveSyntax node)

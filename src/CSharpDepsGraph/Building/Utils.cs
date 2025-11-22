@@ -9,6 +9,12 @@ internal static class Utils
     private static readonly Dictionary<string, INodeSyntaxLink> _assemblyLinksCache = new();
     private static readonly Dictionary<string, List<INodeSyntaxLink>> _externalLinksCache = new();
 
+    public static readonly HashSet<string> CoreLibs = [
+        "mscorlib",
+        "netstandard",
+        "System.Runtime"
+    ];
+
     public static ILogger CreateLogger<T>(ILoggerFactory factory, string entityName)
     {
         return factory.CreateLogger($"{typeof(T).Name}<{entityName}>");

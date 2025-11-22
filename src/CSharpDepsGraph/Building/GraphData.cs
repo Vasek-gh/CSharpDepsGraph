@@ -1,4 +1,5 @@
 using CSharpDepsGraph.Building.Entities;
+using CSharpDepsGraph.Building.Generators;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 
@@ -7,6 +8,8 @@ namespace CSharpDepsGraph.Building;
 internal class GraphData
 {
     private readonly Counters _counters;
+    private readonly SymbolComparer _symbolComparer;
+    private readonly ISymbolIdGenerator _symbolIdGenerator;
 
     public Node Root { get; }
 
@@ -16,7 +19,7 @@ internal class GraphData
 
     public List<Link> Links { get; }
 
-    public GraphData(Counters counters)
+    public GraphData(Counters counters, SymbolComparer symbolComparer, ISymbolIdGenerator symbolIdGenerator)
     {
         Root = new Node(GraphConsts.RootNodeId, null)
         {
@@ -37,6 +40,8 @@ internal class GraphData
 
         Links = new List<Link>(5_000);
         _counters = counters;
+        _symbolComparer = symbolComparer;
+        _symbolIdGenerator = symbolIdGenerator;
     }
 
     public Node? AddNode(
@@ -49,6 +54,11 @@ internal class GraphData
     {
         if (NodeMap.TryGetValue(id, out var node))
         {
+            if (!_symbolComparer.Compare(symbol, node.Symbol!))
+            {
+                _symbolComparer.Compare(symbol, node.Symbol!);
+                // todo kill
+            }
             return node;
         }
 
@@ -76,19 +86,21 @@ internal class GraphData
         return node;
     }
 
-    /*public Node? AddNode(
+    public Node AddNode(
         Node parent,
-        string id,
         ISymbol symbol
         )
     {
-        var child = parent.ChildList.SingleOrDefault(c => c.Id == id)
+        var child = parent.ChildList.FirstOrDefault(c => _symbolComparer.Compare(c.Symbol, symbol));
         if (child is null)
         {
-            child = new Node(id, symbol, syntaxLinks)
+            var id = _symbolIdGenerator.Execute(symbol);
+            child = new Node(id, symbol, null)
             {
                 LinkedSymbolsList = []
             };
         }
-    }*/
+
+        return child;
+    }
 }

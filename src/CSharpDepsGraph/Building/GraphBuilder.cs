@@ -14,10 +14,12 @@ public sealed class GraphBuilder
     private readonly ILogger _logger;
     private readonly Counters _counters;
     private readonly GraphData _graphData;
+    private readonly GraphData _graphData2;
     private readonly CultureInfo _cultureInfo;
     private readonly ILoggerFactory _loggerFactory;
     private readonly ISymbolIdGenerator _symbolIdBuilder;
     private readonly LinkedSymbolsMap _linkedSymbolsMap;
+    private readonly SymbolComparer _symbolComparer;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GraphBuilder"/> class.
@@ -33,7 +35,9 @@ public sealed class GraphBuilder
         _cultureInfo = cultureInfo ?? CultureInfo.CurrentCulture;
 
         _counters = new Counters();
-        _graphData = new GraphData(_counters);
+        _symbolComparer = new(false, false, null);
+        _graphData = new GraphData(_counters, _symbolComparer);
+        _graphData2 = new(_counters, _symbolComparer);
         _linkedSymbolsMap = new(_counters);
         _symbolIdBuilder = symbolIdBuilder ?? new SymbolIdGenerator(loggerFactory, false);
     }
@@ -124,7 +128,7 @@ public sealed class GraphBuilder
         var semanticModel = compilation.GetSemanticModel(syntaxTree);
         var syntaxVisitor = new SyntaxVisitor(
             Utils.CreateLogger<SymbolVisitor>(_loggerFactory, syntaxTree.FilePath),
-            _graphData,
+            _graphData2,
             semanticModel,
             _symbolIdBuilder,
             linkedSymbolsMap,

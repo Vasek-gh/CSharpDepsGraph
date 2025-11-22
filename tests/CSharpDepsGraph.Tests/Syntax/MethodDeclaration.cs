@@ -77,6 +77,8 @@ public class MethodDeclaration : BaseSyntaxTests
         GraphAssert.HasSymbol(graph, "Test/TestMethod<T1>(T1)");
         GraphAssert.HasSymbol(graph, "Test/TestMethod<T1>(int)");
         GraphAssert.HasSymbol(graph, "Test/TestMethod<T1, T2>(T1, T2)");
+
+        // todo check Action and Func
     }
 
     [Test]
