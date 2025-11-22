@@ -75,4 +75,20 @@ internal class GraphData
 
         return node;
     }
+
+    /*public Node? AddNode(
+        Node parent,
+        string id,
+        ISymbol symbol
+        )
+    {
+        var child = parent.ChildList.SingleOrDefault(c => c.Id == id)
+        if (child is null)
+        {
+            child = new Node(id, symbol, syntaxLinks)
+            {
+                LinkedSymbolsList = []
+            };
+        }
+    }*/
 }

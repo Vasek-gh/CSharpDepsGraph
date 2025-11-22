@@ -8,7 +8,7 @@ internal class ExternalNodeSyntaxLink : INodeSyntaxLink
 
     public LocationKind LocationKind => LocationKind.External;
 
-    public SyntaxReference? SyntaxReference => null;
+    public SyntaxNode? Syntax => null;
 
     public ExternalNodeSyntaxLink(string name)
     {

@@ -43,11 +43,10 @@ public sealed class GraphBuilder
     /// </summary>
     public async Task<IGraph> Run(IEnumerable<Project> projects, CancellationToken cancellationToken)
     {
-        var ppp = projects.ToLookup(p => p.AssemblyName); // todo
-
-        foreach (var project in projects)
+        var projectsVariants = GetProjectsVariants(projects);
+        foreach (var projectVariants in projectsVariants)
         {
-            await CreateProjectNodes(project, cancellationToken);
+            await HandleProjectVariants(projectVariants, cancellationToken);
         }
 
         new NodeLinkBuilder(_loggerFactory.CreateLogger<NodeLinkBuilder>(), _counters, _symbolIdBuilder, _graphData).Run();
@@ -62,11 +61,22 @@ public sealed class GraphBuilder
         };
     }
 
-    private async Task CreateProjectNodes(Project project, CancellationToken cancellationToken)
+    private async Task HandleProjectVariants(Project[] projectVariants, CancellationToken cancellationToken)
     {
-        var projectPath = project.FilePath
-            ?? $"{project.Name}.dll";
+        var firstProject = projectVariants[0];
 
+        _logger.LogInformation($"Begin handle {firstProject.AssemblyName} variants");
+
+        foreach (var project in projectVariants)
+        {
+            await HandleProject(project, cancellationToken);
+        }
+
+        _logger.LogInformation($"{firstProject.AssemblyName} variants handled");
+    }
+
+    private async Task HandleProject(Project project, CancellationToken cancellationToken)
+    {
         var logger = Utils.CreateLogger<GraphBuilder>(_loggerFactory, project.Name);
 
         logger.LogInformation($"Begin handle project...");
@@ -84,7 +94,7 @@ public sealed class GraphBuilder
 
         var symbolVisitor = new SymbolVisitor(
             Utils.CreateLogger<SymbolVisitor>(_loggerFactory, compilation.Assembly.Name),
-            projectPath,
+            project.FilePath ?? $"{project.Name}.dll",
             generatedFiles,
             _symbolIdBuilder,
             linkedSymbolsMap,
@@ -92,6 +102,8 @@ public sealed class GraphBuilder
         );
 
         symbolVisitor.Visit(compilation.Assembly);
+
+        logger.LogInformation($"Project handled");
     }
 
     private void HandleSyntax(
@@ -112,6 +124,7 @@ public sealed class GraphBuilder
         var semanticModel = compilation.GetSemanticModel(syntaxTree);
         var syntaxVisitor = new SyntaxVisitor(
             Utils.CreateLogger<SymbolVisitor>(_loggerFactory, syntaxTree.FilePath),
+            _graphData,
             semanticModel,
             _symbolIdBuilder,
             linkedSymbolsMap,
@@ -172,5 +185,11 @@ public sealed class GraphBuilder
         var path = span.Path;
 
         return $"{path}:{line}:{column} {diagnostic.GetMessage(_cultureInfo)}";
+    }
+
+    private static Project[][] GetProjectsVariants(IEnumerable<Project> projects)
+    {
+        var lookup = projects.ToLookup(p => p.AssemblyName);
+        return lookup.Select(i => i.ToArray()).Where(i => i.Length > 0).ToArray();
     }
 }

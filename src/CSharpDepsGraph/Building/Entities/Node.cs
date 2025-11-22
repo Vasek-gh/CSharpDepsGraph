@@ -28,11 +28,21 @@ internal class Node : INode
         _syntaxLinkList = syntaxLinks ?? Utils.GetEmptyList<INodeSyntaxLink>();
     }
 
+    public void AddSyntaxLink(LocationKind locationKind, SyntaxNode syntax)
+    {
+        foreach (var item in _syntaxLinkList)
+        {
+            if (item is NodeSyntaxLink nodeSyntaxLink && nodeSyntaxLink.IsSame(locationKind, syntax))
+            {
+                return;
+            }
+        }
+
+        AddNodeSyntaxLink(new NodeSyntaxLink(locationKind, syntax));
+    }
+
     public void AddSyntaxReference(LocationKind locationKind, SyntaxReference syntaxReference)
     {
-        var path = syntaxReference.SyntaxTree.FilePath;
-        var span = syntaxReference.Span;
-
         foreach (var item in _syntaxLinkList)
         {
             if (item is NodeSyntaxLink nodeSyntaxLink && nodeSyntaxLink.IsSame(locationKind, syntaxReference))

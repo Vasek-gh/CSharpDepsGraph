@@ -4,22 +4,34 @@ namespace CSharpDepsGraph.Building.Entities;
 
 internal class NodeSyntaxLink : INodeSyntaxLink
 {
-    public string Location => SyntaxReference.SyntaxTree.FilePath;
+    public string Location => Syntax.SyntaxTree.FilePath;
 
     public LocationKind LocationKind { get; }
 
-    public SyntaxReference SyntaxReference { get; }
+    public SyntaxNode Syntax { get; }
 
-    public NodeSyntaxLink(LocationKind locationKind, SyntaxReference syntaxReference)
+    public NodeSyntaxLink(LocationKind locationKind, SyntaxNode syntax)
     {
         LocationKind = locationKind;
-        SyntaxReference = syntaxReference;
+        Syntax = syntax;
     }
 
-    public bool IsSame(LocationKind locationKind, SyntaxReference syntaxReference)
+    public NodeSyntaxLink(LocationKind locationKind, SyntaxReference syntaxReference) // todo kill
+    {
+        LocationKind = locationKind;
+        Syntax = syntaxReference.GetSyntax();
+    }
+
+    public bool IsSame(LocationKind locationKind, SyntaxNode syntax)
     {
         return LocationKind == locationKind
-            && SyntaxReference.SyntaxTree.FilePath == syntaxReference.SyntaxTree.FilePath
-            && SyntaxReference.Span == syntaxReference.Span;
+            && Syntax.Span == syntax.Span
+            && Syntax.SyntaxTree.FilePath == syntax.SyntaxTree.FilePath;
+    }
+
+    public bool IsSame(LocationKind locationKind, SyntaxReference syntaxReference)  // todo kill
+    {
+        var syntax = syntaxReference.GetSyntax();
+        return IsSame(locationKind, syntax);
     }
 }

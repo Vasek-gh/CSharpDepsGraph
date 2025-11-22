@@ -10,26 +10,38 @@ namespace CSharpDepsGraph.Building;
 internal class SyntaxVisitor : CSharpSyntaxWalker
 {
     private readonly ILogger _logger;
+    private readonly GraphData _graphData;
     private readonly SemanticModel _semanticModel;
     private readonly ISymbolIdGenerator _symbolIdBuilder;
     private readonly LinkedSymbolsMap _linkedSymbolsMap;
     private readonly Stack<string> _parentIdsStack;
     private readonly bool _fileIsGenerated;
 
+    private readonly Stack<Node> _nodeStack;
+
     public SyntaxVisitor(
         ILogger logger,
+        GraphData graphData,
         SemanticModel semanticModel,
         ISymbolIdGenerator symbolIdBuilder,
         LinkedSymbolsMap linkedSymbolsMap,
         bool fileIsGenerated
         )
     {
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _semanticModel = semanticModel ?? throw new ArgumentNullException(nameof(semanticModel));
-        _symbolIdBuilder = symbolIdBuilder ?? throw new ArgumentNullException(nameof(symbolIdBuilder));
-        _linkedSymbolsMap = linkedSymbolsMap ?? throw new ArgumentNullException(nameof(linkedSymbolsMap));
+        _logger = logger;
+        _graphData = graphData;
+        _semanticModel = semanticModel;
+        _symbolIdBuilder = symbolIdBuilder;
+        _linkedSymbolsMap = linkedSymbolsMap;
         _fileIsGenerated = fileIsGenerated;
-        _parentIdsStack = new Stack<string>();
+
+        _nodeStack = new();
+        _parentIdsStack = new();
+    }
+
+    public override void VisitCompilationUnit(CompilationUnitSyntax node)
+    {
+        base.VisitCompilationUnit(node);
     }
 
     public override void VisitUsingDirective(UsingDirectiveSyntax node)

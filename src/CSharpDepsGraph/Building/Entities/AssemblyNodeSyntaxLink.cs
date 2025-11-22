@@ -8,7 +8,7 @@ internal class AssemblyNodeSyntaxLink : INodeSyntaxLink
 
     public LocationKind LocationKind => LocationKind.Local;
 
-    public SyntaxReference? SyntaxReference => null;
+    public SyntaxNode? Syntax => null;
 
     public AssemblyNodeSyntaxLink(string path)
     {

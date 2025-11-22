@@ -20,5 +20,5 @@ public interface INodeSyntaxLink
     /// <summary>
     /// Reference to syntax. For symbols that do not have sources, null will be set.
     /// </summary>
-    SyntaxReference? SyntaxReference { get; }
+    SyntaxNode? Syntax { get; }
 }
