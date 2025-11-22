@@ -45,7 +45,7 @@ public class ExternalHideMutatorTests
         Assert.That(inLink.OriginalTarget.Id, Is.EqualTo(_nodeId1));
 
         var outLinks = graph.GetOutgoingLinks(node);
-        Assert.That(outLinks.Count(), Is.EqualTo(3));
+        Assert.That(outLinks.Length, Is.EqualTo(3));
 
         var outLink1 = outLinks.Single(l => l.OriginalTarget.Id == _externalId1);
         Assert.That(outLink1.Target.Id, Is.EqualTo(GraphConsts.ExternalRootNodeId));

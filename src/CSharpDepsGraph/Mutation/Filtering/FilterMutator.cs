@@ -1,6 +1,3 @@
-using System.Collections.Generic;
-using System.Linq;
-
 namespace CSharpDepsGraph.Mutation.Filtering;
 
 // todo надо проверить что происходит с линками котрые присоедены к дечерней ноде которая удаляется

@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace CSharpDepsGraph.Building.Entities;
 
 internal class Graph : IGraph

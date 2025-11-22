@@ -5,7 +5,7 @@ using System;
 namespace CSharpDepsGraph.Tests;
 
 [SetUpFixture]
-public static class SetUp
+public static class Initialization
 {
     [OneTimeSetUp]
     public static void Init()

@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using CSharpDepsGraph.Building.Entities;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Logging;

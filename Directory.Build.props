@@ -10,6 +10,8 @@
         <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
 
+        <Nullable>enable</Nullable>
+
         <NuGetAudit>false</NuGetAudit>
         <AnalysisMode>All</AnalysisMode>
         <AnalysisLevel>8</AnalysisLevel>

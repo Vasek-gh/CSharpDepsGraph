@@ -1,11 +1,5 @@
-using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Logging;
-using System.IO;
 using System.Globalization;
 using CSharpDepsGraph.Building.Entities;
 using CSharpDepsGraph.Building.Generators;
@@ -41,7 +35,7 @@ public sealed class GraphBuilder
         _counters = new Counters();
         _graphData = new GraphData(_counters);
         _linkedSymbolsMap = new(_counters);
-        _symbolIdBuilder = symbolIdBuilder ?? new SymbolIdGenerator(loggerFactory, false, false);
+        _symbolIdBuilder = symbolIdBuilder ?? new SymbolIdGenerator(loggerFactory, false);
     }
 
     /// <summary>
@@ -124,7 +118,9 @@ public sealed class GraphBuilder
             fileIsFromSourceGenerators
             );
 
-        syntaxVisitor.Visit(syntaxTree.GetRoot(cancellationToken));
+        var syntaxRoot = syntaxTree.GetRoot(cancellationToken);
+
+        syntaxVisitor.Visit(syntaxRoot);
     }
 
     private async Task<Compilation> GetCompilation(Project project, ILogger logger, CancellationToken cancellationToken)

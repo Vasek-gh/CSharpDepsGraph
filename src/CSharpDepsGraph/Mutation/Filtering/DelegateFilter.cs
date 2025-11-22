@@ -1,5 +1,3 @@
-using System;
-
 namespace CSharpDepsGraph.Mutation.Filtering;
 
 public class DelegateFilter : IFilter

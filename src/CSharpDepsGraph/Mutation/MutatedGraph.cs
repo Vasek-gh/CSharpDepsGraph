@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace CSharpDepsGraph.Mutation;
 
 internal class MutatedGraph : IGraph

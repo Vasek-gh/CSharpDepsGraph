@@ -1,11 +1,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.ComponentModel;
 using System.Globalization;
-using System.Linq;
 using System.Text;
 
 namespace CSharpDepsGraph.Building.Generators;

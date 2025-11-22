@@ -1,7 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using CSharpDepsGraph.Building.Entities;
+using CSharpDepsGraph.Building.Generators;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 

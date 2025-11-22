@@ -1,5 +1,4 @@
 using CSharpDepsGraph.Building.Entities;
-using System.Collections.Generic;
 
 namespace CSharpDepsGraph.Building;
 
