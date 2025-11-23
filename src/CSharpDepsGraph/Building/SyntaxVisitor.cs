@@ -19,6 +19,8 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
     private readonly bool _fileIsGenerated;
 
     private readonly Stack<Node> _nodeStack;
+    private readonly Stack<ISymbol> _symbolStack;
+    private readonly IAssemblySymbol _assemblySymbol;
 
     public SyntaxVisitor(
         ILogger logger,
@@ -39,15 +41,94 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
         _fileIsGenerated = fileIsGenerated;
 
         _nodeStack = new();
+        _symbolStack = new();
         _parentIdsStack = new();
+
+        _assemblySymbol = semanticModel.Compilation.Assembly;
 
         _nodeStack.Push(_graphData.Root);
     }
 
-    private void HandleDeclaration(SyntaxNode syntaxNode, Action? action = null)
+    public override void VisitUsingDirective(UsingDirectiveSyntax node)
+    {
+        // Type alias can hold symbols for other types(for example generics), because
+        // roslyn give us link that ignore alias, we can ignore all 'using directives'
+    }
+
+    public override void VisitCompilationUnit(CompilationUnitSyntax syntaxNode)
+    {
+        HandleDeclaration(syntaxNode, _semanticModel.Compilation.Assembly, () =>
+        {
+            base.VisitCompilationUnit(syntaxNode);
+        });
+    }
+
+    public override void VisitNamespaceDeclaration(NamespaceDeclarationSyntax syntaxNode)
     {
         var symbol = _semanticModel.GetDeclaredSymbol(syntaxNode)
-            ?? throw new Exception($"Symbol for {syntaxNode} not found");
+            ?? throw new Exception($"Namespace symbol not found for {syntaxNode}");
+
+        HandleNamespace(syntaxNode, symbol, () =>
+        {
+            base.VisitNamespaceDeclaration(syntaxNode);
+        });
+    }
+
+    public override void VisitFileScopedNamespaceDeclaration(FileScopedNamespaceDeclarationSyntax syntaxNode)
+    {
+        var symbol = _semanticModel.GetDeclaredSymbol(syntaxNode)
+            ?? throw new Exception($"Namespace symbol not found for {syntaxNode}");
+
+        HandleNamespace(syntaxNode, symbol, () =>
+        {
+            base.VisitFileScopedNamespaceDeclaration(syntaxNode);
+        });
+    }
+
+    private void HandleNamespace(BaseNamespaceDeclarationSyntax syntax, INamespaceSymbol symbol, Action action)
+    {
+        _symbolStack.Clear();
+
+        if (symbol.ConstituentNamespaces.Length > 0)
+        {
+            symbol = symbol.ConstituentNamespaces.SingleOrDefault(n => n.ContainingAssembly.Name == _assemblySymbol.Name)
+                ?? throw new Exception($"ConstituentNamespaces does not have namespace {symbol}");
+        }
+
+        Utils.CheckNull(symbol.ContainingAssembly, $"Namespace {symbol} does not have assembly");
+        Utils.CheckNull(symbol.ContainingModule, $"Namespace {symbol} does not have module");
+
+        var parentSymbol = symbol.ContainingSymbol;
+        while (parentSymbol is not null && parentSymbol.Kind != SymbolKind.Assembly)
+        {
+            if (
+                (parentSymbol.Kind == SymbolKind.Namespace && !parentSymbol.IsGlobalNamespace())
+                || (parentSymbol.Kind == SymbolKind.NetModule && parentSymbol.ContainingAssembly.Modules.Count() > 1)
+            )
+            {
+                _symbolStack.Push(parentSymbol);
+            }
+
+            parentSymbol = parentSymbol.ContainingSymbol;
+        }
+
+        var stackCount = _symbolStack.Count;
+        while (_symbolStack.Count > 0)
+        {
+            PushSymbol(_symbolStack.Pop());
+        }
+
+        HandleDeclaration(syntax, symbol, action);
+
+        while (stackCount-- > 0)
+        {
+            PopSymbol();
+        }
+    }
+
+    private void HandleDeclaration(SyntaxNode syntaxNode, Action? action = null)
+    {
+        var symbol = GetDeclaredSymbol(syntaxNode);
 
         HandleDeclaration(syntaxNode, symbol, action);
     }
@@ -57,6 +138,11 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
         if (symbol.IsImplicitlyDeclared && !symbol.IsGlobalNamespace())
         {
             return;
+        }
+
+        if (symbol.Name == "Car")
+        {
+            // todo kill
         }
 
         PushSymbol(symbol);
@@ -76,39 +162,22 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
         var parentNode = _nodeStack.Pop();
     }
 
-    public override void VisitCompilationUnit(CompilationUnitSyntax node)
+    public override void VisitGlobalStatement(GlobalStatementSyntax syntaxNode)
     {
-        PushSymbol(_semanticModel.Compilation.Assembly);
-        base.VisitCompilationUnit(node);
-        PopSymbol();
-    }
+        Utils.CheckNull(syntaxNode.Parent, "Global statement without parent");
 
-    public override void VisitNamespaceDeclaration(NamespaceDeclarationSyntax node)
-    {
-        base.VisitNamespaceDeclaration(node);
-    }
+        var mainSymbol = GetDeclaredSymbol(syntaxNode.Parent);
+        var programSymbol = mainSymbol.ContainingSymbol; // todo после отказа от SymbolVistor можно откзатся от этого
 
-    public override void VisitFileScopedNamespaceDeclaration(FileScopedNamespaceDeclarationSyntax node)
-    {
-        var q = node.Name;
-        if (q is QualifiedNameSyntax t)
+        HandleDeclaration(syntaxNode.Parent, programSymbol, () =>
         {
-            //var t1 = t.
-        }
-        base.VisitFileScopedNamespaceDeclaration(node);
-    }
-
-    public override void VisitUsingDirective(UsingDirectiveSyntax node)
-    {
-        // Type alias can hold symbols for other types(for example generics), because
-        // roslyn give us link that ignore alias, we can ignore all 'using directives'
-    }
-
-    public override void VisitGlobalStatement(GlobalStatementSyntax node)
-    {
-        BeginHandleSymbol(node.Parent!);
-        base.VisitGlobalStatement(node);
-        EndHandleSymbol();
+            HandleDeclaration(syntaxNode.Parent, mainSymbol, () =>
+            {
+                BeginHandleSymbol(syntaxNode.Parent);
+                base.VisitGlobalStatement(syntaxNode);
+                EndHandleSymbol();
+            });
+        });
     }
 
     //#########################################################################
@@ -134,71 +203,98 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
 
     public override void VisitEnumDeclaration(EnumDeclarationSyntax node)
     {
-        BeginHandleSymbol(node);
-
-        HandleAttributes(node.AttributeLists);
-        HandleNodes<CSharpSyntaxNode>(node.BaseList?.Types);
-
-        foreach (var member in node.Members)
+        HandleDeclaration(node, () =>
         {
-            member.Accept(this);
-        }
+            BeginHandleSymbol(node);
 
-        EndHandleSymbol();
+            HandleAttributes(node.AttributeLists);
+            HandleNodes<CSharpSyntaxNode>(node.BaseList?.Types);
+
+            foreach (var member in node.Members)
+            {
+                HandleDeclaration(member, () =>
+                {
+                    member.Accept(this);
+                });
+            }
+
+            EndHandleSymbol();
+        });
     }
 
     public override void VisitDelegateDeclaration(DelegateDeclarationSyntax node)
     {
-        BeginHandleSymbol(node);
+        HandleDeclaration(node, () =>
+        {
+            BeginHandleSymbol(node);
 
-        HandleConstraints(node.ConstraintClauses);
-        HandleAttributes(node.AttributeLists);
-        HandleParameterList(node.ParameterList);
-        node.ReturnType?.Accept(this);
+            HandleConstraints(node.ConstraintClauses);
+            HandleAttributes(node.AttributeLists);
+            HandleParameterList(node.ParameterList);
+            node.ReturnType?.Accept(this);
 
-        EndHandleSymbol();
+            EndHandleSymbol();
+        });
     }
 
     public override void VisitRecordDeclaration(RecordDeclarationSyntax node)
     {
+        Node? recordNode = null;
+        IMethodSymbol? primaryConstructor = null;
         VisitTypeDeclarationSyntax(node, () =>
         {
-            if (node.ParameterList?.Parameters.Any() != true)
+            if (node.ParameterList?.Parameters.Count == 0)
             {
                 return;
             }
 
-            var symbol = _semanticModel.GetDeclaredSymbol(node)
+            var record = _semanticModel.GetDeclaredSymbol(node)
                 ?? throw new Exception($"Fail to find record symbol for: {node}");
 
-            var primaryConstructor = symbol.Constructors.SingleOrDefault(x =>
+            primaryConstructor = record.Constructors.SingleOrDefault(x =>
                 !x.IsImplicitlyDeclared
                 && x.DeclaringSyntaxReferences.SingleOrDefault()?.GetSyntax() is RecordDeclarationSyntax
                 )
-                ?? throw new Exception($"Primary contructor not found for: {_symbolIdBuilder.Execute(symbol)}");
+                ?? throw new Exception($"Primary contructor not found for: {record}");
 
-            BeginHandleSymbol(primaryConstructor);
-            HandleParameterList(node.ParameterList);
-            EndHandleSymbol();
+            recordNode = _nodeStack.Peek();
+
+            HandleDeclaration(node, primaryConstructor, () =>
+            {
+                BeginHandleSymbol(primaryConstructor);
+                HandleParameterList(node.ParameterList);
+                EndHandleSymbol();
+            });
+
+            var parameters = primaryConstructor.Parameters.Select(p => p.Name).ToHashSet();
+            var properties = record.GetMembers().Where(m => m.Kind == SymbolKind.Property && parameters.Contains(m.Name));
+            foreach (var property in properties)
+            {
+                PushSymbol(property);
+                PopSymbol();
+            }
         });
     }
 
     private void VisitTypeDeclarationSyntax(TypeDeclarationSyntax node, Action? advancedHandling = null)
     {
-        BeginHandleSymbol(node);
-
-        advancedHandling?.Invoke();
-
-        HandleAttributes(node.AttributeLists);
-        HandleConstraints(node.ConstraintClauses);
-        HandleNodes<CSharpSyntaxNode>(node.BaseList?.Types);
-
-        foreach (var member in node.Members)
+        HandleDeclaration(node, () =>
         {
-            member.Accept(this);
-        }
+            BeginHandleSymbol(node);
 
-        EndHandleSymbol();
+            advancedHandling?.Invoke();
+
+            HandleAttributes(node.AttributeLists);
+            HandleConstraints(node.ConstraintClauses);
+            HandleNodes<CSharpSyntaxNode>(node.BaseList?.Types);
+
+            foreach (var member in node.Members)
+            {
+                member.Accept(this);
+            }
+
+            EndHandleSymbol();
+        });
     }
 
     //#########################################################################
@@ -211,80 +307,140 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
     {
         foreach (var variable in node.Declaration.Variables)
         {
-            BeginHandleSymbol(variable);
-            node.Declaration.Type.Accept(this);
-            HandleAttributes(node.AttributeLists);
-            variable.Initializer?.Accept(this);
-            EndHandleSymbol();
+            HandleDeclaration(variable, () =>
+            {
+                BeginHandleSymbol(variable);
+                node.Declaration.Type.Accept(this);
+                HandleAttributes(node.AttributeLists);
+                variable.Initializer?.Accept(this);
+                EndHandleSymbol();
+            });
         }
     }
 
     public override void VisitPropertyDeclaration(PropertyDeclarationSyntax node)
     {
-        BeginHandleSymbol(node);
-        HandleAttributes(node.AttributeLists);
-        node.Type.Accept(this);
-        node.ExplicitInterfaceSpecifier?.Accept(this);
-        node.AccessorList?.Accept(this);
-        node.ExpressionBody?.Accept(this);
-        node.Initializer?.Accept(this);
-        EndHandleSymbol();
+        HandleDeclaration(node, () =>
+        {
+            BeginHandleSymbol(node);
+            HandleAttributes(node.AttributeLists);
+            node.Type.Accept(this);
+            node.ExplicitInterfaceSpecifier?.Accept(this);
+            node.AccessorList?.Accept(this);
+            node.ExpressionBody?.Accept(this);
+            node.Initializer?.Accept(this);
+            EndHandleSymbol();
+        });
+    }
+
+    public override void VisitIndexerDeclaration(IndexerDeclarationSyntax node)
+    {
+        HandleDeclaration(node, () =>
+        {
+            BeginHandleSymbol(node);
+            HandleAttributes(node.AttributeLists);
+            HandleParameterList(node.ParameterList);
+            node.Type.Accept(this);
+            node.ExplicitInterfaceSpecifier?.Accept(this);
+            node.AccessorList?.Accept(this);
+            node.ExpressionBody?.Accept(this);
+            EndHandleSymbol();
+        });
     }
 
     public override void VisitEventDeclaration(EventDeclarationSyntax node)
     {
-        BeginHandleSymbol(node);
-
-        node.Type?.Accept(this);
-        node.ExplicitInterfaceSpecifier?.Accept(this);
-
-        if (node.AccessorList != null)
+        HandleDeclaration(node, () =>
         {
-            foreach (var accessor in node.AccessorList.Accessors)
-            {
-                accessor.Body?.Accept(this);
-                accessor.ExpressionBody?.Accept(this);
-            }
-        }
+            BeginHandleSymbol(node);
 
-        EndHandleSymbol();
+            node.Type?.Accept(this);
+            node.ExplicitInterfaceSpecifier?.Accept(this);
+
+            if (node.AccessorList != null)
+            {
+                foreach (var accessor in node.AccessorList.Accessors)
+                {
+                    accessor.Body?.Accept(this);
+                    accessor.ExpressionBody?.Accept(this);
+                }
+            }
+
+            EndHandleSymbol();
+        });
     }
 
     public override void VisitEventFieldDeclaration(EventFieldDeclarationSyntax node)
     {
         foreach (var variable in node.Declaration.Variables)
         {
-            BeginHandleSymbol(variable);
-            node.Declaration.Type.Accept(this);
-            HandleAttributes(node.AttributeLists);
-            variable.Initializer?.Accept(this);
-            EndHandleSymbol();
+            HandleDeclaration(variable, () =>
+            {
+                BeginHandleSymbol(variable);
+                node.Declaration.Type.Accept(this);
+                HandleAttributes(node.AttributeLists);
+                variable.Initializer?.Accept(this);
+                EndHandleSymbol();
+            });
         }
     }
 
     public override void VisitConstructorDeclaration(ConstructorDeclarationSyntax node)
     {
-        BeginHandleSymbol(node);
-        node.Initializer?.Accept(this);
-        HandleMethod(node);
-        EndHandleSymbol();
+        HandleDeclaration(node, () =>
+        {
+            BeginHandleSymbol(node);
+            node.Initializer?.Accept(this);
+            HandleMethod(node);
+            EndHandleSymbol();
+        });
     }
 
     public override void VisitDestructorDeclaration(DestructorDeclarationSyntax node)
     {
-        BeginHandleSymbol(node);
-        HandleMethod(node);
-        EndHandleSymbol();
+        HandleDeclaration(node, () =>
+        {
+            BeginHandleSymbol(node);
+            HandleMethod(node);
+            EndHandleSymbol();
+        });
     }
 
     public override void VisitMethodDeclaration(MethodDeclarationSyntax node)
     {
-        BeginHandleSymbol(node);
-        HandleConstraints(node.ConstraintClauses);
-        node.ReturnType?.Accept(this);
-        node.ExplicitInterfaceSpecifier?.Accept(this);
-        HandleMethod(node);
-        EndHandleSymbol();
+        HandleDeclaration(node, () =>
+        {
+            BeginHandleSymbol(node);
+            HandleConstraints(node.ConstraintClauses);
+            node.ReturnType?.Accept(this);
+            node.ExplicitInterfaceSpecifier?.Accept(this);
+            HandleMethod(node);
+            EndHandleSymbol();
+        });
+    }
+
+    public override void VisitOperatorDeclaration(OperatorDeclarationSyntax node)
+    {
+        HandleDeclaration(node, () =>
+        {
+            BeginHandleSymbol(node);
+            node.ReturnType?.Accept(this);
+            node.ExplicitInterfaceSpecifier?.Accept(this);
+            HandleMethod(node);
+            EndHandleSymbol();
+        });
+    }
+
+    public override void VisitConversionOperatorDeclaration(ConversionOperatorDeclarationSyntax node)
+    {
+        HandleDeclaration(node, () =>
+        {
+            BeginHandleSymbol(node);
+            node.Type?.Accept(this);
+            node.ExplicitInterfaceSpecifier?.Accept(this);
+            HandleMethod(node);
+            EndHandleSymbol();
+        });
     }
 
     public override void VisitLocalFunctionStatement(LocalFunctionStatementSyntax node)
@@ -305,7 +461,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
         node.ExpressionBody?.Accept(this);
     }
 
-    private void HandleParameterList(ParameterListSyntax? node)
+    private void HandleParameterList(BaseParameterListSyntax? node)
     {
         if (node?.Parameters == null)
         {
@@ -314,10 +470,15 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
 
         foreach (var parameter in node.Parameters)
         {
-            HandleAttributes(parameter.AttributeLists);
-            parameter.Type?.Accept(this);
-            parameter.Default?.Accept(this);
+            HandleParameter(parameter);
         }
+    }
+
+    private void HandleParameter(ParameterSyntax node)
+    {
+        HandleAttributes(node.AttributeLists);
+        node.Type?.Accept(this);
+        node.Default?.Accept(this);
     }
 
     //#########################################################################
@@ -410,6 +571,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
 
     public override void VisitTupleExpression(TupleExpressionSyntax node)
     {
+        // todo нужно ли это?
         foreach (var argument in node.Arguments)
         {
             argument.Expression.Accept(this);
@@ -674,6 +836,14 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
     private ISymbol GetSyntaxSymbol(SyntaxNode syntax)
     {
         var symbol = _semanticModel.GetSymbolInfo(syntax).Symbol
+            ?? throw new Exception($"Symbol not found for {syntax}");
+
+        return symbol;
+    }
+
+    private ISymbol GetDeclaredSymbol(SyntaxNode syntax)
+    {
+        var symbol = _semanticModel.GetDeclaredSymbol(syntax)
             ?? throw new Exception($"Symbol not found for {syntax}");
 
         return symbol;

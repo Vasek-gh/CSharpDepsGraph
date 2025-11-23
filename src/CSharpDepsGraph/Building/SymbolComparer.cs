@@ -44,6 +44,11 @@ internal class SymbolComparer
 
     private bool Compare(ISymbol a, ISymbol b, bool parameterMode)
     {
+        if (a is null || b is null)
+        {
+            // todo kill
+        }
+
         if (a.Kind != b.Kind)
         {
             return false;
@@ -182,33 +187,30 @@ internal class SymbolComparer
             return false;
         }
 
-        if (GetPrimitiveTypeName(a) is not null && GetPrimitiveTypeName(a) == GetPrimitiveTypeName(b))
+        if (ComparePrimiteTypes(a, b))
         {
-            return true; // todo
+            return true;
         }
 
-        var isSame = aNamedTypeSymbol.Arity == bNamedTypeSymbol.Arity
-            && aNamedTypeSymbol.Name == bNamedTypeSymbol.Name;
-
-        if (isSame && parameterMode)
+        if (aNamedTypeSymbol.Name != bNamedTypeSymbol.Name
+            || !CompareTypeParameters(aNamedTypeSymbol, bNamedTypeSymbol)
+            )
         {
-            return Compare(a.ContainingSymbol, b.ContainingSymbol, parameterMode);
+            return false;
         }
 
-        return true;
+        return parameterMode || Compare(a.ContainingSymbol, b.ContainingSymbol, parameterMode);
 
         ITypeSymbol GetPointerType(ITypeSymbol typeSymbol)
         {
-            var pointerTypeSymbol = typeSymbol as IPointerTypeSymbol
-                ?? throw new InvalidCastException($"{typeSymbol} is not pointer");
+            var pointerTypeSymbol = Utils.CheckNull(typeSymbol as IPointerTypeSymbol, $"{typeSymbol} is not pointer");
 
             return pointerTypeSymbol.PointedAtType;
         }
 
         ITypeSymbol GetArrayType(ITypeSymbol typeSymbol)
         {
-            var pointerTypeSymbol = typeSymbol as IArrayTypeSymbol
-                ?? throw new InvalidCastException($"{typeSymbol} is not pointer");
+            var pointerTypeSymbol = Utils.CheckNull(typeSymbol as IArrayTypeSymbol, $"{typeSymbol} is not array");
 
             return pointerTypeSymbol.ElementType;
         }
@@ -224,6 +226,29 @@ internal class SymbolComparer
             }
 
             return typeSymbol;
+        }
+
+        bool CompareTypeParameters(INamedTypeSymbol aTypeSymbol, INamedTypeSymbol bTypeSymbol)
+        {
+            if (!parameterMode)
+            {
+                return aTypeSymbol.Arity == bTypeSymbol.Arity;
+            }
+
+            if (aNamedTypeSymbol.TypeArguments.Length != bTypeSymbol.TypeArguments.Length)
+            {
+                return false;
+            }
+
+            for (var i = 0; i < aTypeSymbol.TypeArguments.Length; i++)
+            {
+                if (!CompareType(aTypeSymbol.TypeArguments[i], bTypeSymbol.TypeArguments[i], parameterMode))
+                {
+                    return false;
+                }
+            }
+
+            return true;
         }
     }
 
@@ -250,8 +275,11 @@ internal class SymbolComparer
     {
         if (a is null
             || b is null
+            || a.IsIndexer != b.IsIndexer
+            || a.Parameters.Length != b.Parameters.Length
             || a.ExplicitInterfaceImplementations.Length != b.ExplicitInterfaceImplementations.Length
             || a.Name != b.Name
+            || !CompareParameters(a.Parameters, b.Parameters)
         )
         {
             return false;
@@ -267,36 +295,52 @@ internal class SymbolComparer
 
     private bool CompareMethod(IMethodSymbol? a, IMethodSymbol? b)
     {
+        if (a?.Name == "Assign" && b?.Name == "Assign")
+        {
+            // todo kill
+        }
+
         if (a is null
             || b is null
             || a.Arity != b.Arity
             || a.Parameters.Length != b.Parameters.Length
             || a.ExplicitInterfaceImplementations.Length != b.ExplicitInterfaceImplementations.Length
             || a.Name != b.Name
+            || !CompareParameters(a.Parameters, b.Parameters)
         )
         {
             return false;
         }
 
-        for (var i = 0; i < a.Parameters.Length; i++)
+        if (!CompareSymbolArray(a.ExplicitInterfaceImplementations, b.ExplicitInterfaceImplementations, true))
         {
-            var aParam = a.Parameters[i];
-            var bParam = b.Parameters[i];
+            return false;
+        }
+
+        return true;
+    }
+
+    private bool CompareParameters(ImmutableArray<IParameterSymbol> aItems, ImmutableArray<IParameterSymbol> bItems)
+    {
+        if (aItems.Length != bItems.Length)
+        {
+            return false;
+        }
+
+        for (var i = 0; i < aItems.Length; i++)
+        {
+            var aParam = aItems[i];
+            var bParam = bItems[i];
 
             if (aParam.RefKind != bParam.RefKind)
             {
                 return false;
             }
 
-            if (!Compare(aParam.Type, bParam.Type, true))
+            if (!CompareType(aParam.Type, bParam.Type, true))
             {
                 return false;
             }
-        }
-
-        if (!CompareSymbolArray(a.ExplicitInterfaceImplementations, b.ExplicitInterfaceImplementations, true))
-        {
-            return false;
         }
 
         return true;
@@ -328,30 +372,42 @@ internal class SymbolComparer
         return parameterMode || Compare(a.ContainingSymbol, b.ContainingSymbol, parameterMode);
     }
 
-    public static string? GetPrimitiveTypeName(ITypeSymbol typeSymbol)
+    public static bool ComparePrimiteTypes(ITypeSymbol aTypeSymbol, ITypeSymbol bTypeSymbol)
     {
-        return typeSymbol.SpecialType switch
+        var aIsPrimitive = _primitiveTypes.Contains(aTypeSymbol.SpecialType);
+        var bIsPrimitive = _primitiveTypes.Contains(bTypeSymbol.SpecialType);
+
+        if (aIsPrimitive != bIsPrimitive)
         {
-            SpecialType.System_Void => "void",
-            SpecialType.System_Object => "object",
-            SpecialType.System_Boolean => "bool",
-            SpecialType.System_Char => "char",
-            SpecialType.System_SByte => "sbyte",
-            SpecialType.System_Byte => "byte",
-            SpecialType.System_Int16 => "short",
-            SpecialType.System_UInt16 => "ushort",
-            SpecialType.System_Int32 => "int",
-            SpecialType.System_UInt32 => "uint",
-            SpecialType.System_Int64 => "long",
-            SpecialType.System_UInt64 => "ulong",
-            SpecialType.System_Decimal => "decimal",
-            SpecialType.System_Single => "float",
-            SpecialType.System_Double => "double",
-            SpecialType.System_String => "string",
-            SpecialType.System_IntPtr => "IntPtr",
-            SpecialType.System_UIntPtr => "UIntPtr",
-            //SpecialType.System_Enum => "enum",
-            _ => null
-        };
+            return false;
+        }
+
+        if (!aIsPrimitive && !bIsPrimitive)
+        {
+            return false;
+        }
+
+        return aTypeSymbol.SpecialType == bTypeSymbol.SpecialType;
     }
+
+    private static readonly  HashSet<SpecialType> _primitiveTypes = [
+        SpecialType.System_Void,
+        SpecialType.System_Object,
+        SpecialType.System_Boolean,
+        SpecialType.System_Char,
+        SpecialType.System_SByte,
+        SpecialType.System_Byte,
+        SpecialType.System_Int16,
+        SpecialType.System_UInt16,
+        SpecialType.System_Int32,
+        SpecialType.System_UInt32,
+        SpecialType.System_Int64,
+        SpecialType.System_UInt64,
+        SpecialType.System_Decimal,
+        SpecialType.System_Single,
+        SpecialType.System_Double,
+        SpecialType.System_String,
+        SpecialType.System_IntPtr,
+        SpecialType.System_UIntPtr
+    ];
 }

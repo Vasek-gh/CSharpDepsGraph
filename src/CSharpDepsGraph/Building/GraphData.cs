@@ -54,9 +54,9 @@ internal class GraphData
     {
         if (NodeMap.TryGetValue(id, out var node))
         {
-            if (!_symbolComparer.Compare(symbol, node.Symbol!))
+            if (!_symbolComparer.Compare(symbol, node.Symbol))
             {
-                _symbolComparer.Compare(symbol, node.Symbol!);
+                _symbolComparer.Compare(symbol, node.Symbol);
                 // todo kill
             }
             return node;
@@ -91,6 +91,11 @@ internal class GraphData
         ISymbol symbol
         )
     {
+        if (symbol.Name == "Car")
+        {
+            // todo kill
+        }
+
         var child = parent.ChildList.FirstOrDefault(c => _symbolComparer.Compare(c.Symbol, symbol));
         if (child is null)
         {
@@ -99,8 +104,61 @@ internal class GraphData
             {
                 LinkedSymbolsList = []
             };
+
+            NodeMap.Add(child.Id, child);
+            parent.ChildList.Add(child);
+            _counters.AddNode();
         }
 
         return child;
+    }
+
+    public void Compare(GraphData graphData)
+    {
+        Compare(Root, graphData.Root, graphData);
+    }
+
+    public void Compare(Node aNode, Node bNode, GraphData bGraphData)
+    {
+        //if (aNode.IsExternal() != bNode.IsExternal())
+        {
+          //  throw new Exception("1");
+        }
+
+        if (aNode.Id != bNode.Id)
+        {
+            throw new Exception("1");
+        }
+
+        foreach (var aChild in aNode.ChildList)
+        {
+            var bChild = bNode.ChildList.SingleOrDefault(n => n.Id == aChild.Id);
+            if (bChild is null)
+            {
+                bChild = bGraphData.NodeMap[aChild.Id];
+                throw new Exception("1");
+            }
+
+            Compare(aChild, bChild, bGraphData);
+        }
+
+        foreach (var bChild in bNode.ChildList)
+        {
+            var aChild = bNode.ChildList.SingleOrDefault(n => n.Id == bChild.Id);
+            if (aChild is null)
+            {
+                aChild = NodeMap[bChild.Id];
+                throw new Exception("1");
+            }
+
+            Compare(aChild, bChild, bGraphData);
+        }
+
+        if (aNode.ChildList.Count != bNode.ChildList.Count)
+        {
+            var set = aNode.ChildList.Select(n => n.Id).ToHashSet();
+            var q = bNode.ChildList.Where(n => !set.Contains(n.Id)).ToArray();
+            throw new Exception("1");
+        }
     }
 }

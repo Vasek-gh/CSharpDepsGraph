@@ -1,6 +1,7 @@
 using CSharpDepsGraph.Building.Entities;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics.CodeAnalysis;
 
 namespace CSharpDepsGraph.Building;
 
@@ -54,6 +55,16 @@ internal static class Utils
         var path = span.Path;
 
         return $"{path}:{line}:{column}";
+    }
+
+    public static T CheckNull<T>([NotNull] T? value, string errorMessage)
+    {
+        if (value is null)
+        {
+            throw new Exception(errorMessage);
+        }
+
+        return value;
     }
 
     public static List<T> GetEmptyList<T>()

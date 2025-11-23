@@ -119,6 +119,8 @@ public class TypeDeclaration : BaseSyntaxTests
             (AsmName.Test, "Test"),
             (AsmName.Test, "Test/B")
         );
+
+        // todo check attributes link for member
     }
 
     [Test]

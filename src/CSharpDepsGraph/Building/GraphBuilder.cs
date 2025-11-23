@@ -36,10 +36,10 @@ public sealed class GraphBuilder
 
         _counters = new Counters();
         _symbolComparer = new(false, false, null);
-        _graphData = new GraphData(_counters, _symbolComparer);
-        _graphData2 = new(_counters, _symbolComparer);
         _linkedSymbolsMap = new(_counters);
         _symbolIdBuilder = symbolIdBuilder ?? new SymbolIdGenerator(loggerFactory, false);
+        _graphData = new GraphData(_counters, _symbolComparer, _symbolIdBuilder);
+        _graphData2 = new(_counters, _symbolComparer, _symbolIdBuilder);
     }
 
     /// <summary>
@@ -52,6 +52,8 @@ public sealed class GraphBuilder
         {
             await HandleProjectVariants(projectVariants, cancellationToken);
         }
+
+        _graphData.Compare(_graphData2);
 
         new NodeLinkBuilder(_loggerFactory.CreateLogger<NodeLinkBuilder>(), _counters, _symbolIdBuilder, _graphData).Run();
 
@@ -76,7 +78,7 @@ public sealed class GraphBuilder
             await HandleProject(project, cancellationToken);
         }
 
-        _logger.LogInformation($"{firstProject.AssemblyName} variants handled");
+        _logger.LogDebug($"{firstProject.AssemblyName} variants handled");
     }
 
     private async Task HandleProject(Project project, CancellationToken cancellationToken)
@@ -93,6 +95,11 @@ public sealed class GraphBuilder
 
         foreach (var syntaxTree in compilation.SyntaxTrees)
         {
+            if (syntaxTree.FilePath.EndsWith("Car.cs"))
+            {
+                // todo kill
+            }
+
             HandleSyntax(syntaxTree, compilation, linkedSymbolsMap, generatedFiles, cancellationToken);
         }
 
@@ -107,7 +114,7 @@ public sealed class GraphBuilder
 
         symbolVisitor.Visit(compilation.Assembly);
 
-        logger.LogInformation($"Project handled");
+        logger.LogDebug($"Project handled");
     }
 
     private void HandleSyntax(
@@ -131,6 +138,7 @@ public sealed class GraphBuilder
             _graphData2,
             semanticModel,
             _symbolIdBuilder,
+            _symbolComparer,
             linkedSymbolsMap,
             fileIsFromSourceGenerators
             );

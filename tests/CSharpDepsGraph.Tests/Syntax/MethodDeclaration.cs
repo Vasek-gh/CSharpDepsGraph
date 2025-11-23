@@ -54,9 +54,32 @@ public class MethodDeclaration : BaseSyntaxTests
     }
 
     [Test]
+    public void NodeHaveOperator()
+    {
+        var graph = Build(@"
+            public class Test {
+                public static bool operator ==(Test a, Test b) => true;
+                public static bool operator !=(Test a, Test b) => true;
+                public static bool operator >(Test a, Test b) => true;
+                public static bool operator <(Test a, Test b) => true;
+                public static implicit operator Test(int a) => new Test();
+                public static explicit operator int(Test a) => 1;
+            }
+        ");
+
+        GraphAssert.HasSymbol(graph, "Test/operator ==(Test, Test)");
+        GraphAssert.HasSymbol(graph, "Test/operator !=(Test, Test)");
+        GraphAssert.HasSymbol(graph, "Test/operator >(Test, Test)");
+        GraphAssert.HasSymbol(graph, "Test/operator <(Test, Test)");
+        GraphAssert.HasSymbol(graph, "Test/implicit operator Test(int)");
+        GraphAssert.HasSymbol(graph, "Test/explicit operator int(Test)");
+    }
+
+    [Test]
     public void NodeHaveAllOverloads()
     {
         var graph = Build(@"
+            using System.Collections.Generic;
             public class Test {
                 public void TestMethod() {}
                 public void TestMethod(int arg1) {}
@@ -66,6 +89,8 @@ public class MethodDeclaration : BaseSyntaxTests
                 public void TestMethod<T1>(T1 arg1) {}
                 public void TestMethod<T1>(int arg1) {}
                 public void TestMethod<T1, T2>(T1 arg1, T2 arg2) {}
+                public void TestMethod(IEnumerable<int> arg) {}
+                public void TestMethod(IEnumerable<byte> arg) {}
             }
         ");
 
@@ -77,6 +102,8 @@ public class MethodDeclaration : BaseSyntaxTests
         GraphAssert.HasSymbol(graph, "Test/TestMethod<T1>(T1)");
         GraphAssert.HasSymbol(graph, "Test/TestMethod<T1>(int)");
         GraphAssert.HasSymbol(graph, "Test/TestMethod<T1, T2>(T1, T2)");
+        GraphAssert.HasSymbol(graph, "Test/TestMethod(IEnumerable<int>)");
+        GraphAssert.HasSymbol(graph, "Test/TestMethod(IEnumerable<byte>)");
 
         // todo check Action and Func
     }

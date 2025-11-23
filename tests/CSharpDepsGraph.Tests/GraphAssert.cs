@@ -58,6 +58,15 @@ internal static class GraphAssert
         CheckLinks(graph, true, (AsmName.Test, testAsmFullQualifiedName), targets);
     }
 
+    public static void HasExactLink(
+        IGraph graph,
+        (string assemblyName, string fullQualifiedName) source,
+        params (string assemblyName, string fullQualifiedName)[] targets
+        )
+    {
+        CheckLinks(graph, true, source, targets);
+    }
+
     private static void CheckLinks(
         IGraph graph,
         bool exact,

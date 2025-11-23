@@ -11,4 +11,9 @@ public class TargetFrameworks
         var u = new Uri("");
         var c = new Car();
     }
+
+    public void Bar(int a1, nint a2)
+    {
+
+    }
 }

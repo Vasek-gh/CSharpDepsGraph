@@ -795,4 +795,11 @@ public class Expressions : BaseSyntaxTests //todo rename
                 .Any()
         );
     }
+
+    [Test]
+    [Ignore("todo check index call link")]
+    public void IndexerLinked()
+    {
+
+    }
 }

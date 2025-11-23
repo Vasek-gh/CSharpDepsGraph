@@ -190,4 +190,18 @@ public class PropertiesDeclaration : BaseSyntaxTests
         Assert.That(nodeLocations[0].GetDisplayString(), Is.EqualTo($"{GraphFactory.TestFileName}:3:17"));
         Assert.That(nodeLocations[1].GetDisplayString(), Is.EqualTo($"{GraphFactory.TestFileName}:7:17"));
     }
+
+    [Test]
+    public void Indexer()
+    {
+        var graph = Build(@"
+            public class Test {
+                public int this[int index] => 0;
+                public int this[string index] => 0;
+            }
+        ");
+
+        GraphAssert.HasSymbol(graph, "Test/this[int]");
+        GraphAssert.HasSymbol(graph, "Test/this[string]");
+    }
 }

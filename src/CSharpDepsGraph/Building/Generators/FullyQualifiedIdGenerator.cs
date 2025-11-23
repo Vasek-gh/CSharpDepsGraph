@@ -179,7 +179,7 @@ public class FullyQualifiedIdGenerator : ISymbolIdGenerator
             return;
         }
 
-        var symbolName = GeneratorsUtils.GetTypeName(symbol);
+        var symbolName = GeneratorsUtils.GetTypeName(symbol, _parameterMode);
         var symbolParent = GeneratorsUtils.GetTypeParent(symbol, _parameterMode);
 
         Append(symbolParent, false);
@@ -234,6 +234,11 @@ public class FullyQualifiedIdGenerator : ISymbolIdGenerator
 
     private void AppendMethod(IMethodSymbol symbol)
     {
+        if (symbol.Name == "extractDeleteRecordsReports")
+        {
+            // todo kill
+        }
+
         Append(symbol.ContainingSymbol, false);
 
         var symbolName = symbol.Name;

@@ -4,14 +4,9 @@ namespace CSharpDepsGraph.Building.Generators;
 
 internal static class GeneratorsUtils
 {
-    public static bool IsTypePrimitive(ITypeSymbol typeSymbol)
+    public static string GetTypeName(ITypeSymbol typeSymbol, bool parametersMode)
     {
-        return GetPrimitiveTypeName(typeSymbol) is not null;
-    }
-
-    public static string GetTypeName(ITypeSymbol typeSymbol)
-    {
-        return GetPrimitiveTypeName(typeSymbol) ?? typeSymbol.Name;
+        return GetPrimitiveTypeName(typeSymbol, parametersMode) ?? typeSymbol.Name;
     }
 
     public static ISymbol? GetTypeParent(ITypeSymbol typeSymbol, bool parametersMode)
@@ -21,7 +16,7 @@ internal static class GeneratorsUtils
             return null;
         }
 
-        if (parametersMode && GetPrimitiveTypeName(typeSymbol) is not null)
+        if (parametersMode && GetPrimitiveTypeName(typeSymbol, parametersMode) is not null)
         {
             return null;
         }
@@ -29,10 +24,12 @@ internal static class GeneratorsUtils
         return typeSymbol.ContainingSymbol;
     }
 
-    public static string? GetPrimitiveTypeName(ITypeSymbol typeSymbol)
+    public static string? GetPrimitiveTypeName(ITypeSymbol typeSymbol, bool parametersMode)
     {
         // todo надо это убить и тесты написать
-        if (typeSymbol.ContainingAssembly.Name == "System.Runtime" && typeSymbol.ContainingAssembly.Identity.Version.Major >= 8)
+        if (parametersMode ||
+            (typeSymbol.ContainingAssembly.Name == "System.Runtime" && typeSymbol.ContainingAssembly.Identity.Version.Major >= 8)
+            )
         {
             return typeSymbol.SpecialType switch
             {

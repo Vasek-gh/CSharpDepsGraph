@@ -8,11 +8,26 @@
     Тоесть у символа может быть несколько ссылок на один символ но  в разных метсах. Сейчас у ссылки есть
     только одна локация. Похоже надо подумать как сделать их не сколько
 - Локация указывает не на символ а на его полный синтаксис
-
+- Генерируемый код может быть шлаком. Надо для генерируемого кода который в исходних делать только публичные узлы без ссылок из них. Полезно для Protobuf/Avro
 - Проверить что проект с targetframeworks не дублирует ссылки
 - Похоже проекты с targetframeworks на каждый фреймворк создаеют свой символ. Сейчас у ноды можно указать только
     один символ. Надо подумать нужно ли у ноды делать много символов
 - Проверить IPointerTypeSymbol при парсинге
+
+- Пространство может находится в разных сборка. Узлы должны создаватся в каждой сборке и ссылки должны идти имено на узлы из сборки
+- Проверить
+    public void MyMethod() {
+        Func<int, int, int> mySumImplementation =
+            delegate (int a, int b) { return a+b; };
+
+        Console.WriteLine(mySumImplementation(1,1).ToString());
+    }
+
+    delegate void NotifyCallback(string str);
+    NotifyCallback del3 = delegate (string name)
+    {
+        Console.WriteLine($"Notification received for: {name}");
+    };
 
 - Почему то создается ссылка на "Id": "mscorlib_4.0.0.0/System.Collections.Generic.List<T>.Enumerator.MoveNext()",
 - DateTime.Now создает ссылку на DateTime
