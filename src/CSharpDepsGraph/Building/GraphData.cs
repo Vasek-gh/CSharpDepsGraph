@@ -86,7 +86,7 @@ internal class GraphData
         return node;
     }
 
-    public Node AddNode(
+    public Node AddChildNode(
         Node parent,
         ISymbol symbol
         )
@@ -158,6 +158,26 @@ internal class GraphData
         {
             var set = aNode.ChildList.Select(n => n.Id).ToHashSet();
             var q = bNode.ChildList.Where(n => !set.Contains(n.Id)).ToArray();
+            return;
+            //throw new Exception("1");
+        }
+
+        if (aNode.SyntaxLinks.Count() != bNode.SyntaxLinks.Count())
+        {
+            if (aNode.Symbol?.Kind == SymbolKind.Namespace)
+            {
+                return;
+            }
+
+            if (aNode.Symbol?.Kind == SymbolKind.Property
+                && aNode.Symbol.ContainingType.IsRecord
+                && aNode.SyntaxLinks.Count() == 1
+                && bNode.SyntaxLinks.Count() == 2
+                )
+            {
+                return;
+            }
+
             return;
             //throw new Exception("1");
         }

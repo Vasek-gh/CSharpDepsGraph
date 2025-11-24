@@ -17,7 +17,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
     private readonly LinkedSymbolsMap _linkedSymbolsMap;
     private readonly Stack<string> _parentIdsStack;
     private readonly bool _fileIsGenerated;
-
+    private readonly string _projectPath;
     private readonly Stack<Node> _nodeStack;
     private readonly Stack<ISymbol> _symbolStack;
     private readonly IAssemblySymbol _assemblySymbol;
@@ -29,7 +29,8 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
         ISymbolIdGenerator symbolIdBuilder,
         SymbolComparer symbolComparer,
         LinkedSymbolsMap linkedSymbolsMap,
-        bool fileIsGenerated
+        bool fileIsGenerated,
+        string projectPath
         )
     {
         _logger = logger;
@@ -39,7 +40,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
         _symbolComparer = symbolComparer;
         _linkedSymbolsMap = linkedSymbolsMap;
         _fileIsGenerated = fileIsGenerated;
-
+        _projectPath = projectPath;
         _nodeStack = new();
         _symbolStack = new();
         _parentIdsStack = new();
@@ -57,10 +58,11 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
 
     public override void VisitCompilationUnit(CompilationUnitSyntax syntaxNode)
     {
-        HandleDeclaration(syntaxNode, _semanticModel.Compilation.Assembly, () =>
-        {
-            base.VisitCompilationUnit(syntaxNode);
-        });
+        var node = PushSymbol(_assemblySymbol);
+        node.AddAssemblySyntaxLink(_projectPath);
+
+        base.VisitCompilationUnit(syntaxNode);
+        PopSymbol();
     }
 
     public override void VisitNamespaceDeclaration(NamespaceDeclarationSyntax syntaxNode)
@@ -140,21 +142,26 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
             return;
         }
 
-        if (symbol.Name == "Car")
+        if (symbol.Name == "Id" && symbol.Kind == SymbolKind.Property)
         {
+            var t = symbol.ContainingType;
             // todo kill
         }
 
-        PushSymbol(symbol);
+        var node = PushSymbol(symbol);
+        node.AddSyntaxLink(LocationKind.Local, syntaxNode);
+
         action?.Invoke();
         PopSymbol();
     }
 
-    private void PushSymbol(ISymbol symbol)
+    private Node PushSymbol(ISymbol symbol)
     {
         var parentNode = _nodeStack.Peek();
-        var currentNode = _graphData.AddNode(parentNode, symbol);
+        var currentNode = _graphData.AddChildNode(parentNode, symbol);
         _nodeStack.Push(currentNode);
+
+        return currentNode;
     }
 
     private void PopSymbol()
@@ -237,32 +244,28 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
         });
     }
 
-    public override void VisitRecordDeclaration(RecordDeclarationSyntax node)
+    public override void VisitRecordDeclaration(RecordDeclarationSyntax syntaxNode)
     {
-        Node? recordNode = null;
-        IMethodSymbol? primaryConstructor = null;
-        VisitTypeDeclarationSyntax(node, () =>
+        VisitTypeDeclarationSyntax(syntaxNode, () =>
         {
-            if (node.ParameterList?.Parameters.Count == 0)
+            if (syntaxNode.ParameterList is null || syntaxNode.ParameterList.Parameters.Count == 0)
             {
                 return;
             }
 
-            var record = _semanticModel.GetDeclaredSymbol(node)
-                ?? throw new Exception($"Fail to find record symbol for: {node}");
+            var record = _semanticModel.GetDeclaredSymbol(syntaxNode)
+                ?? throw new Exception($"Fail to find record symbol for: {syntaxNode}");
 
-            primaryConstructor = record.Constructors.SingleOrDefault(x =>
+            var primaryConstructor = record.Constructors.SingleOrDefault(x =>
                 !x.IsImplicitlyDeclared
                 && x.DeclaringSyntaxReferences.SingleOrDefault()?.GetSyntax() is RecordDeclarationSyntax
                 )
                 ?? throw new Exception($"Primary contructor not found for: {record}");
 
-            recordNode = _nodeStack.Peek();
-
-            HandleDeclaration(node, primaryConstructor, () =>
+            HandleDeclaration(syntaxNode, primaryConstructor, () =>
             {
                 BeginHandleSymbol(primaryConstructor);
-                HandleParameterList(node.ParameterList);
+                HandleParameterList(syntaxNode.ParameterList);
                 EndHandleSymbol();
             });
 
@@ -270,7 +273,11 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
             var properties = record.GetMembers().Where(m => m.Kind == SymbolKind.Property && parameters.Contains(m.Name));
             foreach (var property in properties)
             {
-                PushSymbol(property);
+                var parameterSyntax = syntaxNode.ParameterList.Parameters
+                    .Single(p => p.Identifier.ValueText == property.Name);
+
+                var node = PushSymbol(property);
+                node.AddSyntaxLink(LocationKind.Local, parameterSyntax);
                 PopSymbol();
             }
         });

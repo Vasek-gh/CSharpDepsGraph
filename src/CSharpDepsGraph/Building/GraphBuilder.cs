@@ -92,6 +92,7 @@ public sealed class GraphBuilder
 
         _linkedSymbolsMap.Clear();
         var linkedSymbolsMap = _linkedSymbolsMap;
+        var projectPath = project.FilePath ?? $"{project.Name}.dll";
 
         foreach (var syntaxTree in compilation.SyntaxTrees)
         {
@@ -100,12 +101,12 @@ public sealed class GraphBuilder
                 // todo kill
             }
 
-            HandleSyntax(syntaxTree, compilation, linkedSymbolsMap, generatedFiles, cancellationToken);
+            HandleSyntax(syntaxTree, compilation, linkedSymbolsMap, generatedFiles, projectPath, cancellationToken);
         }
 
         var symbolVisitor = new SymbolVisitor(
             Utils.CreateLogger<SymbolVisitor>(_loggerFactory, compilation.Assembly.Name),
-            project.FilePath ?? $"{project.Name}.dll",
+            projectPath,
             generatedFiles,
             _symbolIdBuilder,
             linkedSymbolsMap,
@@ -122,6 +123,7 @@ public sealed class GraphBuilder
         Compilation compilation,
         LinkedSymbolsMap linkedSymbolsMap,
         ISet<string> generatedFiles,
+        string projectPath,
         CancellationToken cancellationToken
         )
     {
@@ -140,7 +142,8 @@ public sealed class GraphBuilder
             _symbolIdBuilder,
             _symbolComparer,
             linkedSymbolsMap,
-            fileIsFromSourceGenerators
+            fileIsFromSourceGenerators,
+            projectPath
             );
 
         var syntaxRoot = syntaxTree.GetRoot(cancellationToken);
