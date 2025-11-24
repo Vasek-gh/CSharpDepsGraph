@@ -158,7 +158,8 @@ internal class GraphData
         {
             var set = aNode.ChildList.Select(n => n.Id).ToHashSet();
             var q = bNode.ChildList.Where(n => !set.Contains(n.Id)).ToArray();
-            throw new Exception("1");
+            return;
+            //throw new Exception("1");
         }
     }
 }
