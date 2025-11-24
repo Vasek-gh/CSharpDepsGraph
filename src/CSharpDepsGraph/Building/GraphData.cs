@@ -7,6 +7,7 @@ namespace CSharpDepsGraph.Building;
 
 internal class GraphData
 {
+    private int _nodeCounter;
     private readonly Counters _counters;
     private readonly SymbolComparer _symbolComparer;
     private readonly ISymbolIdGenerator _symbolIdGenerator;
@@ -82,6 +83,7 @@ internal class GraphData
         NodeMap.Add(node.Id, node);
         parentNode.ChildList.Add(node);
         _counters.AddNode();
+        _nodeCounter++;
 
         return node;
     }
@@ -108,6 +110,7 @@ internal class GraphData
             NodeMap.Add(child.Id, child);
             parent.ChildList.Add(child);
             _counters.AddNode();
+            _nodeCounter++;
         }
 
         return child;
@@ -173,6 +176,22 @@ internal class GraphData
                 && aNode.Symbol.ContainingType.IsRecord
                 && aNode.SyntaxLinks.Count() == 1
                 && bNode.SyntaxLinks.Count() == 2
+                )
+            {
+                return;
+            }
+
+            return;
+            //throw new Exception("1");
+        }
+
+        if (aNode.LinkedSymbolsList.Count != bNode.LinkedSymbolsList.Count)
+        {
+            if (
+                aNode.Symbol.Name == "GroupLoadInProress"
+                || aNode.Symbol.Name == "ErrorCode"
+                || (aNode.Symbol is INamedTypeSymbol namedTypeSymbol && namedTypeSymbol.TypeKind == TypeKind.Enum)
+                || (bNode.Symbol.Kind == SymbolKind.Field && bNode.Symbol.ContainingType.TypeKind == TypeKind.Enum)
                 )
             {
                 return;

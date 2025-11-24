@@ -817,16 +817,10 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
         }
 
         var symbolId = _symbolIdBuilder.Execute(symbol);
-        if (_parentIdsStack.Peek() == "Confluent.SchemaRegistry.Serdes.UnitTests/Confluent.SchemaRegistry.Serdes.UnitTests.JsonSerializeDeserializeTests.ValidationFailureReturnsPath()")
-        {
-            if (syntax.ToString() == "new JsonSerializer<NonNullStringValue>(schemaRegistryClient)")
-            {
-                // todo kill
-            }
-            if (symbolId == "Confluent.SchemaRegistry.Serdes.Json/Confluent.SchemaRegistry.Serdes.JsonSerializer<T>.ctor(Confluent.SchemaRegistry.ISchemaRegistryClient,Confluent.SchemaRegistry.Serdes.JsonSerializerConfig,NJsonSchema.Generation.JsonSchemaGeneratorSettings,Confluent.SchemaRegistry.RuleRegistry)")
-            {
 
-            }
+        if (_parentIdsStack.Peek() == "Confluent.Kafka/Confluent.Kafka.AdminClient.cancellationDelayMaxMs")
+        {
+            // todo kill
         }
 
         var linkedSymbol = new LinkedSymbol()
@@ -838,6 +832,9 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
         };
 
         _linkedSymbolsMap.Add(_parentIdsStack.Peek(), linkedSymbol);
+
+        var node = _nodeStack.Peek();
+        node.AddLinkedSymbol(linkedSymbol);
     }
 
     private ISymbol GetSyntaxSymbol(SyntaxNode syntax)

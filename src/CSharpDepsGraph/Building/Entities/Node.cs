@@ -77,6 +77,25 @@ internal class Node : INode
         _syntaxLinkList.Add(syntaxLink);
     }
 
+    public void AddLinkedSymbol(LinkedSymbol item)
+    {
+        foreach (var linkedSymbol in LinkedSymbolsList)
+        {
+            var syntax = linkedSymbol.Syntax;
+
+            if (linkedSymbol.Id == item.Id
+                && syntax.Span == item.Syntax.Span
+                && syntax.SyntaxTree.FilePath == item.Syntax.SyntaxTree.FilePath
+                && linkedSymbol.LocationKind == item.LocationKind
+                )
+            {
+                return;
+            }
+        }
+
+        LinkedSymbolsList.Add(item);
+    }
+
     public void AddLinkedSymbols(List<LinkedSymbol> items)
     {
         var uniqueFrom = items.Where(fromItem =>
