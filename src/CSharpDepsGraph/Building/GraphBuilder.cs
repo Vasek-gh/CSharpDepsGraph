@@ -14,11 +14,9 @@ public sealed class GraphBuilder
     private readonly ILogger _logger;
     private readonly Counters _counters;
     private readonly GraphData _graphData;
-    private readonly GraphData _graphData2;
     private readonly CultureInfo _cultureInfo;
     private readonly ILoggerFactory _loggerFactory;
     private readonly ISymbolIdGenerator _symbolIdBuilder;
-    private readonly LinkedSymbolsMap _linkedSymbolsMap;
     private readonly SymbolComparer _symbolComparer;
 
     /// <summary>
@@ -36,10 +34,8 @@ public sealed class GraphBuilder
 
         _counters = new Counters();
         _symbolComparer = new(false, false, null);
-        _linkedSymbolsMap = new(_counters);
         _symbolIdBuilder = symbolIdBuilder ?? new SymbolIdGenerator(loggerFactory, false);
-        _graphData = new GraphData(_counters, _symbolComparer, _symbolIdBuilder);
-        _graphData2 = new(_counters, _symbolComparer, _symbolIdBuilder);
+        _graphData = new(_counters, _symbolComparer, _symbolIdBuilder);
     }
 
     /// <summary>
@@ -52,8 +48,6 @@ public sealed class GraphBuilder
         {
             await HandleProjectVariants(projectVariants, cancellationToken);
         }
-
-        _graphData.Compare(_graphData2);
 
         new NodeLinkBuilder(_loggerFactory.CreateLogger<NodeLinkBuilder>(), _counters, _symbolIdBuilder, _graphData).Run();
 
@@ -90,30 +84,12 @@ public sealed class GraphBuilder
         var compilation = await GetCompilation(project, logger, cancellationToken);
         var generatedFiles = await GetGeneratedFiles(project, cancellationToken);
 
-        _linkedSymbolsMap.Clear();
-        var linkedSymbolsMap = _linkedSymbolsMap;
         var projectPath = project.FilePath ?? $"{project.Name}.dll";
 
         foreach (var syntaxTree in compilation.SyntaxTrees)
         {
-            if (syntaxTree.FilePath.EndsWith("Car.cs"))
-            {
-                // todo kill
-            }
-
-            HandleSyntax(syntaxTree, compilation, linkedSymbolsMap, generatedFiles, projectPath, cancellationToken);
+            HandleSyntax(syntaxTree, compilation, generatedFiles, projectPath, cancellationToken);
         }
-
-        var symbolVisitor = new SymbolVisitor(
-            Utils.CreateLogger<SymbolVisitor>(_loggerFactory, compilation.Assembly.Name),
-            projectPath,
-            generatedFiles,
-            _symbolIdBuilder,
-            linkedSymbolsMap,
-            _graphData
-        );
-
-        symbolVisitor.Visit(compilation.Assembly);
 
         logger.LogDebug($"Project handled");
     }
@@ -121,7 +97,6 @@ public sealed class GraphBuilder
     private void HandleSyntax(
         SyntaxTree syntaxTree,
         Compilation compilation,
-        LinkedSymbolsMap linkedSymbolsMap,
         ISet<string> generatedFiles,
         string projectPath,
         CancellationToken cancellationToken
@@ -136,12 +111,10 @@ public sealed class GraphBuilder
 
         var semanticModel = compilation.GetSemanticModel(syntaxTree);
         var syntaxVisitor = new SyntaxVisitor(
-            Utils.CreateLogger<SymbolVisitor>(_loggerFactory, syntaxTree.FilePath),
-            _graphData2,
+            Utils.CreateLogger<SyntaxVisitor>(_loggerFactory, syntaxTree.FilePath),
+            _graphData,
             semanticModel,
             _symbolIdBuilder,
-            _symbolComparer,
-            linkedSymbolsMap,
             fileIsFromSourceGenerators,
             projectPath
             );

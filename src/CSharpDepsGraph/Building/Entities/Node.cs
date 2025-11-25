@@ -76,49 +76,4 @@ internal class Node : INode
 
         _syntaxLinkList.Add(syntaxLink);
     }
-
-    public void AddLinkedSymbol(LinkedSymbol item)
-    {
-        foreach (var linkedSymbol in LinkedSymbolsList)
-        {
-            var syntax = linkedSymbol.Syntax;
-
-            if (linkedSymbol.Id == item.Id
-                && syntax.Span == item.Syntax.Span
-                && syntax.SyntaxTree.FilePath == item.Syntax.SyntaxTree.FilePath
-                && linkedSymbol.LocationKind == item.LocationKind
-                )
-            {
-                return;
-            }
-        }
-
-        LinkedSymbolsList.Add(item);
-    }
-
-    public void AddLinkedSymbols(List<LinkedSymbol> items)
-    {
-        var uniqueFrom = items.Where(fromItem =>
-        {
-            var fromItemSyntax = fromItem.Syntax;
-
-            foreach (var linkedSymbol in LinkedSymbolsList)
-            {
-                var toItemSyntax = linkedSymbol.Syntax;
-
-                if (linkedSymbol.Id == fromItem.Id
-                    && toItemSyntax.Span == fromItemSyntax.Span
-                    && toItemSyntax.SyntaxTree.FilePath == fromItemSyntax.SyntaxTree.FilePath
-                    && linkedSymbol.LocationKind == fromItem.LocationKind
-                    )
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        });
-
-        LinkedSymbolsList.AddRange(uniqueFrom);
-    }
 }

@@ -81,7 +81,8 @@ public class FullyQualifiedIdGenerator : ISymbolIdGenerator
 
         Append(info.Name);
 
-        if (symbol is not ISourceAssemblySymbol)
+        // todo check in a unit test that a version is not created for the assembly from source
+        if (symbol.Locations.Length == 1 && symbol.Locations[0].IsInMetadata)
         {
             if (!_versionCache.TryGetValue(info.Version, out var versionString))
             {

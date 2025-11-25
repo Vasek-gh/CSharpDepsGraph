@@ -27,9 +27,19 @@ internal class SymbolComparer
         ];
     }
 
-    public bool Compare(ISymbol? a, ISymbol? b)
+    public bool Compare(ISymbol? a, ISymbol? b, bool withParents)
+    {
+        return Compare(a, b, withParents, false);
+    }
+
+    private bool Compare(ISymbol? a, ISymbol? b, bool withParents, bool parameterMode)
     {
         if (ReferenceEquals(a, b))
+        {
+            return true;
+        }
+
+        if (a is null && b is null)
         {
             return true;
         }
@@ -37,16 +47,6 @@ internal class SymbolComparer
         if (a is null || b is null)
         {
             return false;
-        }
-
-        return Compare(a, b, false);
-    }
-
-    private bool Compare(ISymbol a, ISymbol b, bool parameterMode)
-    {
-        if (a is null || b is null)
-        {
-            // todo kill
         }
 
         if (a.Kind != b.Kind)
@@ -65,6 +65,13 @@ internal class SymbolComparer
             _ when a is ITypeSymbol => CompareType(a as ITypeSymbol, b as ITypeSymbol, parameterMode),
             _ => CompareSymbol(a, b, parameterMode)
         };
+
+        if (result && withParents)
+        {
+            a = a.ContainingSymbol;
+            b = b.ContainingSymbol;
+            result = Compare(a, b, true, false);
+        }
 
         return result;
     }
@@ -147,7 +154,7 @@ internal class SymbolComparer
             return false;
         }
 
-        return parameterMode || Compare(a.ContainingSymbol, b.ContainingSymbol, parameterMode);
+        return parameterMode || Compare(a.ContainingSymbol, b.ContainingSymbol, false, parameterMode);
     }
 
     private bool CompareType(ITypeSymbol? a, ITypeSymbol? b, bool parameterMode)
@@ -155,7 +162,7 @@ internal class SymbolComparer
         if (a is null
             || b is null
             || a.Kind != b.Kind
-            || a.NullableAnnotation != b.NullableAnnotation
+            || IsNullable(a) != IsNullable(b)
             )
         {
             return false;
@@ -199,7 +206,7 @@ internal class SymbolComparer
             return false;
         }
 
-        return parameterMode || Compare(a.ContainingSymbol, b.ContainingSymbol, parameterMode);
+        return parameterMode || Compare(a.ContainingSymbol, b.ContainingSymbol, false, parameterMode);
 
         ITypeSymbol GetPointerType(ITypeSymbol typeSymbol)
         {
@@ -213,6 +220,11 @@ internal class SymbolComparer
             var pointerTypeSymbol = Utils.CheckNull(typeSymbol as IArrayTypeSymbol, $"{typeSymbol} is not array");
 
             return pointerTypeSymbol.ElementType;
+        }
+
+        bool IsNullable(ITypeSymbol typeSymbol)
+        {
+            return typeSymbol.NullableAnnotation == NullableAnnotation.Annotated;
         }
 
         ITypeSymbol GetNullableType(ITypeSymbol typeSymbol)
@@ -295,7 +307,7 @@ internal class SymbolComparer
 
     private bool CompareMethod(IMethodSymbol? a, IMethodSymbol? b)
     {
-        if (a?.Name == "Assign" && b?.Name == "Assign")
+        if (a?.Name == "WriteUnaligned" && b?.Name == "WriteUnaligned")
         {
             // todo kill
         }
@@ -351,7 +363,7 @@ internal class SymbolComparer
     {
         for (var i = 0; i < aItems.Length; i++)
         {
-            if (!Compare(aItems[i], bItems[i], parameterMode))
+            if (!Compare(aItems[i], bItems[i], false, parameterMode))
             {
                 return false;
             }
@@ -369,7 +381,7 @@ internal class SymbolComparer
             return false;
         }
 
-        return parameterMode || Compare(a.ContainingSymbol, b.ContainingSymbol, parameterMode);
+        return parameterMode || Compare(a.ContainingSymbol, b.ContainingSymbol, false, parameterMode);
     }
 
     public static bool ComparePrimiteTypes(ITypeSymbol aTypeSymbol, ITypeSymbol bTypeSymbol)

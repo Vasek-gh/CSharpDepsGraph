@@ -7,7 +7,8 @@ namespace CSharpDepsGraph.Building;
 
 internal class GraphData
 {
-    private int _nodeCounter;
+    private int _nodesCount;
+    private int _linkedSymbolsCount;
     private readonly Counters _counters;
     private readonly SymbolComparer _symbolComparer;
     private readonly ISymbolIdGenerator _symbolIdGenerator;
@@ -55,9 +56,9 @@ internal class GraphData
     {
         if (NodeMap.TryGetValue(id, out var node))
         {
-            if (!_symbolComparer.Compare(symbol, node.Symbol))
+            if (!_symbolComparer.Compare(symbol, node.Symbol, false))
             {
-                _symbolComparer.Compare(symbol, node.Symbol);
+                _symbolComparer.Compare(symbol, node.Symbol, false);
                 // todo kill
             }
             return node;
@@ -83,7 +84,6 @@ internal class GraphData
         NodeMap.Add(node.Id, node);
         parentNode.ChildList.Add(node);
         _counters.AddNode();
-        _nodeCounter++;
 
         return node;
     }
@@ -98,7 +98,7 @@ internal class GraphData
             // todo kill
         }
 
-        var child = parent.ChildList.FirstOrDefault(c => _symbolComparer.Compare(c.Symbol, symbol));
+        var child = parent.ChildList.FirstOrDefault(c => _symbolComparer.Compare(c.Symbol, symbol, false));
         if (child is null)
         {
             var id = _symbolIdGenerator.Execute(symbol);
@@ -110,95 +110,25 @@ internal class GraphData
             NodeMap.Add(child.Id, child);
             parent.ChildList.Add(child);
             _counters.AddNode();
-            _nodeCounter++;
+            _nodesCount++;
         }
 
         return child;
     }
 
-    public void Compare(GraphData graphData)
+    public void AddLinkedSymbol(Node node, LinkedSymbol newItem)
     {
-        Compare(Root, graphData.Root, graphData);
-    }
-
-    public void Compare(Node aNode, Node bNode, GraphData bGraphData)
-    {
-        //if (aNode.IsExternal() != bNode.IsExternal())
+        foreach (var currentItem in node.LinkedSymbolsList)
         {
-          //  throw new Exception("1");
-        }
-
-        if (aNode.Id != bNode.Id)
-        {
-            throw new Exception("1");
-        }
-
-        foreach (var aChild in aNode.ChildList)
-        {
-            var bChild = bNode.ChildList.SingleOrDefault(n => n.Id == aChild.Id);
-            if (bChild is null)
-            {
-                bChild = bGraphData.NodeMap[aChild.Id];
-                throw new Exception("1");
-            }
-
-            Compare(aChild, bChild, bGraphData);
-        }
-
-        foreach (var bChild in bNode.ChildList)
-        {
-            var aChild = bNode.ChildList.SingleOrDefault(n => n.Id == bChild.Id);
-            if (aChild is null)
-            {
-                aChild = NodeMap[bChild.Id];
-                throw new Exception("1");
-            }
-
-            Compare(aChild, bChild, bGraphData);
-        }
-
-        if (aNode.ChildList.Count != bNode.ChildList.Count)
-        {
-            var set = aNode.ChildList.Select(n => n.Id).ToHashSet();
-            var q = bNode.ChildList.Where(n => !set.Contains(n.Id)).ToArray();
-            return;
-            //throw new Exception("1");
-        }
-
-        if (aNode.SyntaxLinks.Count() != bNode.SyntaxLinks.Count())
-        {
-            if (aNode.Symbol?.Kind == SymbolKind.Namespace)
-            {
-                return;
-            }
-
-            if (aNode.Symbol?.Kind == SymbolKind.Property
-                && aNode.Symbol.ContainingType.IsRecord
-                && aNode.SyntaxLinks.Count() == 1
-                && bNode.SyntaxLinks.Count() == 2
+            if (currentItem.Syntax.Span == newItem.Syntax.Span
+                && _symbolComparer.Compare(currentItem.Symbol, newItem.Symbol, true)
                 )
             {
                 return;
             }
-
-            return;
-            //throw new Exception("1");
         }
 
-        if (aNode.LinkedSymbolsList.Count != bNode.LinkedSymbolsList.Count)
-        {
-            if (
-                aNode.Symbol.Name == "GroupLoadInProress"
-                || aNode.Symbol.Name == "ErrorCode"
-                || (aNode.Symbol is INamedTypeSymbol namedTypeSymbol && namedTypeSymbol.TypeKind == TypeKind.Enum)
-                || (bNode.Symbol.Kind == SymbolKind.Field && bNode.Symbol.ContainingType.TypeKind == TypeKind.Enum)
-                )
-            {
-                return;
-            }
-
-            return;
-            //throw new Exception("1");
-        }
+        node.LinkedSymbolsList.Add(newItem);
+        _linkedSymbolsCount++;
     }
 }

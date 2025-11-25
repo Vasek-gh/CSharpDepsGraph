@@ -1,2 +1,4 @@
-﻿// See https://aka.ms/new-console-template for more information
+﻿using TestProject.Entities;
+
+var car = new Car();
 Console.WriteLine("Hello, World!");

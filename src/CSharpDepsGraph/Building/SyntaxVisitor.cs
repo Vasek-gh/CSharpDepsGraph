@@ -13,9 +13,6 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
     private readonly GraphData _graphData;
     private readonly SemanticModel _semanticModel;
     private readonly ISymbolIdGenerator _symbolIdBuilder;
-    private readonly SymbolComparer _symbolComparer;
-    private readonly LinkedSymbolsMap _linkedSymbolsMap;
-    private readonly Stack<string> _parentIdsStack;
     private readonly bool _fileIsGenerated;
     private readonly string _projectPath;
     private readonly Stack<Node> _nodeStack;
@@ -27,8 +24,6 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
         GraphData graphData,
         SemanticModel semanticModel,
         ISymbolIdGenerator symbolIdBuilder,
-        SymbolComparer symbolComparer,
-        LinkedSymbolsMap linkedSymbolsMap,
         bool fileIsGenerated,
         string projectPath
         )
@@ -37,14 +32,11 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
         _graphData = graphData;
         _semanticModel = semanticModel;
         _symbolIdBuilder = symbolIdBuilder;
-        _symbolComparer = symbolComparer;
-        _linkedSymbolsMap = linkedSymbolsMap;
         _fileIsGenerated = fileIsGenerated;
         _projectPath = projectPath;
+
         _nodeStack = new();
         _symbolStack = new();
-        _parentIdsStack = new();
-
         _assemblySymbol = semanticModel.Compilation.Assembly;
 
         _nodeStack.Push(_graphData.Root);
@@ -142,12 +134,6 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
             return;
         }
 
-        if (symbol.Name == "Id" && symbol.Kind == SymbolKind.Property)
-        {
-            var t = symbol.ContainingType;
-            // todo kill
-        }
-
         var node = PushSymbol(symbol);
         node.AddSyntaxLink(LocationKind.Local, syntaxNode);
 
@@ -180,9 +166,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
         {
             HandleDeclaration(syntaxNode.Parent, mainSymbol, () =>
             {
-                BeginHandleSymbol(syntaxNode.Parent);
                 base.VisitGlobalStatement(syntaxNode);
-                EndHandleSymbol();
             });
         });
     }
@@ -212,8 +196,6 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
     {
         HandleDeclaration(node, () =>
         {
-            BeginHandleSymbol(node);
-
             HandleAttributes(node.AttributeLists);
             HandleNodes<CSharpSyntaxNode>(node.BaseList?.Types);
 
@@ -224,8 +206,6 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
                     member.Accept(this);
                 });
             }
-
-            EndHandleSymbol();
         });
     }
 
@@ -233,14 +213,10 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
     {
         HandleDeclaration(node, () =>
         {
-            BeginHandleSymbol(node);
-
             HandleConstraints(node.ConstraintClauses);
             HandleAttributes(node.AttributeLists);
             HandleParameterList(node.ParameterList);
             node.ReturnType?.Accept(this);
-
-            EndHandleSymbol();
         });
     }
 
@@ -264,9 +240,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
 
             HandleDeclaration(syntaxNode, primaryConstructor, () =>
             {
-                BeginHandleSymbol(primaryConstructor);
                 HandleParameterList(syntaxNode.ParameterList);
-                EndHandleSymbol();
             });
 
             var parameters = primaryConstructor.Parameters.Select(p => p.Name).ToHashSet();
@@ -287,8 +261,6 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
     {
         HandleDeclaration(node, () =>
         {
-            BeginHandleSymbol(node);
-
             advancedHandling?.Invoke();
 
             HandleAttributes(node.AttributeLists);
@@ -299,8 +271,6 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
             {
                 member.Accept(this);
             }
-
-            EndHandleSymbol();
         });
     }
 
@@ -316,11 +286,9 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
         {
             HandleDeclaration(variable, () =>
             {
-                BeginHandleSymbol(variable);
                 node.Declaration.Type.Accept(this);
                 HandleAttributes(node.AttributeLists);
                 variable.Initializer?.Accept(this);
-                EndHandleSymbol();
             });
         }
     }
@@ -329,14 +297,12 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
     {
         HandleDeclaration(node, () =>
         {
-            BeginHandleSymbol(node);
             HandleAttributes(node.AttributeLists);
             node.Type.Accept(this);
             node.ExplicitInterfaceSpecifier?.Accept(this);
             node.AccessorList?.Accept(this);
             node.ExpressionBody?.Accept(this);
             node.Initializer?.Accept(this);
-            EndHandleSymbol();
         });
     }
 
@@ -344,14 +310,12 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
     {
         HandleDeclaration(node, () =>
         {
-            BeginHandleSymbol(node);
             HandleAttributes(node.AttributeLists);
             HandleParameterList(node.ParameterList);
             node.Type.Accept(this);
             node.ExplicitInterfaceSpecifier?.Accept(this);
             node.AccessorList?.Accept(this);
             node.ExpressionBody?.Accept(this);
-            EndHandleSymbol();
         });
     }
 
@@ -359,8 +323,6 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
     {
         HandleDeclaration(node, () =>
         {
-            BeginHandleSymbol(node);
-
             node.Type?.Accept(this);
             node.ExplicitInterfaceSpecifier?.Accept(this);
 
@@ -372,8 +334,6 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
                     accessor.ExpressionBody?.Accept(this);
                 }
             }
-
-            EndHandleSymbol();
         });
     }
 
@@ -383,11 +343,9 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
         {
             HandleDeclaration(variable, () =>
             {
-                BeginHandleSymbol(variable);
                 node.Declaration.Type.Accept(this);
                 HandleAttributes(node.AttributeLists);
                 variable.Initializer?.Accept(this);
-                EndHandleSymbol();
             });
         }
     }
@@ -396,10 +354,8 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
     {
         HandleDeclaration(node, () =>
         {
-            BeginHandleSymbol(node);
             node.Initializer?.Accept(this);
             HandleMethod(node);
-            EndHandleSymbol();
         });
     }
 
@@ -407,9 +363,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
     {
         HandleDeclaration(node, () =>
         {
-            BeginHandleSymbol(node);
             HandleMethod(node);
-            EndHandleSymbol();
         });
     }
 
@@ -417,12 +371,10 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
     {
         HandleDeclaration(node, () =>
         {
-            BeginHandleSymbol(node);
             HandleConstraints(node.ConstraintClauses);
             node.ReturnType?.Accept(this);
             node.ExplicitInterfaceSpecifier?.Accept(this);
             HandleMethod(node);
-            EndHandleSymbol();
         });
     }
 
@@ -430,11 +382,9 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
     {
         HandleDeclaration(node, () =>
         {
-            BeginHandleSymbol(node);
             node.ReturnType?.Accept(this);
             node.ExplicitInterfaceSpecifier?.Accept(this);
             HandleMethod(node);
-            EndHandleSymbol();
         });
     }
 
@@ -442,11 +392,9 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
     {
         HandleDeclaration(node, () =>
         {
-            BeginHandleSymbol(node);
             node.Type?.Accept(this);
             node.ExplicitInterfaceSpecifier?.Accept(this);
             HandleMethod(node);
-            EndHandleSymbol();
         });
     }
 
@@ -633,33 +581,9 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
         }
     }
 
-    private void BeginHandleSymbol(SyntaxNode syntaxNode)
-    {
-        var symbol = _semanticModel.GetDeclaredSymbol(syntaxNode)
-            ?? throw new Exception($"Symbol for {syntaxNode} not found");
-
-        BeginHandleSymbol(symbol);
-    }
-
-    private void BeginHandleSymbol(ISymbol symbol)
-    {
-        var symbolId = _symbolIdBuilder.Execute(symbol);
-        _parentIdsStack.Push(symbolId);
-    }
-
-    private void EndHandleSymbol()
-    {
-        _parentIdsStack.Pop();
-    }
-
-    private bool HasParentSymbol()
-    {
-        return _parentIdsStack.Count > 0;
-    }
-
     private void HandleIdentifier(SimpleNameSyntax node)
     {
-        if (!HasParentSymbol())
+        if (_nodeStack.Count == 0)
         {
             return;
         }
@@ -804,7 +728,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
     {
         symbol ??= GetSyntaxSymbol(syntax);
 
-        if (_parentIdsStack.Count == 0)
+        if (_nodeStack.Count == 0)
         {
             _logger.LogWarning($"""
                 Detect symbol outside parent. Symbol will be skipped.
@@ -816,25 +740,19 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
             return;
         }
 
-        var symbolId = _symbolIdBuilder.Execute(symbol);
-
-        if (_parentIdsStack.Peek() == "Confluent.Kafka/Confluent.Kafka.AdminClient.cancellationDelayMaxMs")
+        if (_nodeStack.Peek().Id == "Confluent.SchemaRegistry.Serdes.Avro/Confluent.SchemaRegistry.Serdes.AvroDeserializerConfig.UseLatestVersion")
         {
             // todo kill
         }
 
         var linkedSymbol = new LinkedSymbol()
         {
-            Id = symbolId,
             Symbol = symbol,
             Syntax = syntax,
             LocationKind = _fileIsGenerated ? LocationKind.Generated : LocationKind.Local
         };
 
-        _linkedSymbolsMap.Add(_parentIdsStack.Peek(), linkedSymbol);
-
-        var node = _nodeStack.Peek();
-        node.AddLinkedSymbol(linkedSymbol);
+        _graphData.AddLinkedSymbol(_nodeStack.Peek(), linkedSymbol);
     }
 
     private ISymbol GetSyntaxSymbol(SyntaxNode syntax)
