@@ -1,15 +1,14 @@
 using CSharpDepsGraph.Building.Entities;
 using CSharpDepsGraph.Building.Generators;
-using CSharpDepsGraph.Building.Services;
 using Microsoft.CodeAnalysis;
 
 namespace CSharpDepsGraph.Building;
 
-internal class GraphData
+internal class BuildingData
 {
     private readonly Counters _counters;
     private readonly SymbolComparer _symbolComparer;
-    private readonly ISymbolIdGenerator _symbolIdGenerator;
+    private readonly ISymbolUidGenerator _symbolUidGenerator;
 
     public Node Root { get; }
 
@@ -17,11 +16,11 @@ internal class GraphData
 
     public List<Link> Links { get; }
 
-    public GraphData(Counters counters, SymbolComparer symbolComparer, ISymbolIdGenerator symbolIdGenerator)
+    public BuildingData(Counters counters, SymbolComparer symbolComparer, ISymbolUidGenerator symbolIdGenerator)
     {
         _counters = counters;
         _symbolComparer = symbolComparer;
-        _symbolIdGenerator = symbolIdGenerator;
+        _symbolUidGenerator = symbolIdGenerator;
 
         External = new Node(GraphConsts.ExternalRootNodeId, null);
 
@@ -52,7 +51,7 @@ internal class GraphData
 
         if (child is null)
         {
-            var id = _symbolIdGenerator.Execute(symbol);
+            var id = _symbolUidGenerator.Execute(symbol);
             child = new Node(id, symbol);
 
             parent.ChildList = AddNodeListItem(parent.ChildList, child);

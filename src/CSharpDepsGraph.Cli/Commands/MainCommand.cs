@@ -53,7 +53,8 @@ internal sealed class MainCommand
             _ => throw new Exception($"Unsupported extension: {Path.GetExtension(_settings.FileName)}")
         };
 
-        var graph = await new GraphBuilder(_loggerFactory).Run(projects, cancellationToken);
+        var builder = new GraphBuilder(_loggerFactory, new GraphBuildingOptions());
+        var graph = await builder.Run(projects, cancellationToken);
 
         return new GraphContext()
         {

@@ -5,15 +5,10 @@ namespace CSharpDepsGraph.Building.Generators;
 /// <summary>
 /// Creates a unique identifier for a symbol
 /// </summary>
-public interface ISymbolIdGenerator
+public interface ISymbolUidGenerator // todo internal
 {
     /// <summary>
     /// Creates an identifier
     /// </summary>
     string Execute(ISymbol symbol);
-
-    /// <summary>
-    /// Log internal statistic to logger
-    /// </summary>
-    void WriteStatistic();
 }

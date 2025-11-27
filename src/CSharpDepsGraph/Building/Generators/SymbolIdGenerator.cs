@@ -1,41 +1,24 @@
 using Microsoft.CodeAnalysis;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Abstractions;
+using System.Globalization;
 
 namespace CSharpDepsGraph.Building.Generators;
 
 /// <summary>
 /// Default symbol identifier generator
 /// </summary>
-public class SymbolIdGenerator : ISymbolIdGenerator
+public class SymbolUidGenerator : ISymbolUidGenerator
 {
     private uint _counter;
-    private readonly ISymbolIdGenerator _generator;
 
-    public SymbolIdGenerator()
-        : this(NullLoggerFactory.Instance, false)
-    {
-    }
-
-    public SymbolIdGenerator(ILoggerFactory loggerFactory, bool disableCache)
-    {
-        var fullyQualifiedGenerator = new FullyQualifiedIdGenerator(loggerFactory.CreateLogger<FullyQualifiedIdGenerator>(), true);
-
-        _generator = disableCache
-            ? fullyQualifiedGenerator
-            : new CachedSymbolIdGenerator(loggerFactory.CreateLogger<CachedSymbolIdGenerator>(), fullyQualifiedGenerator);
-    }
-
-    /// <inheritdoc/>
     public string Execute(ISymbol symbol)
     {
-        return _counter++.ToString();
-        //return _generator.Execute(symbol);
+        return _counter++.ToString(CultureInfo.InvariantCulture);
     }
 
-    /// <inheritdoc/>
-    public void WriteStatistic()
+    public static ISymbolUidGenerator Create(GraphBuildingOptions graphOptions)
     {
-        _generator.WriteStatistic();
+        return graphOptions.GenerateFullyQualifiedId
+            ? new FullyQualifiedIdGenerator()
+            : new SymbolUidGenerator();
     }
 }

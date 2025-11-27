@@ -30,9 +30,11 @@ public class BaseIntergationsTests
         _loggerFactory.Check();
     }
 
-    public IGraph GetGraph()
+    public IGraph GetGraph(GraphBuildingOptions? buildingOptions = null)
     {
-        return new GraphBuilder(_loggerFactory)
+        buildingOptions ??= new GraphBuildingOptions();
+
+        return new GraphBuilder(_loggerFactory, buildingOptions)
             .Run(ProjectSource.Solution.Projects, CancellationToken.None)
             .GetAwaiter()
             .GetResult();

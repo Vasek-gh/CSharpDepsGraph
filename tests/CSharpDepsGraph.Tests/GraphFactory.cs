@@ -3,7 +3,6 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.Extensions.Logging;
-using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -42,7 +41,7 @@ public static class GraphFactory
         _workspace.Dispose();
     }
 
-    public static IGraph CreateGraph(ILoggerFactory loggerFactory, string source)
+    public static IGraph CreateGraph(ILoggerFactory loggerFactory, string source, GraphBuildingOptions? buildingOptions)
     {
         var document = CreateDocument(TestFileName, source);
         var projectInfo = CreateProject(
@@ -53,8 +52,9 @@ public static class GraphFactory
             );
 
         var solution = _baseSolution.AddProject(projectInfo);
+        var options = buildingOptions ?? new GraphBuildingOptions();
 
-        return new GraphBuilder(loggerFactory)
+        return new GraphBuilder(loggerFactory, options)
             .Run(solution.Projects, CancellationToken.None)
             .GetAwaiter()
             .GetResult();

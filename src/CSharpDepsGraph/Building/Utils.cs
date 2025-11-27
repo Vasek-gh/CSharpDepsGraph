@@ -61,6 +61,11 @@ internal static class Utils
         return $"{path}:{line}:{column}";
     }
 
+    public static bool IsInMetadata(IAssemblySymbol assemblySymbol)
+    {
+        return assemblySymbol.Locations.Length == 1 && assemblySymbol.Locations[0].IsInMetadata;
+    }
+
     public static T CheckNull<T>([NotNull] T? value, string errorMessage)
     {
         if (value is null)

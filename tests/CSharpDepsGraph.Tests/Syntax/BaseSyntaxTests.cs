@@ -1,3 +1,4 @@
+using CSharpDepsGraph.Building;
 using NUnit.Framework;
 
 namespace CSharpDepsGraph.Tests.Syntax;
@@ -28,8 +29,8 @@ public class BaseSyntaxTests
         _loggerFactory.Check();
     }
 
-    protected IGraph Build(string sourceText)
+    protected IGraph Build(string sourceText, GraphBuildingOptions? buildingOptions = null)
     {
-        return GraphFactory.CreateGraph(_loggerFactory, sourceText);
+        return GraphFactory.CreateGraph(_loggerFactory, sourceText, buildingOptions);
     }
 }

@@ -1,7 +1,6 @@
 using CSharpDepsGraph.Building;
 using CSharpDepsGraph.Building.Generators;
 using Microsoft.CodeAnalysis;
-using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using NSubstitute;
 using System;
@@ -12,10 +11,7 @@ namespace CSharpDepsGraph.Tests.Transformation;
 
 internal static class Mocks
 {
-    public static readonly ISymbolIdGenerator SymbolIdBuilder = new FullyQualifiedIdGenerator(
-        NullLogger<FullyQualifiedIdGenerator>.Instance,
-        true
-        );
+    public static readonly ISymbolUidGenerator SymbolIdBuilder = new FullyQualifiedIdGenerator();
 
     public static IGraph CreateGraph(IEnumerable<INode> nodes, IEnumerable<ILink> links)
     {

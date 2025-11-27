@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using System.Globalization;
 using CSharpDepsGraph.Building.Entities;
 using CSharpDepsGraph.Building.Generators;
-using CSharpDepsGraph.Building.Services;
 using System.Data;
 
 namespace CSharpDepsGraph.Building;
@@ -15,10 +14,9 @@ public sealed class GraphBuilder
 {
     private readonly ILogger _logger;
     private readonly Counters _counters;
-    private readonly GraphData _graphData;
+    private readonly BuildingData _graphData;
     private readonly CultureInfo _cultureInfo;
     private readonly ILoggerFactory _loggerFactory;
-    private readonly ISymbolIdGenerator _idGenerator;
     private readonly SymbolComparer _symbolComparer;
 
     /// <summary>
@@ -26,6 +24,7 @@ public sealed class GraphBuilder
     /// </summary>
     public GraphBuilder(
         ILoggerFactory loggerFactory,
+        GraphBuildingOptions options,
         CultureInfo? cultureInfo = null
         )
     {
@@ -34,9 +33,13 @@ public sealed class GraphBuilder
 
         _logger = CreateLogger();
         _counters = new Counters();
-        _idGenerator = new SymbolIdGenerator(loggerFactory, false);
         _symbolComparer = new(false, false, null);
-        _graphData = new(_counters, _symbolComparer, _idGenerator);
+
+        _graphData = new(
+            _counters,
+            _symbolComparer,
+            SymbolUidGenerator.Create(options)
+            );
     }
 
     /// <summary>
@@ -54,8 +57,7 @@ public sealed class GraphBuilder
         new LinkBuilder(CreateLogger(nameof(LinkBuilder)), _graphData).Run();
         var m2 = GC.GetTotalMemory(false) - m1;
 
-        _counters.Report(_logger); // todo kill
-        _idGenerator.WriteStatistic();
+        _counters.Report(_logger);
 
         return new Graph()
         {

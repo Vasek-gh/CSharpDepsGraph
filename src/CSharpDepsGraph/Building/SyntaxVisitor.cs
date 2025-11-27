@@ -1,5 +1,4 @@
 using CSharpDepsGraph.Building.Entities;
-using CSharpDepsGraph.Building.Generators;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -10,7 +9,7 @@ namespace CSharpDepsGraph.Building;
 internal class SyntaxVisitor : CSharpSyntaxWalker
 {
     private readonly ILogger _logger;
-    private readonly GraphData _graphData;
+    private readonly BuildingData _graphData;
     private readonly SemanticModel _semanticModel;
     private readonly bool _fileIsGenerated;
     private readonly string _projectPath;
@@ -20,7 +19,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
 
     public SyntaxVisitor(
         ILogger logger,
-        GraphData graphData,
+        BuildingData graphData,
         SemanticModel semanticModel,
         bool fileIsGenerated,
         string projectPath

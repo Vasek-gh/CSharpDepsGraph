@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
 
-namespace CSharpDepsGraph.Building.Services;
+namespace CSharpDepsGraph.Building;
 
 internal class Counters
 {

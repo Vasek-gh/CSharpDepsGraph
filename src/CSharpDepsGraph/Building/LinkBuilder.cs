@@ -8,11 +8,11 @@ namespace CSharpDepsGraph.Building;
 internal class LinkBuilder
 {
     private readonly ILogger _logger;
-    private readonly GraphData _graphData;
+    private readonly BuildingData _graphData;
 
     public LinkBuilder(
         ILogger logger,
-        GraphData graphData
+        BuildingData graphData
         )
     {
         _logger = logger;
@@ -60,7 +60,7 @@ internal class LinkBuilder
             return null;
         }
 
-        var isInMetadata = assemblySymbol.Locations.Length == 1 && assemblySymbol.Locations[0].IsInMetadata;
+        var isInMetadata = Utils.IsInMetadata(assemblySymbol);
 
         var parentNode = isInMetadata
             ? _graphData.External

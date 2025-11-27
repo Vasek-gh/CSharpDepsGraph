@@ -1,7 +1,5 @@
 using Microsoft.CodeAnalysis;
-using Microsoft.Extensions.Logging;
 using System.Collections.Immutable;
-using System.Globalization;
 using System.Text;
 
 namespace CSharpDepsGraph.Building.Generators;
@@ -9,50 +7,31 @@ namespace CSharpDepsGraph.Building.Generators;
 /// <summary>
 /// Generates a human-readable unique identifier for a symbol
 /// </summary>
-public class FullyQualifiedIdGenerator : ISymbolIdGenerator
+public class FullyQualifiedIdGenerator : ISymbolUidGenerator
 {
-    private readonly ILogger _logger;
-    private readonly bool _assemblyFullNames;
     private readonly StringBuilder _stringBuilder;
     private readonly Dictionary<Version, string> _versionCache;
-    private readonly Dictionary<(string, Version), string> _assemblyIdsMap;
 
-    private int _idCounter;
-    private int _callCount;
-    private int _charsCount;
-    private bool _excludeAssembly;
     private bool _parameterMode;
+    private bool _excludeAssembly;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="FullyQualifiedIdGenerator"/> class.
     /// </summary>s
-    public FullyQualifiedIdGenerator(ILogger<FullyQualifiedIdGenerator> logger, bool assemblyFullNames)
+    public FullyQualifiedIdGenerator()
     {
-        _logger = logger;
         _stringBuilder = new(200);
         _versionCache = new();
-        _assemblyIdsMap = new();
-        _assemblyFullNames = assemblyFullNames;
     }
 
-    /// <inheritdoc/>
-    public void WriteStatistic()
-    {
-        _logger.LogDebug($"Call count: {_callCount}");
-        _logger.LogDebug($"Chars count: {_charsCount}");
-    }
-
-    /// <inheritdoc/>
     public string Execute(ISymbol symbol)
     {
-        _callCount++;
         _excludeAssembly = false;
         _stringBuilder.Clear();
 
         Append(symbol, true);
 
         var result = _stringBuilder.ToString();
-        _charsCount += result.Length;
 
         return result;
     }
@@ -66,28 +45,16 @@ public class FullyQualifiedIdGenerator : ISymbolIdGenerator
 
         _excludeAssembly = true;
 
-        var info = (symbol.Name, symbol.Identity.Version);
-
-        if (!_assemblyFullNames)
-        {
-            if (!_assemblyIdsMap.TryGetValue(info, out var id))
-            {
-                id = _idCounter++.ToString(CultureInfo.InvariantCulture);
-                _assemblyIdsMap.Add(info, id);
-            }
-
-            info.Name = id;
-        }
-
-        Append(info.Name);
+        Append(symbol.Name);
 
         // todo check in a unit test that a version is not created for the assembly from source
-        if (symbol.Locations.Length == 1 && symbol.Locations[0].IsInMetadata)
+        if (Utils.IsInMetadata(symbol))
         {
-            if (!_versionCache.TryGetValue(info.Version, out var versionString))
+            var version = symbol.Identity.Version;
+            if (!_versionCache.TryGetValue(version, out var versionString))
             {
-                versionString = info.Version.ToString();
-                _versionCache.Add(info.Version, versionString);
+                versionString = version.ToString();
+                _versionCache.Add(version, versionString);
             }
 
             Append("_");
@@ -180,8 +147,8 @@ public class FullyQualifiedIdGenerator : ISymbolIdGenerator
             return;
         }
 
-        var symbolName = GeneratorsUtils.GetTypeName(symbol, _parameterMode);
-        var symbolParent = GeneratorsUtils.GetTypeParent(symbol, _parameterMode);
+        var symbolName = GetTypeName(symbol);
+        var symbolParent = GetTypeParent(symbol, _parameterMode);
 
         Append(symbolParent, false);
         Append(symbolName);
@@ -411,5 +378,51 @@ public class FullyQualifiedIdGenerator : ISymbolIdGenerator
     private void Append(string? value)
     {
         _stringBuilder.Append(value);
+    }
+
+    private static string GetTypeName(ITypeSymbol typeSymbol)
+    {
+        return GetPrimitiveTypeName(typeSymbol) ?? typeSymbol.Name;
+    }
+
+    private static ISymbol? GetTypeParent(ITypeSymbol typeSymbol, bool parametersMode)
+    {
+        if (typeSymbol is ITypeParameterSymbol)
+        {
+            return null;
+        }
+
+        if (parametersMode && GetPrimitiveTypeName(typeSymbol) is not null)
+        {
+            return null;
+        }
+
+        return typeSymbol.ContainingSymbol;
+    }
+
+    private static string? GetPrimitiveTypeName(ITypeSymbol typeSymbol)
+    {
+        return typeSymbol.SpecialType switch
+        {
+            SpecialType.System_Void => "void",
+            SpecialType.System_Object => "object",
+            SpecialType.System_Boolean => "bool",
+            SpecialType.System_Char => "char",
+            SpecialType.System_SByte => "sbyte",
+            SpecialType.System_Byte => "byte",
+            SpecialType.System_Int16 => "short",
+            SpecialType.System_UInt16 => "ushort",
+            SpecialType.System_Int32 => "int",
+            SpecialType.System_UInt32 => "uint",
+            SpecialType.System_Int64 => "long",
+            SpecialType.System_UInt64 => "ulong",
+            SpecialType.System_Decimal => "decimal",
+            SpecialType.System_Single => "float",
+            SpecialType.System_Double => "double",
+            SpecialType.System_String => "string",
+            SpecialType.System_IntPtr => "nint",
+            SpecialType.System_UIntPtr => "nuint",
+            _ => null
+        };
     }
 }
