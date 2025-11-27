@@ -12,7 +12,6 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
     private readonly ILogger _logger;
     private readonly GraphData _graphData;
     private readonly SemanticModel _semanticModel;
-    private readonly ISymbolIdGenerator _symbolIdBuilder;
     private readonly bool _fileIsGenerated;
     private readonly string _projectPath;
     private readonly Stack<Node> _nodeStack;
@@ -23,7 +22,6 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
         ILogger logger,
         GraphData graphData,
         SemanticModel semanticModel,
-        ISymbolIdGenerator symbolIdBuilder,
         bool fileIsGenerated,
         string projectPath
         )
@@ -31,7 +29,6 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
         _logger = logger;
         _graphData = graphData;
         _semanticModel = semanticModel;
-        _symbolIdBuilder = symbolIdBuilder;
         _fileIsGenerated = fileIsGenerated;
         _projectPath = projectPath;
 
@@ -51,7 +48,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
     public override void VisitCompilationUnit(CompilationUnitSyntax syntaxNode)
     {
         var node = PushSymbol(_assemblySymbol);
-        node.AddAssemblySyntaxLink(_projectPath);
+        _graphData.AddAssemblySyntaxLink(node, _projectPath);
 
         base.VisitCompilationUnit(syntaxNode);
         PopSymbol();
@@ -135,7 +132,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
         }
 
         var node = PushSymbol(symbol);
-        node.AddSyntaxLink(LocationKind.Local, syntaxNode);
+        _graphData.AddSyntaxLink(node, LocationKind.Local, syntaxNode);
 
         action?.Invoke();
         PopSymbol();
@@ -251,7 +248,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
                     .Single(p => p.Identifier.ValueText == property.Name);
 
                 var node = PushSymbol(property);
-                node.AddSyntaxLink(LocationKind.Local, parameterSyntax);
+                _graphData.AddSyntaxLink(node, LocationKind.Local, parameterSyntax);
                 PopSymbol();
             }
         });
@@ -732,7 +729,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
         {
             _logger.LogWarning($"""
                 Detect symbol outside parent. Symbol will be skipped.
-                Symbol id: {_symbolIdBuilder.Execute(symbol)}.
+                Symbol id: {symbol}.
                 Location: {Utils.GetSyntaxLocation(syntax)}.
             """
             );
@@ -745,14 +742,12 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
             // todo kill
         }
 
-        var linkedSymbol = new LinkedSymbol()
-        {
-            Symbol = symbol,
-            Syntax = syntax,
-            LocationKind = _fileIsGenerated ? LocationKind.Generated : LocationKind.Local
-        };
-
-        _graphData.AddLinkedSymbol(_nodeStack.Peek(), linkedSymbol);
+        _graphData.AddLinkedSymbol(
+            _nodeStack.Peek(),
+            symbol,
+            syntax,
+            _fileIsGenerated ? LocationKind.Generated : LocationKind.Local
+            );
     }
 
     private ISymbol GetSyntaxSymbol(SyntaxNode syntax)

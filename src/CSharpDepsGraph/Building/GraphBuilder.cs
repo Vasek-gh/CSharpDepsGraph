@@ -3,6 +3,8 @@ using Microsoft.Extensions.Logging;
 using System.Globalization;
 using CSharpDepsGraph.Building.Entities;
 using CSharpDepsGraph.Building.Generators;
+using CSharpDepsGraph.Building.Services;
+using System.Data;
 
 namespace CSharpDepsGraph.Building;
 
@@ -16,7 +18,7 @@ public sealed class GraphBuilder
     private readonly GraphData _graphData;
     private readonly CultureInfo _cultureInfo;
     private readonly ILoggerFactory _loggerFactory;
-    private readonly ISymbolIdGenerator _symbolIdBuilder;
+    private readonly ISymbolIdGenerator _idGenerator;
     private readonly SymbolComparer _symbolComparer;
 
     /// <summary>
@@ -24,18 +26,17 @@ public sealed class GraphBuilder
     /// </summary>
     public GraphBuilder(
         ILoggerFactory loggerFactory,
-        CultureInfo? cultureInfo = null,
-        ISymbolIdGenerator? symbolIdBuilder = null
+        CultureInfo? cultureInfo = null
         )
     {
-        _logger = loggerFactory.CreateLogger<GraphBuilder>();
         _loggerFactory = loggerFactory;
         _cultureInfo = cultureInfo ?? CultureInfo.CurrentCulture;
 
+        _logger = CreateLogger();
         _counters = new Counters();
+        _idGenerator = new SymbolIdGenerator(loggerFactory, false);
         _symbolComparer = new(false, false, null);
-        _symbolIdBuilder = symbolIdBuilder ?? new SymbolIdGenerator(loggerFactory, false);
-        _graphData = new(_counters, _symbolComparer, _symbolIdBuilder);
+        _graphData = new(_counters, _symbolComparer, _idGenerator);
     }
 
     /// <summary>
@@ -49,10 +50,12 @@ public sealed class GraphBuilder
             await HandleProjectVariants(projectVariants, cancellationToken);
         }
 
-        new NodeLinkBuilder(_loggerFactory.CreateLogger<NodeLinkBuilder>(), _counters, _symbolIdBuilder, _graphData).Run();
+        var m1 = GC.GetTotalMemory(false);
+        new LinkBuilder(CreateLogger(nameof(LinkBuilder)), _graphData).Run();
+        var m2 = GC.GetTotalMemory(false) - m1;
 
         _counters.Report(_logger); // todo kill
-        _symbolIdBuilder.WriteStatistic();
+        _idGenerator.WriteStatistic();
 
         return new Graph()
         {
@@ -77,7 +80,7 @@ public sealed class GraphBuilder
 
     private async Task HandleProject(Project project, CancellationToken cancellationToken)
     {
-        var logger = Utils.CreateLogger<GraphBuilder>(_loggerFactory, project.Name);
+        var logger = CreateLogger(project.Name);
 
         logger.LogInformation($"Begin handle project...");
 
@@ -111,10 +114,9 @@ public sealed class GraphBuilder
 
         var semanticModel = compilation.GetSemanticModel(syntaxTree);
         var syntaxVisitor = new SyntaxVisitor(
-            Utils.CreateLogger<SyntaxVisitor>(_loggerFactory, syntaxTree.FilePath),
+            CreateLogger(nameof(SyntaxVisitor)),
             _graphData,
             semanticModel,
-            _symbolIdBuilder,
             fileIsFromSourceGenerators,
             projectPath
             );
@@ -175,9 +177,16 @@ public sealed class GraphBuilder
         return $"{path}:{line}:{column} {diagnostic.GetMessage(_cultureInfo)}";
     }
 
+    private ILogger CreateLogger(string? category = null)
+    {
+        return Utils.CreateLogger<GraphBuilder>(_loggerFactory, category);
+    }
+
     private static Project[][] GetProjectsVariants(IEnumerable<Project> projects)
     {
-        var lookup = projects.ToLookup(p => p.AssemblyName);
-        return lookup.Select(i => i.ToArray()).Where(i => i.Length > 0).ToArray();
+        return projects.ToLookup(p => p.AssemblyName)
+            .Select(i => i.ToArray())
+            .Where(i => i.Length > 0)
+            .ToArray();
     }
 }

@@ -9,6 +9,7 @@ namespace CSharpDepsGraph.Building.Generators;
 /// </summary>
 public class SymbolIdGenerator : ISymbolIdGenerator
 {
+    private uint _counter;
     private readonly ISymbolIdGenerator _generator;
 
     public SymbolIdGenerator()
@@ -28,7 +29,8 @@ public class SymbolIdGenerator : ISymbolIdGenerator
     /// <inheritdoc/>
     public string Execute(ISymbol symbol)
     {
-        return _generator.Execute(symbol);
+        return _counter++.ToString();
+        //return _generator.Execute(symbol);
     }
 
     /// <inheritdoc/>

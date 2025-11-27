@@ -1,27 +1,21 @@
 using CSharpDepsGraph.Building.Entities;
-using CSharpDepsGraph.Building.Generators;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Logging;
+using System.Collections.Immutable;
 
 namespace CSharpDepsGraph.Building;
 
-internal class NodeLinkBuilder
+internal class LinkBuilder
 {
     private readonly ILogger _logger;
-    private readonly Counters _counters;
     private readonly GraphData _graphData;
-    private readonly ISymbolIdGenerator _symbolIdBuilder;
 
-    public NodeLinkBuilder(
-        ILogger<NodeLinkBuilder> logger,
-        Counters counters,
-        ISymbolIdGenerator symbolIdBuilder,
+    public LinkBuilder(
+        ILogger logger,
         GraphData graphData
         )
     {
         _logger = logger;
-        _counters = counters;
-        _symbolIdBuilder = symbolIdBuilder;
         _graphData = graphData;
     }
 
@@ -29,11 +23,10 @@ internal class NodeLinkBuilder
     {
         _logger.LogInformation("Begin build links...");
 
-        var childNodes = GetRootChilds();
-        foreach (var child in childNodes)
+        VisitNodes(_graphData.Root, n =>
         {
-            HandleNode(child);
-        }
+            HandleNode(n);
+        });
     }
 
     private void HandleNode(Node node)
@@ -42,115 +35,142 @@ internal class NodeLinkBuilder
 
         foreach (var linkedSymbol in node.LinkedSymbolsList)
         {
-            var id = _symbolIdBuilder.Execute(linkedSymbol.Symbol);
-            if (!_graphData.NodeMap.TryGetValue(id, out var targetNode))
+            var targetNode = CreateNode(linkedSymbol.Symbol);
+            if (targetNode is not null)
             {
-                targetNode = CreateExternalNode(linkedSymbol.Symbol, id, node);
+                _graphData.AddLink(node, targetNode, linkedSymbol.Syntax, linkedSymbol.LocationKind);
+            }
+        }
+    }
+
+    private Node? CreateNode(ISymbol symbol)
+    {
+        var symbols = new Stack<ISymbol>(10);
+        var externalRoot = _graphData.External;
+
+        BuildSymbolChain(symbols, symbol);
+        return AppendSymbolChain(symbols);
+    }
+
+    private Node? AppendSymbolChain(Stack<ISymbol> symbols)
+    {
+        if (symbols.Peek() is not IAssemblySymbol assemblySymbol)
+        {
+            _logger.LogWarning("todo");
+            return null;
+        }
+
+        var isInMetadata = assemblySymbol.Locations.Length == 1 && assemblySymbol.Locations[0].IsInMetadata;
+
+        var parentNode = isInMetadata
+            ? _graphData.External
+            : _graphData.Root;
+
+        var result = parentNode;
+
+        while (symbols.Count > 0)
+        {
+            var symbol = symbols.Pop();
+            result = _graphData.AddChildNode(result, symbol, out var newNode);
+            if (!newNode)
+            {
+                continue;
             }
 
-            _counters.AddLink();
-            _graphData.Links.Add(new Link()
+            if (isInMetadata)
             {
-                Source = node,
-                Target = targetNode,
-                Syntax = linkedSymbol.Syntax,
-                LocationKind = linkedSymbol.LocationKind,
-            });
+                result.SyntaxLinkList = Utils.CreateExternalSyntaxLink(symbol);
+            }
+            else
+            {
+                ForEachSyntaxReference(symbol, (sr) =>
+                {
+                    // todo check generated and warning if not
+                    /*
+                     _logger.LogWarning($"""
+                        When creating an external node, it was detected that the symbol will be created as a child of the local.
+                        Source node: {fromNode.Id}.
+                        Symbol id: {_idGenerator.Execute(symbol)}.
+                        Symbol location: {symbolLocation}
+                        Parent symbol id: {_idGenerator.Execute(parentSymbol)}.
+                        """);
+                    */
+                    var syntax = sr.GetSyntax();
+                    _graphData.AddSyntaxLink(result, LocationKind.Local, syntax);
+                });
+            }
         }
-    }
-
-    private Node CreateExternalNode(ISymbol? symbol, string id, Node fromNode)
-    {
-        symbol = symbol ?? throw new Exception($"Null symbol for {id ?? "unknown id"}");
-
-        //_logger.LogTrace($"Create external node: {id}");
-
-        var parentNode = GetExternalParentNode(symbol, fromNode);
-
-        var node = _graphData.AddNode(_logger, parentNode.Id, id, symbol, Utils.CreateExternalSyntaxLink(symbol))
-            ?? throw new Exception($"Create node {id} fail");
-
-        return node;
-    }
-
-    private Node GetExternalParentNode(ISymbol symbol, Node fromNode)
-    {
-        var parentSymbol = symbol.ContainingSymbol;
-
-        if (parentSymbol.IsGlobalNamespace())
-        {
-            parentSymbol = parentSymbol.ContainingSymbol;
-        }
-
-        if (parentSymbol is IModuleSymbol && symbol.ContainingAssembly.Modules.Count() == 1)
-        {
-            parentSymbol = parentSymbol.ContainingSymbol;
-        }
-
-        var parentSymbolId = GetExternalParentSymbolId(symbol, parentSymbol);
-
-        if (!_graphData.NodeMap.TryGetValue(parentSymbolId, out var parentNode))
-        {
-            return CreateExternalNode(parentSymbol, parentSymbolId, fromNode);
-        }
-
-        //_logger.LogTrace($"Parent node already exists: {parentSymbolId}");
-
-        if (!parentNode.IsExternal())
-        {
-            var symbolSyntax = symbol.DeclaringSyntaxReferences.FirstOrDefault()?.GetSyntax();
-            var symbolLocation = symbolSyntax == null ? "<fail>" : Utils.GetSyntaxLocation(symbolSyntax);
-
-            _logger.LogWarning($"""
-                When creating an external node, it was detected that the symbol will be created as a child of the local.
-                Source node: {fromNode.Id}.
-                Symbol id: {_symbolIdBuilder.Execute(symbol)}.
-                Symbol location: {symbolLocation}
-                Parent symbol id: {_symbolIdBuilder.Execute(parentSymbol)}.
-                """);
-        }
-
-        return parentNode;
-    }
-
-    private string GetExternalParentSymbolId(ISymbol symbol, ISymbol? parentSymbol)
-    {
-        var parentSymbolId = _graphData.External.Id;
-
-        if (parentSymbol != null)
-        {
-            parentSymbolId = _symbolIdBuilder.Execute(parentSymbol);
-        }
-        else if (symbol is not IAssemblySymbol)
-        {
-            var symbolId = _symbolIdBuilder.Execute(symbol);
-            _logger.LogWarning($"""
-                Found a symbol without a parent that is not an assembly.
-                The node will be created as a child of the external root.
-                Symbol id: {symbolId}.
-                """);
-        }
-
-        return parentSymbolId;
-    }
-
-    private List<Node> GetRootChilds()
-    {
-        var result = new List<Node>();
-        VisitChilds(_graphData.Root, (child) =>
-        {
-            result.Add(child);
-        });
 
         return result;
+    }
 
-        void VisitChilds(Node node, Action<Node> action)
+    internal static void ForEachSyntaxReference(ISymbol symbol, Action<SyntaxReference> action)
+    {
+        ForEachSyntaxReference(symbol.DeclaringSyntaxReferences, action);
+
+        if (symbol is IMethodSymbol methodSymbol)
         {
-            foreach (var child in node.ChildList)
+            ForEachSyntaxReference(methodSymbol.PartialDefinitionPart?.DeclaringSyntaxReferences, action);
+        }
+
+        if (symbol is IEventSymbol eventSymbol)
+        {
+            ForEachSyntaxReference(eventSymbol.PartialDefinitionPart?.DeclaringSyntaxReferences, action);
+        }
+
+        if (symbol is IPropertySymbol propertySymbol)
+        {
+            ForEachSyntaxReference(propertySymbol.PartialDefinitionPart?.DeclaringSyntaxReferences, action);
+        }
+
+        void ForEachSyntaxReference(ImmutableArray<SyntaxReference>? syntaxReferences, Action<SyntaxReference> action)
+        {
+            foreach (var syntaxReference in syntaxReferences ?? [])
             {
-                action(child);
-                VisitChilds(child, action);
+                action(syntaxReference);
             }
+        }
+    }
+
+    private static void BuildSymbolChain(Stack<ISymbol> symbols, ISymbol symbol)
+    {
+        symbols.Clear();
+        while (symbol is not null)
+        {
+            symbols.Push(symbol);
+
+            if (symbol.Kind == SymbolKind.Assembly)
+            {
+                break;
+            }
+
+            symbol = symbol.ContainingSymbol;
+
+            if (symbol.IsGlobalNamespace())
+            {
+                symbol = symbol.ContainingModule;
+            }
+
+            if (symbol.Kind == SymbolKind.NetModule && symbol.ContainingAssembly.Modules.Count() == 1)
+            {
+                symbol = symbol.ContainingAssembly;
+            }
+        }
+    }
+
+    private static void VisitNodes(Node node, Action<Node> action)
+    {
+        if (node.IsExternalsRoot())
+        {
+            return;
+        }
+
+        var childCount = node.ChildList.Count;
+        for (var i = 0; i < childCount; i++)
+        {
+            var child = node.ChildList[i];
+            action(child);
+            VisitNodes(child, action);
         }
     }
 }

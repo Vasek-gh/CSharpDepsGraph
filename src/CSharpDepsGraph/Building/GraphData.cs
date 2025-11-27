@@ -1,14 +1,12 @@
 using CSharpDepsGraph.Building.Entities;
 using CSharpDepsGraph.Building.Generators;
+using CSharpDepsGraph.Building.Services;
 using Microsoft.CodeAnalysis;
-using Microsoft.Extensions.Logging;
 
 namespace CSharpDepsGraph.Building;
 
 internal class GraphData
 {
-    private int _nodesCount;
-    private int _linkedSymbolsCount;
     private readonly Counters _counters;
     private readonly SymbolComparer _symbolComparer;
     private readonly ISymbolIdGenerator _symbolIdGenerator;
@@ -17,75 +15,20 @@ internal class GraphData
 
     public Node External { get; }
 
-    public Dictionary<string, Node> NodeMap { get; }
-
     public List<Link> Links { get; }
 
     public GraphData(Counters counters, SymbolComparer symbolComparer, ISymbolIdGenerator symbolIdGenerator)
     {
-        Root = new Node(GraphConsts.RootNodeId, null)
-        {
-            LinkedSymbolsList = []
-        };
-
-        External = new Node(GraphConsts.ExternalRootNodeId, null)
-        {
-            LinkedSymbolsList = []
-        };
-
-        Root.ChildList.Add(External);
-
-        NodeMap = new Dictionary<string, Node> {
-            { Root.Id, Root },
-            { External.Id, External }
-        };
-
-        Links = new List<Link>(5_000);
         _counters = counters;
         _symbolComparer = symbolComparer;
         _symbolIdGenerator = symbolIdGenerator;
-    }
 
-    public Node? AddNode(
-        ILogger logger,
-        string parentId,
-        string id,
-        ISymbol symbol,
-        List<INodeSyntaxLink>? syntaxLinks = null
-        )
-    {
-        if (NodeMap.TryGetValue(id, out var node))
-        {
-            if (!_symbolComparer.Compare(symbol, node.Symbol, false))
-            {
-                _symbolComparer.Compare(symbol, node.Symbol, false);
-                // todo kill
-            }
-            return node;
-        }
+        External = new Node(GraphConsts.ExternalRootNodeId, null);
 
-        if (!NodeMap.TryGetValue(parentId, out var parentNode))
-        {
-            logger.LogWarning($"""
-                Detected attempt add node, parent which not present in map.
-                Parent id: {parentId}.
-                Node id: {id}.
-                """
-            );
+        Root = new Node(GraphConsts.RootNodeId, null);
+        Root.ChildList = AddNodeListItem(Root.ChildList, External);
 
-            return null;
-        }
-
-        node = new Node(id, symbol, syntaxLinks)
-        {
-            LinkedSymbolsList = []
-        };
-
-        NodeMap.Add(node.Id, node);
-        parentNode.ChildList.Add(node);
-        _counters.AddNode();
-
-        return node;
+        Links = new();
     }
 
     public Node AddChildNode(
@@ -93,42 +36,120 @@ internal class GraphData
         ISymbol symbol
         )
     {
-        if (symbol.Name == "Car")
-        {
-            // todo kill
-        }
+        return AddChildNode(parent, symbol, out var _);
+    }
+
+    public Node AddChildNode(
+        Node parent,
+        ISymbol symbol,
+        out bool newNode
+        )
+    {
+        _counters.NodeQueryCount++;
 
         var child = parent.ChildList.FirstOrDefault(c => _symbolComparer.Compare(c.Symbol, symbol, false));
+        newNode = child is null;
+
         if (child is null)
         {
             var id = _symbolIdGenerator.Execute(symbol);
-            child = new Node(id, symbol, null)
-            {
-                LinkedSymbolsList = []
-            };
+            child = new Node(id, symbol);
 
-            NodeMap.Add(child.Id, child);
-            parent.ChildList.Add(child);
-            _counters.AddNode();
-            _nodesCount++;
+            parent.ChildList = AddNodeListItem(parent.ChildList, child);
+            _counters.NodeCount++;
         }
 
         return child;
     }
 
-    public void AddLinkedSymbol(Node node, LinkedSymbol newItem)
+    public void AddLink(Node source, Node target, SyntaxNode syntaxNode, LocationKind locationKind)
     {
+        if (Links.Capacity == 0)
+        {
+            Links.Capacity = _counters.LinkedSymbolCount;
+        }
+
+        Links.Add(new Link()
+        {
+            Source = source,
+            Target = target,
+            Syntax = syntaxNode,
+            LocationKind = locationKind,
+        });
+
+        _counters.LinkCount++;
+    }
+
+    public void AddLinkedSymbol(Node node, ISymbol symbol, SyntaxNode syntax, LocationKind locationKind)
+    {
+        _counters.LinkedSymbolQueryCount++;
+
         foreach (var currentItem in node.LinkedSymbolsList)
         {
-            if (currentItem.Syntax.Span == newItem.Syntax.Span
-                && _symbolComparer.Compare(currentItem.Symbol, newItem.Symbol, true)
+            if (currentItem.Syntax.Span == syntax.Span
+                && _symbolComparer.Compare(currentItem.Symbol, symbol, true)
                 )
             {
                 return;
             }
         }
 
-        node.LinkedSymbolsList.Add(newItem);
-        _linkedSymbolsCount++;
+        AddLinkedSymbol(node, new LinkedSymbol()
+        {
+            Symbol = symbol,
+            Syntax = syntax,
+            LocationKind = locationKind
+        });
+    }
+
+    private void AddLinkedSymbol(Node node, LinkedSymbol linkedSymbol)
+    {
+        node.LinkedSymbolsList = AddNodeListItem(node.LinkedSymbolsList, linkedSymbol);
+        _counters.LinkedSymbolCount++;
+    }
+
+    public void AddSyntaxLink(Node node, LocationKind locationKind, SyntaxNode syntax)
+    {
+        _counters.SyntaxLinkQueryCount++;
+        foreach (var item in node.SyntaxLinkList)
+        {
+            if (item is NodeSyntaxLink nodeSyntaxLink && nodeSyntaxLink.IsSame(locationKind, syntax))
+            {
+                return;
+            }
+        }
+
+        AddNodeSyntaxLink(node, new NodeSyntaxLink(locationKind, syntax));
+    }
+
+    public void AddAssemblySyntaxLink(Node node, string path)
+    {
+        _counters.SyntaxLinkQueryCount++;
+        foreach (var item in node.SyntaxLinkList)
+        {
+            if (item is AssemblyNodeSyntaxLink assemblyNodeSyntaxLink && assemblyNodeSyntaxLink.IsSame(path))
+            {
+                return;
+            }
+        }
+
+        AddNodeSyntaxLink(node, Utils.CreateAssemblySyntaxLink(path));
+    }
+
+    private void AddNodeSyntaxLink(Node node, INodeSyntaxLink syntaxLink)
+    {
+        node.SyntaxLinkList = AddNodeListItem(node.SyntaxLinkList, syntaxLink);
+        _counters.SyntaxLinkCount++;
+    }
+
+    private static List<T> AddNodeListItem<T>(List<T> list, T item)
+    {
+        if (list.Count == 0)
+        {
+            list = new();
+        }
+
+        list.Add(item);
+        return list;
     }
 }

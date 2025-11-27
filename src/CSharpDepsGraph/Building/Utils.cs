@@ -16,9 +16,13 @@ internal static class Utils
         "System.Runtime"
     ];
 
-    public static ILogger CreateLogger<T>(ILoggerFactory factory, string entityName)
+    public static ILogger CreateLogger<T>(ILoggerFactory factory, string? entityName)
     {
-        return factory.CreateLogger($"{typeof(T).Name}<{entityName}>");
+        var category = entityName is null
+            ? typeof(T).Name
+            : $"{typeof(T).Name}<{entityName}>";
+
+        return factory.CreateLogger(category);
     }
 
     public static List<INodeSyntaxLink> CreateExternalSyntaxLink(ISymbol symbol)
