@@ -2,12 +2,9 @@ using Microsoft.CodeAnalysis;
 using System.Collections.Immutable;
 using System.Text;
 
-namespace CSharpDepsGraph.Building.Generators;
+namespace CSharpDepsGraph.Building;
 
-/// <summary>
-/// Generates a human-readable unique identifier for a symbol
-/// </summary>
-public class FullyQualifiedIdGenerator : ISymbolUidGenerator
+internal class FullyQualifiedUidGenerator : ISymbolUidGenerator
 {
     private readonly StringBuilder _stringBuilder;
     private readonly Dictionary<Version, string> _versionCache;
@@ -15,10 +12,7 @@ public class FullyQualifiedIdGenerator : ISymbolUidGenerator
     private bool _parameterMode;
     private bool _excludeAssembly;
 
-    /// <summary>
-    /// Initializes a new instance of the <see cref="FullyQualifiedIdGenerator"/> class.
-    /// </summary>s
-    public FullyQualifiedIdGenerator()
+    public FullyQualifiedUidGenerator()
     {
         _stringBuilder = new(200);
         _versionCache = new();

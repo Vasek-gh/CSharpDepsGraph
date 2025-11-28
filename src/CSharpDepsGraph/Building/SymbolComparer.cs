@@ -8,16 +8,19 @@ internal class SymbolComparer
     private static readonly string _nameStub = "_";
     private static readonly Version _versionStub = new Version();
 
+    private readonly GraphBuildingOptions _options;
     private readonly bool _skipAssemblyVersion;
     private readonly bool _mergeSystemAssemblies;
     private readonly HashSet<string> _systemAssemblies;
 
     public SymbolComparer(
+        GraphBuildingOptions options,
         bool skipAssemblyVersion,
         bool mergeSystemAssemblies,
         HashSet<string>? systemAssemblies
         )
     {
+        _options = options;
         _skipAssemblyVersion = skipAssemblyVersion;
         _mergeSystemAssemblies = mergeSystemAssemblies;
         _systemAssemblies = systemAssemblies ?? [
@@ -386,8 +389,8 @@ internal class SymbolComparer
 
     public static bool ComparePrimiteTypes(ITypeSymbol aTypeSymbol, ITypeSymbol bTypeSymbol)
     {
-        var aIsPrimitive = _primitiveTypes.Contains(aTypeSymbol.SpecialType);
-        var bIsPrimitive = _primitiveTypes.Contains(bTypeSymbol.SpecialType);
+        var aIsPrimitive = Utils.IsPrimiteType(aTypeSymbol);
+        var bIsPrimitive = Utils.IsPrimiteType(bTypeSymbol);
 
         if (aIsPrimitive != bIsPrimitive)
         {
@@ -401,25 +404,4 @@ internal class SymbolComparer
 
         return aTypeSymbol.SpecialType == bTypeSymbol.SpecialType;
     }
-
-    private static readonly  HashSet<SpecialType> _primitiveTypes = [
-        SpecialType.System_Void,
-        SpecialType.System_Object,
-        SpecialType.System_Boolean,
-        SpecialType.System_Char,
-        SpecialType.System_SByte,
-        SpecialType.System_Byte,
-        SpecialType.System_Int16,
-        SpecialType.System_UInt16,
-        SpecialType.System_Int32,
-        SpecialType.System_UInt32,
-        SpecialType.System_Int64,
-        SpecialType.System_UInt64,
-        SpecialType.System_Decimal,
-        SpecialType.System_Single,
-        SpecialType.System_Double,
-        SpecialType.System_String,
-        SpecialType.System_IntPtr,
-        SpecialType.System_UIntPtr
-    ];
 }

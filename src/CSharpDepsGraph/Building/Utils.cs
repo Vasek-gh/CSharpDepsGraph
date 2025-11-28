@@ -10,6 +10,27 @@ internal static class Utils
     private static readonly Dictionary<string, INodeSyntaxLink> _assemblyLinksCache = new();
     private static readonly Dictionary<string, List<INodeSyntaxLink>> _externalLinksCache = new();
 
+    public static readonly HashSet<SpecialType> PrimitiveTypes = [
+        SpecialType.System_Void,
+        SpecialType.System_Object,
+        SpecialType.System_Boolean,
+        SpecialType.System_Char,
+        SpecialType.System_SByte,
+        SpecialType.System_Byte,
+        SpecialType.System_Int16,
+        SpecialType.System_UInt16,
+        SpecialType.System_Int32,
+        SpecialType.System_UInt32,
+        SpecialType.System_Int64,
+        SpecialType.System_UInt64,
+        SpecialType.System_Decimal,
+        SpecialType.System_Single,
+        SpecialType.System_Double,
+        SpecialType.System_String,
+        SpecialType.System_IntPtr,
+        SpecialType.System_UIntPtr
+    ];
+
     public static readonly HashSet<string> CoreLibs = [
         "mscorlib",
         "netstandard",
@@ -20,7 +41,7 @@ internal static class Utils
     {
         var category = entityName is null
             ? typeof(T).Name
-            : $"{typeof(T).Name}<{entityName}>";
+            : $"{typeof(T).Name}.{entityName}";
 
         return factory.CreateLogger(category);
     }
@@ -64,6 +85,11 @@ internal static class Utils
     public static bool IsInMetadata(IAssemblySymbol assemblySymbol)
     {
         return assemblySymbol.Locations.Length == 1 && assemblySymbol.Locations[0].IsInMetadata;
+    }
+
+    public static bool IsPrimiteType(ITypeSymbol typeSymbol)
+    {
+        return PrimitiveTypes.Contains(typeSymbol.SpecialType);
     }
 
     public static T CheckNull<T>([NotNull] T? value, string errorMessage)

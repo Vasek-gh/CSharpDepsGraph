@@ -1,12 +1,12 @@
 using Microsoft.CodeAnalysis;
 using System.Globalization;
 
-namespace CSharpDepsGraph.Building.Generators;
+namespace CSharpDepsGraph.Building;
 
 /// <summary>
 /// Default symbol identifier generator
 /// </summary>
-public class SymbolUidGenerator : ISymbolUidGenerator
+internal class SymbolUidGenerator : ISymbolUidGenerator
 {
     private uint _counter;
 
@@ -18,7 +18,7 @@ public class SymbolUidGenerator : ISymbolUidGenerator
     public static ISymbolUidGenerator Create(GraphBuildingOptions graphOptions)
     {
         return graphOptions.GenerateFullyQualifiedId
-            ? new FullyQualifiedIdGenerator()
+            ? new FullyQualifiedUidGenerator()
             : new SymbolUidGenerator();
     }
 }

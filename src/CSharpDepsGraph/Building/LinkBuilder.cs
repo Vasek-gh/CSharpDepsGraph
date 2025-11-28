@@ -21,8 +21,6 @@ internal class LinkBuilder
 
     public void Run()
     {
-        _logger.LogInformation("Begin build links...");
-
         VisitNodes(_graphData.Root, n =>
         {
             HandleNode(n);

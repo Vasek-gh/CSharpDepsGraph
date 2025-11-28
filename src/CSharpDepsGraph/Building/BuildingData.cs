@@ -1,12 +1,13 @@
 using CSharpDepsGraph.Building.Entities;
-using CSharpDepsGraph.Building.Generators;
 using Microsoft.CodeAnalysis;
 
 namespace CSharpDepsGraph.Building;
 
 internal class BuildingData
 {
-    private readonly Counters _counters;
+    private int _linkedSymbolCount;
+
+    private readonly Metrics _metrics;
     private readonly SymbolComparer _symbolComparer;
     private readonly ISymbolUidGenerator _symbolUidGenerator;
 
@@ -16,9 +17,9 @@ internal class BuildingData
 
     public List<Link> Links { get; }
 
-    public BuildingData(Counters counters, SymbolComparer symbolComparer, ISymbolUidGenerator symbolIdGenerator)
+    public BuildingData(Metrics metrics, SymbolComparer symbolComparer, ISymbolUidGenerator symbolIdGenerator)
     {
-        _counters = counters;
+        _metrics = metrics;
         _symbolComparer = symbolComparer;
         _symbolUidGenerator = symbolIdGenerator;
 
@@ -44,7 +45,7 @@ internal class BuildingData
         out bool newNode
         )
     {
-        _counters.NodeQueryCount++;
+        _metrics.NodeQueryCount.Inc();
 
         var child = parent.ChildList.FirstOrDefault(c => _symbolComparer.Compare(c.Symbol, symbol, false));
         newNode = child is null;
@@ -55,7 +56,7 @@ internal class BuildingData
             child = new Node(id, symbol);
 
             parent.ChildList = AddNodeListItem(parent.ChildList, child);
-            _counters.NodeCount++;
+            _metrics.NodeCount.Inc();
         }
 
         return child;
@@ -65,7 +66,7 @@ internal class BuildingData
     {
         if (Links.Capacity == 0)
         {
-            Links.Capacity = _counters.LinkedSymbolCount;
+            Links.Capacity = _linkedSymbolCount;
         }
 
         Links.Add(new Link()
@@ -76,12 +77,12 @@ internal class BuildingData
             LocationKind = locationKind,
         });
 
-        _counters.LinkCount++;
+        //_counters.LinkCount++; todo
     }
 
     public void AddLinkedSymbol(Node node, ISymbol symbol, SyntaxNode syntax, LocationKind locationKind)
     {
-        _counters.LinkedSymbolQueryCount++;
+        _metrics.LinkedSymbolQueryCount.Inc();
 
         foreach (var currentItem in node.LinkedSymbolsList)
         {
@@ -104,12 +105,18 @@ internal class BuildingData
     private void AddLinkedSymbol(Node node, LinkedSymbol linkedSymbol)
     {
         node.LinkedSymbolsList = AddNodeListItem(node.LinkedSymbolsList, linkedSymbol);
-        _counters.LinkedSymbolCount++;
+        _metrics.LinkedSymbolCount.Inc();
+        _linkedSymbolCount++;
+
+        if (linkedSymbol.Symbol is ITypeSymbol typeSymbol && Utils.IsPrimiteType(typeSymbol))
+        {
+            _metrics.LinkedSymbolPrimitiveTypeCount.Inc();
+        }
     }
 
     public void AddSyntaxLink(Node node, LocationKind locationKind, SyntaxNode syntax)
     {
-        _counters.SyntaxLinkQueryCount++;
+        _metrics.SyntaxLinkQueryCount.Inc();
         foreach (var item in node.SyntaxLinkList)
         {
             if (item is NodeSyntaxLink nodeSyntaxLink && nodeSyntaxLink.IsSame(locationKind, syntax))
@@ -123,7 +130,7 @@ internal class BuildingData
 
     public void AddAssemblySyntaxLink(Node node, string path)
     {
-        _counters.SyntaxLinkQueryCount++;
+        _metrics.SyntaxLinkQueryCount.Inc();
         foreach (var item in node.SyntaxLinkList)
         {
             if (item is AssemblyNodeSyntaxLink assemblyNodeSyntaxLink && assemblyNodeSyntaxLink.IsSame(path))
@@ -138,7 +145,7 @@ internal class BuildingData
     private void AddNodeSyntaxLink(Node node, INodeSyntaxLink syntaxLink)
     {
         node.SyntaxLinkList = AddNodeListItem(node.SyntaxLinkList, syntaxLink);
-        _counters.SyntaxLinkCount++;
+        _metrics.SyntaxLinkCount.Inc();
     }
 
     private static List<T> AddNodeListItem<T>(List<T> list, T item)

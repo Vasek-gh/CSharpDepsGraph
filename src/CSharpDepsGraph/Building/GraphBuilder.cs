@@ -2,8 +2,8 @@ using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using System.Globalization;
 using CSharpDepsGraph.Building.Entities;
-using CSharpDepsGraph.Building.Generators;
 using System.Data;
+using System.Diagnostics;
 
 namespace CSharpDepsGraph.Building;
 
@@ -13,7 +13,7 @@ namespace CSharpDepsGraph.Building;
 public sealed class GraphBuilder
 {
     private readonly ILogger _logger;
-    private readonly Counters _counters;
+    private readonly Metrics _metrics;
     private readonly BuildingData _graphData;
     private readonly CultureInfo _cultureInfo;
     private readonly ILoggerFactory _loggerFactory;
@@ -32,11 +32,11 @@ public sealed class GraphBuilder
         _cultureInfo = cultureInfo ?? CultureInfo.CurrentCulture;
 
         _logger = CreateLogger();
-        _counters = new Counters();
-        _symbolComparer = new(false, false, null);
+        _metrics = new();
+        _symbolComparer = new(options, false, false, null);
 
         _graphData = new(
-            _counters,
+            _metrics,
             _symbolComparer,
             SymbolUidGenerator.Create(options)
             );
@@ -45,58 +45,73 @@ public sealed class GraphBuilder
     /// <summary>
     /// Build code graph
     /// </summary>
-    public async Task<IGraph> Run(IEnumerable<Project> projects, CancellationToken cancellationToken)
+    public Task<IGraph> Run(IEnumerable<Project> projects, CancellationToken cancellationToken)
     {
-        var projectsVariants = GetProjectsVariants(projects);
-        foreach (var projectVariants in projectsVariants)
+        return DoWithMeasurement<IGraph>(_logger, async () =>
         {
-            await HandleProjectVariants(projectVariants, cancellationToken);
-        }
+            var projectsVariants = GetProjectsVariants(projects);
+            foreach (var projectVariants in projectsVariants)
+            {
+                await HandleProjectVariants(projectVariants, cancellationToken);
+            }
 
-        var m1 = GC.GetTotalMemory(false);
-        new LinkBuilder(CreateLogger(nameof(LinkBuilder)), _graphData).Run();
-        var m2 = GC.GetTotalMemory(false) - m1;
+            BuildLinks();
 
-        _counters.Report(_logger);
-
-        return new Graph()
-        {
-            Root = _graphData.Root,
-            Links = _graphData.Links
-        };
+            return new Graph()
+            {
+                Root = _graphData.Root,
+                Links = _graphData.Links
+            };
+        });
     }
 
-    private async Task HandleProjectVariants(Project[] projectVariants, CancellationToken cancellationToken)
+    private void BuildLinks()
     {
-        var firstProject = projectVariants[0];
-
-        _logger.LogInformation($"Begin handle {firstProject.AssemblyName} variants");
-
-        foreach (var project in projectVariants)
+        var logger = CreateLogger(nameof(LinkBuilder));
+        var _ = DoWithMeasurement(logger, () =>
         {
-            await HandleProject(project, cancellationToken);
-        }
-
-        _logger.LogDebug($"{firstProject.AssemblyName} variants handled");
+            new LinkBuilder(logger, _graphData).Run();
+            return Task.CompletedTask;
+        });
     }
 
-    private async Task HandleProject(Project project, CancellationToken cancellationToken)
+    private Task HandleProjectVariants(Project[] projectVariants, CancellationToken cancellationToken)
+    {
+        if (projectVariants.Length == 0)
+        {
+            return Task.CompletedTask;
+        }
+
+        if (projectVariants.Length == 1)
+        {
+            return HandleProject(projectVariants[0], cancellationToken);
+        }
+
+        var assemblyName = projectVariants[0].AssemblyName;
+        return DoWithMeasurement(CreateLogger(assemblyName), async () =>
+        {
+            foreach (var project in projectVariants)
+            {
+                await HandleProject(project, cancellationToken);
+            }
+        });
+    }
+
+    private Task HandleProject(Project project, CancellationToken cancellationToken)
     {
         var logger = CreateLogger(project.Name);
-
-        logger.LogInformation($"Begin handle project...");
-
-        var compilation = await GetCompilation(project, logger, cancellationToken);
-        var generatedFiles = await GetGeneratedFiles(project, cancellationToken);
-
-        var projectPath = project.FilePath ?? $"{project.Name}.dll";
-
-        foreach (var syntaxTree in compilation.SyntaxTrees)
+        return DoWithMeasurement(logger, async () =>
         {
-            HandleSyntax(syntaxTree, compilation, generatedFiles, projectPath, cancellationToken);
-        }
+            var compilation = await GetCompilation(project, logger, cancellationToken);
+            var generatedFiles = await GetGeneratedFiles(project, cancellationToken);
 
-        logger.LogDebug($"Project handled");
+            var projectPath = project.FilePath ?? $"{project.Name}.dll";
+
+            foreach (var syntaxTree in compilation.SyntaxTrees)
+            {
+                HandleSyntax(syntaxTree, compilation, generatedFiles, projectPath, cancellationToken);
+            }
+        });
     }
 
     private void HandleSyntax(
@@ -145,6 +160,61 @@ public sealed class GraphBuilder
             .Where(doc => doc.FilePath != null)
             .Select(doc => doc.FilePath ?? "")
             .ToHashSet();
+    }
+
+    private async Task<T> DoWithMeasurement<T>(ILogger logger, Func<Task<T>> action)
+    {
+        logger.LogInformation("Begin handle...");
+
+        if (!_logger.IsEnabled(LogLevel.Debug))
+        {
+            return await action();
+        }
+
+        _metrics.BeginScope(logger);
+
+        var sw = new Stopwatch();
+        sw.Start();
+
+        var totalMemoryStart = GC.GetTotalMemory(false);
+
+        var result = await action();
+
+        var totalMemoryEnd = GC.GetTotalMemory(false);
+
+        sw.Stop();
+
+        _metrics.ElapsedTime.Set(sw.Elapsed);
+        _metrics.EndScope();
+
+        return result;
+    }
+
+    private async Task DoWithMeasurement(ILogger logger, Func<Task> action)
+    {
+        logger.LogInformation("Begin handle...");
+
+        if (!_logger.IsEnabled(LogLevel.Debug))
+        {
+            await action();
+            return;
+        }
+
+        _metrics.BeginScope(logger);
+
+        var sw = new Stopwatch();
+        sw.Start();
+
+        var totalMemoryStart = GC.GetTotalMemory(false);
+
+        await action();
+
+        var totalMemoryEnd = GC.GetTotalMemory(false);
+
+        sw.Stop();
+
+        _metrics.ElapsedTime.Set(sw.Elapsed);
+        _metrics.EndScope();
     }
 
     private void HandleErrors(ILogger logger, Project project, Compilation compilation)
