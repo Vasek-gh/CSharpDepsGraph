@@ -11,7 +11,6 @@ public class NamespaceOnlyTransformerTests
 {
     private const string _assemblyName1 = "A1";
     private const string _assemblyName2 = "A2";
-    private const string _assemblyName3 = "A3";
     private const string _namespaceName1 = "N1";
     private const string _namespaceName2 = "N2";
     private const string _namespaceName3 = "N3";
