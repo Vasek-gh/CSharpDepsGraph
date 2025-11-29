@@ -9,6 +9,10 @@ namespace CSharpDepsGraph.Tests.Intergations;
     "CA1001",
     Justification = "TestLoggerFactory is fake, no need for disposing"
     )]
+[System.Diagnostics.CodeAnalysis.SuppressMessage(
+    "Usage",
+    "NUnit1032"
+    )]
 public class BaseIntergationsTests
 {
     private readonly TestLoggerFactory _loggerFactory;

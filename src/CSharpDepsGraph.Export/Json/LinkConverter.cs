@@ -8,41 +8,44 @@ namespace CSharpDepsGraph.Export.Json;
 internal class LinkConverter : JsonConverter<ILink>
 {
     private readonly ILogger _logger;
+    private readonly PathResolver _pathResolver;
+    private readonly JsonExportOptions _options;
 
-    public LinkConverter(ILogger logger)
+    public LinkConverter(ILogger logger, PathResolver pathCutter, JsonExportOptions options)
     {
         _logger = logger;
+        _pathResolver = pathCutter;
+        _options = options;
     }
 
-    public override void Write(Utf8JsonWriter writer, ILink value, JsonSerializerOptions options)
+    public override void Write(Utf8JsonWriter writer, ILink link, JsonSerializerOptions options)
     {
         //_logger.LogTrace($"Write link: {value.Source.Id} -> {value.Target.Id}");
 
         writer.WriteStartObject();
 
-        writer.WritePropertyName(nameof(value.Source));
-        writer.WriteStringValue(value.Source.Id);
+        writer.WritePropertyName(nameof(link.Source));
+        writer.WriteStringValue(link.Source.Id);
 
-        if (value.Source.Id != value.OriginalSource.Id)
+        if (link.Source.Id != link.OriginalSource.Id)
         {
-            writer.WritePropertyName(nameof(value.OriginalSource));
-            writer.WriteStringValue(value.OriginalSource.Id);
+            writer.WritePropertyName(nameof(link.OriginalSource));
+            writer.WriteStringValue(link.OriginalSource.Id);
         }
 
-        writer.WritePropertyName(nameof(value.Target));
-        writer.WriteStringValue(value.Target.Id);
+        writer.WritePropertyName(nameof(link.Target));
+        writer.WriteStringValue(link.Target.Id);
 
-        if (value.Target.Id != value.OriginalTarget.Id)
+        if (link.Target.Id != link.OriginalTarget.Id)
         {
-            writer.WritePropertyName(nameof(value.OriginalTarget));
-            writer.WriteStringValue(value.OriginalTarget.Id);
+            writer.WritePropertyName(nameof(link.OriginalTarget));
+            writer.WriteStringValue(link.OriginalTarget.Id);
         }
 
         writer.WritePropertyName("Type");
-        writer.WriteStringValue(value.GetLinkType().ToString());
+        writer.WriteStringValue(link.GetLinkType().ToString());
 
-        writer.WritePropertyName("Location");
-        writer.WriteStringValue(value.SyntaxLink.GetDisplayString());
+        WriteLocation(writer, link);
 
         writer.WriteEndObject();
     }
@@ -50,5 +53,18 @@ internal class LinkConverter : JsonConverter<ILink>
     public override ILink Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         throw new NotSupportedException();
+    }
+
+    private void WriteLocation(Utf8JsonWriter writer, ILink link)
+    {
+        if (_options.ExcludeLocations)
+        {
+            return;
+        }
+
+        var location = link.SyntaxLink.GetDisplayString((path) => _pathResolver.Handle(link.SyntaxLink));
+
+        writer.WritePropertyName("Location");
+        writer.WriteStringValue(location);
     }
 }

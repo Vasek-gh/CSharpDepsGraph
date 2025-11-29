@@ -4,7 +4,7 @@ public class GraphBuildingOptions
 {
     public bool DebugMode { get; set; }
 
-    public bool GenerateFullyQualifiedId { get; set; }
+    public bool GenerateFullyQualifiedId { get; set; } = true; // todo
 
     /// <summary>
     /// Controls whether self-references are emitted as links in the graph.

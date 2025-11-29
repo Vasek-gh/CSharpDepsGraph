@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Text.Encodings.Web;
 using System.Text.Json;
@@ -13,26 +14,29 @@ namespace CSharpDepsGraph.Export.Json;
 /// </summary>
 public class JsonExport
 {
-    private readonly bool _format;
     private readonly ILogger _logger;
-    private readonly JsonSerializerOptions _options;
+    private readonly PathResolver _pathResolver;
+    private readonly JsonExportOptions _exportOptions;
+    private readonly JsonSerializerOptions _jsonOptions;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="JsonExport"/> class.
     /// </summary>
-    public JsonExport(ILogger<JsonExport> logger, bool format)
+    public JsonExport(ILogger<JsonExport> logger, JsonExportOptions exportOptions)
     {
         _logger = logger;
-        _format = format;
+        _exportOptions = exportOptions;
 
-        _options = new JsonSerializerOptions()
+        _pathResolver = new(exportOptions);
+
+        _jsonOptions = new JsonSerializerOptions()
         {
-            WriteIndented = _format,
+            WriteIndented = exportOptions.FormatOutput,
             ReferenceHandler = ReferenceHandler.IgnoreCycles,
             Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping,
             Converters = {
-                new NodeConverter(_logger),
-                new LinkConverter(_logger)
+                new NodeConverter(_logger, _pathResolver, exportOptions),
+                new LinkConverter(_logger, _pathResolver, exportOptions),
             }
         };
     }
@@ -42,6 +46,41 @@ public class JsonExport
     /// </summary>
     public Task Run(IGraph graph, Stream stream, CancellationToken cancellationToken)
     {
-        return JsonSerializer.SerializeAsync<IGraph>(stream, graph, _options, cancellationToken);
+        // The Paths tag comes first, but the table is only populated during serialization. Therefore, we need to
+        // first run a run to populate the table.
+        _pathResolver.Prepare(graph);
+
+        var graphProxy = new Graph(_pathResolver, _exportOptions)
+        {
+            Root = graph.Root,
+            Links = graph.Links,
+        };
+
+        return JsonSerializer.SerializeAsync<Graph>(stream, graphProxy, _jsonOptions, cancellationToken);
+    }
+
+    // todo For some reason, the implementation via GraphConverter consumes much more memory.
+    private class Graph
+    {
+        private readonly PathResolver _pathResolver;
+        private readonly JsonExportOptions _options;
+
+        // Don't move them!!! Otherwise, deserialization won't be trivial. The client will have to remember the location indexes before decrypting them.
+        public List<string>? Paths => CanExportPaths() ? _pathResolver.Paths : null;
+        public required INode Root { get; set; }
+        public required IEnumerable<ILink> Links { get; set; }
+
+        public Graph(PathResolver pathResolver, JsonExportOptions options)
+        {
+            _pathResolver = pathResolver;
+            _options = options;
+        }
+
+        private bool CanExportPaths()
+        {
+            return !_options.ExcludeLocations
+                && !_options.DoNotCreateLocationTable
+                && _pathResolver.Paths.Count > 0;
+        }
     }
 }

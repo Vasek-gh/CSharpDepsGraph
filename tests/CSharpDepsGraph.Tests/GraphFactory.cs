@@ -45,6 +45,7 @@ public static class GraphFactory
     {
         var document = CreateDocument(TestFileName, source);
         var projectInfo = CreateProject(
+            null,
             AsmName.Test,
             [document],
             [new ProjectReference(_testProject.Id)],
@@ -62,19 +63,22 @@ public static class GraphFactory
 
     private static ProjectInfo LoadTestProject(MetadataReference[] metadataReferences)
     {
-        var files = new List<String>();
+        var testProjectPath = TestData.TestProjectPath;
+        var testProjectFilePath = Path.Combine(testProjectPath, TestData.TestProjectName) + ".csproj";
+
+        var files = new List<string>();
 
         files.AddRange(
-            Directory.GetFiles($"{TestData.TestProjectPath}/Attributes").Select(p => p.Replace("\\", "/"))
+            Directory.GetFiles(Path.Combine(testProjectPath, "Attributes"))
         );
         files.AddRange(
-            Directory.GetFiles($"{TestData.TestProjectPath}/Entities").Select(p => p.Replace("\\", "/"))
+            Directory.GetFiles(Path.Combine(testProjectPath, "Entities"))
         );
 
-        files.Add($"{TestData.TestProjectPath}/Statics.cs");
-        files.Add($"{TestData.TestProjectPath}/Constants.cs");
-        files.Add($"{TestData.TestProjectPath}/GenericClass1T.cs");
-        files.Add($"{TestData.TestProjectPath}/GenericClass2T.cs");
+        files.Add(Path.Combine(testProjectPath, "Statics.cs"));
+        files.Add(Path.Combine(testProjectPath, "Constants.cs"));
+        files.Add(Path.Combine(testProjectPath, "GenericClass1T.cs"));
+        files.Add(Path.Combine(testProjectPath, "GenericClass2T.cs"));
 
         var documents = files.Select(f => CreateDocument(f))
             .Append(CreateDocument("globalUsings.cs", """
@@ -84,6 +88,7 @@ public static class GraphFactory
             .ToArray();
 
         return CreateProject(
+            testProjectFilePath,
             TestData.TestProjectName,
             documents,
             [],
@@ -92,6 +97,7 @@ public static class GraphFactory
     }
 
     private static ProjectInfo CreateProject(
+        string? filePath,
         string assemblyName,
         DocumentInfo[] documents,
         ProjectReference[] projectReferences,
@@ -102,6 +108,7 @@ public static class GraphFactory
             id: ProjectId.CreateNewId(),
             version: VersionStamp.Default,
             name: assemblyName,
+            filePath: filePath,
             assemblyName: assemblyName,
             language: LanguageNames.CSharp,
             documents: documents,

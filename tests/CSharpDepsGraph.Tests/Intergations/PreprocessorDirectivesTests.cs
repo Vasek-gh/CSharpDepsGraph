@@ -1,4 +1,3 @@
-using System.IO;
 using System.Linq;
 using NUnit.Framework;
 
@@ -6,6 +5,8 @@ namespace CSharpDepsGraph.Tests.Intergations;
 
 public class PreprocessorDirectivesTests : BaseIntergationsTests
 {
+    private static readonly char[] _pathSeparators = ['\\', '/'];
+
     [Test]
     public void TypeOptinalBody()
     {
@@ -103,16 +104,18 @@ public class PreprocessorDirectivesTests : BaseIntergationsTests
         Assert.That(links.Length, Is.EqualTo(targetLocations.Length));
         foreach (var targetLocation in targetLocations)
         {
-            Assert.That(GetLinkShortLocation(links, targetLocation.node), Is.EqualTo(targetLocation.location));
+            var linkShortLocation = GetLinkShortLocation(links, targetLocation.node);
+            Assert.That(linkShortLocation, Is.EqualTo(targetLocation.location));
         }
     }
 
     private static string GetLinkShortLocation(ILink[] links, INode target)
     {
+
         return links.Single(l => l.Target.Id == target.Id)
             .SyntaxLink
             .GetDisplayString()
-            .Split(Path.DirectorySeparatorChar)
+            .Split(_pathSeparators)
             .Last();
     }
 }

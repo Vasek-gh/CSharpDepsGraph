@@ -142,6 +142,12 @@ internal class BuildingData
         AddNodeSyntaxLink(node, Utils.CreateAssemblySyntaxLink(path));
     }
 
+    public void AddExternalSyntaxLink(Node node, ExternalNodeSyntaxLink syntaxLink)
+    {
+        _metrics.SyntaxLinkQueryCount.Inc();
+        AddNodeSyntaxLink(node, syntaxLink);
+    }
+
     private void AddNodeSyntaxLink(Node node, INodeSyntaxLink syntaxLink)
     {
         node.SyntaxLinkList = AddNodeListItem(node.SyntaxLinkList, syntaxLink);

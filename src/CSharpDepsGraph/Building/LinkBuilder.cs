@@ -9,6 +9,7 @@ internal class LinkBuilder
 {
     private readonly ILogger _logger;
     private readonly BuildingData _graphData;
+    private readonly Dictionary<string, ExternalNodeSyntaxLink> _assemblyLinksCache;
 
     public LinkBuilder(
         ILogger logger,
@@ -17,6 +18,7 @@ internal class LinkBuilder
     {
         _logger = logger;
         _graphData = graphData;
+        _assemblyLinksCache = new();
     }
 
     public void Run()
@@ -77,7 +79,10 @@ internal class LinkBuilder
 
             if (isInMetadata)
             {
-                result.SyntaxLinkList = Utils.CreateExternalSyntaxLink(symbol);
+                if (symbol.Kind == SymbolKind.Assembly)
+                {
+                    _graphData.AddExternalSyntaxLink(result, CreateExternalSyntaxLink(symbol));
+                }
             }
             else
             {
@@ -100,6 +105,21 @@ internal class LinkBuilder
         }
 
         return result;
+    }
+
+    private ExternalNodeSyntaxLink CreateExternalSyntaxLink(ISymbol symbol)
+    {
+        var assemblyName = symbol is IAssemblySymbol
+            ? symbol.Name
+            : symbol.ContainingAssembly.Name;
+
+        if (!_assemblyLinksCache.TryGetValue(assemblyName, out var link))
+        {
+            link = new ExternalNodeSyntaxLink(assemblyName);
+            _assemblyLinksCache.Add(assemblyName, link);
+        }
+
+        return link;
     }
 
     internal static void ForEachSyntaxReference(ISymbol symbol, Action<SyntaxReference> action)

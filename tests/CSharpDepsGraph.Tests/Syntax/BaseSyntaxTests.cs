@@ -8,6 +8,10 @@ namespace CSharpDepsGraph.Tests.Syntax;
     "CA1001",
     Justification = "TestLoggerFactory is fake, no need for disposing"
     )]
+[System.Diagnostics.CodeAnalysis.SuppressMessage(
+    "Usage",
+    "NUnit1032"
+    )]
 public class BaseSyntaxTests
 {
     private readonly TestLoggerFactory _loggerFactory;

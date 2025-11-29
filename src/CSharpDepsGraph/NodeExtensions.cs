@@ -24,14 +24,6 @@ public static class NodeExtensions
     }
 
     /// <summary>
-    /// Determines if the node is external
-    /// </summary>
-    public static bool IsExternal(this INode node)
-    {
-        return node.SyntaxLinks.All(sl => sl.LocationKind == LocationKind.External);
-    }
-
-    /// <summary>
     /// Collecting child nodes based on a predicate
     /// </summary>
     public static IEnumerable<INode> CollectChildNodes(this INode node, Func<INode, bool>? predicate = null)
