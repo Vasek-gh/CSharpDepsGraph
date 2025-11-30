@@ -6,6 +6,15 @@ namespace CSharpDepsGraph.Tests.Intergations;
 public class GeneratedCodeTests : BaseIntergationsTests
 {
     [Test]
+    public void AssemblyInfoIgnored()
+    {
+        var graph = GetGraph();
+
+        Assert.That(graph.GetNodes(AsmName.Netstandard, "System/Runtime/Versioning/TargetFrameworkAttribute"), Is.Empty);
+        Assert.That(graph.GetNodes(AsmName.Netstandard, "System/Reflection/AssemblyCompanyAttribute"), Is.Empty);
+    }
+
+    [Test]
     public void GeneratedDetect()
     {
         var graph = GetGraph();

@@ -11,7 +11,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
     private readonly ILogger _logger;
     private readonly BuildingData _graphData;
     private readonly SemanticModel _semanticModel;
-    private readonly bool _fileIsGenerated;
+    private readonly bool _isGenerated;
     private readonly string _projectPath;
     private readonly Stack<Node> _nodeStack;
     private readonly Stack<ISymbol> _symbolStack;
@@ -19,17 +19,17 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
 
     public SyntaxVisitor(
         ILogger logger,
+        bool isGenerated,
+        string projectPath,
         BuildingData graphData,
-        SemanticModel semanticModel,
-        bool fileIsGenerated,
-        string projectPath
+        SemanticModel semanticModel
         )
     {
         _logger = logger;
+        _isGenerated = isGenerated;
+        _projectPath = projectPath;
         _graphData = graphData;
         _semanticModel = semanticModel;
-        _fileIsGenerated = fileIsGenerated;
-        _projectPath = projectPath;
 
         _nodeStack = new();
         _symbolStack = new();
@@ -131,7 +131,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
         }
 
         var node = PushSymbol(symbol);
-        _graphData.AddSyntaxLink(node, LocationKind.Local, syntaxNode);
+        _graphData.AddSyntaxLink(node, LocationKind.Regular, syntaxNode);
 
         action?.Invoke();
         PopSymbol();
@@ -247,7 +247,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
                     .Single(p => p.Identifier.ValueText == property.Name);
 
                 var node = PushSymbol(property);
-                _graphData.AddSyntaxLink(node, LocationKind.Local, parameterSyntax);
+                _graphData.AddSyntaxLink(node, LocationKind.Regular, parameterSyntax);
                 PopSymbol();
             }
         });
@@ -745,7 +745,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
             _nodeStack.Peek(),
             symbol,
             syntax,
-            _fileIsGenerated ? LocationKind.Generated : LocationKind.Local
+            _isGenerated ? LocationKind.Generated : LocationKind.Regular
             );
     }
 

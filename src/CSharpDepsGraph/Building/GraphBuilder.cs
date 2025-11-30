@@ -4,6 +4,7 @@ using System.Globalization;
 using CSharpDepsGraph.Building.Entities;
 using System.Data;
 using System.Diagnostics;
+using CSharpDepsGraph.Building.Services;
 
 namespace CSharpDepsGraph.Building;
 
@@ -82,6 +83,8 @@ public sealed class GraphBuilder
             return Task.CompletedTask;
         }
 
+
+
         if (projectVariants.Length == 1)
         {
             return HandleProject(projectVariants[0], cancellationToken);
@@ -99,17 +102,33 @@ public sealed class GraphBuilder
 
     private Task HandleProject(Project project, CancellationToken cancellationToken)
     {
+        if (!project.SupportsCompilation)
+        {
+            return Task.CompletedTask;
+        }
+
         var logger = CreateLogger(project.Name);
         return DoWithMeasurement(logger, async () =>
         {
-            var compilation = await GetCompilation(project, logger, cancellationToken);
-            var generatedFiles = await GetGeneratedFiles(project, cancellationToken);
-
             var projectPath = project.FilePath ?? $"{project.Name}.dll";
+            var generatedCodeDetector = new GeneratedCodeDetector(project);
 
+            var compilation = await GetCompilation(project, logger, cancellationToken);
             foreach (var syntaxTree in compilation.SyntaxTrees)
             {
-                HandleSyntax(syntaxTree, compilation, generatedFiles, projectPath, cancellationToken);
+                var generatedFileKind = await generatedCodeDetector.GetGeneratedFileKindAsync(syntaxTree, cancellationToken);
+                if (generatedFileKind == GeneratedFileKind.Hiden)
+                {
+                    continue;
+                }
+
+                HandleSyntax(
+                    syntaxTree,
+                    compilation,
+                    generatedFileKind != GeneratedFileKind.None,
+                    projectPath,
+                    cancellationToken
+                );
             }
         });
     }
@@ -117,25 +136,18 @@ public sealed class GraphBuilder
     private void HandleSyntax(
         SyntaxTree syntaxTree,
         Compilation compilation,
-        ISet<string> generatedFiles,
+        bool isGenerated,
         string projectPath,
         CancellationToken cancellationToken
         )
     {
-        var fileIsFromSourceGenerators = generatedFiles.Contains(syntaxTree.FilePath);
-        if (!fileIsFromSourceGenerators
-            && GeneratedCodeUtilities.IsGeneratedCode(syntaxTree, cancellationToken))
-        {
-            return;
-        }
-
         var semanticModel = compilation.GetSemanticModel(syntaxTree);
         var syntaxVisitor = new SyntaxVisitor(
             CreateLogger(nameof(SyntaxVisitor)),
+            isGenerated,
+            projectPath,
             _graphData,
-            semanticModel,
-            fileIsFromSourceGenerators,
-            projectPath
+            semanticModel
             );
 
         var syntaxRoot = syntaxTree.GetRoot(cancellationToken);
@@ -145,7 +157,6 @@ public sealed class GraphBuilder
 
     private async Task<Compilation> GetCompilation(Project project, ILogger logger, CancellationToken cancellationToken)
     {
-        // todo check if project can GetCompilationAsync
         var compilation = await project.GetCompilationAsync(cancellationToken)
             ?? throw new Exception($"Fail to get compilation for project {project.Name}");
 
@@ -156,7 +167,9 @@ public sealed class GraphBuilder
 
     private static async Task<ISet<string>> GetGeneratedFiles(Project project, CancellationToken cancellationToken)
     {
-        return (await project.GetSourceGeneratedDocumentsAsync(cancellationToken))
+        var documents = await project.GetSourceGeneratedDocumentsAsync(cancellationToken);
+
+        return documents
             .Where(doc => doc.FilePath != null)
             .Select(doc => doc.FilePath ?? "")
             .ToHashSet();

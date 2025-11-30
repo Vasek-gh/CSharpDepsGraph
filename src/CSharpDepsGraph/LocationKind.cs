@@ -8,15 +8,15 @@ public enum LocationKind
     /// <summary>
     /// The symbol was taken from the source code
     /// </summary>
-    Local,
-
-    /// <summary>
-    /// The symbol was taken from the external project or library
-    /// </summary>
-    External,
+    Regular,
 
     /// <summary>
     /// The symbol was taken from the generated code
     /// </summary>
-    Generated
+    Generated,
+
+    /// <summary>
+    /// The symbol was taken from the external project or library
+    /// </summary>
+    External
 }

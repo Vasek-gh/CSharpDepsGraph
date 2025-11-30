@@ -26,7 +26,7 @@ internal static class Mocks
     public static ILink CreateLink(INode source, INode target)
     {
         var syntaxLinkMock = Substitute.For<ILinkSyntaxLink>();
-        syntaxLinkMock.LocationKind.Returns(LocationKind.Local);
+        syntaxLinkMock.LocationKind.Returns(LocationKind.Regular);
 
         var mock = Substitute.For<ILink>();
         mock.Source.Returns(source);

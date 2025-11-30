@@ -40,7 +40,7 @@ public static class ProjectSource
             StartInfo = new ProcessStartInfo()
             {
                 FileName = "dotnet",
-                Arguments = $"build {slnFileName} --nologo -v q --disable-build-servers",
+                Arguments = $"build {slnFileName} --nologo -v n --disable-build-servers",
                 RedirectStandardError = true,
                 RedirectStandardOutput = true,
                 Environment = {

@@ -7,6 +7,8 @@ public class TestGenerator : IIncrementalGenerator
 {
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
+        var assemblyNameProvider = context.CompilationProvider.Select((s, _)  => s.AssemblyName);
+
         var generatedClassText = @"
                 namespace TestProject.Generated;
                 public class GeneratedClass
@@ -34,10 +36,33 @@ public class TestGenerator : IIncrementalGenerator
                 }
             ";
 
-        context.RegisterPostInitializationOutput(i =>
+        var generatedFooText = @"
+                namespace TestProject.Generated;
+                public class Foo
+                {
+                    public void PublicMethod()
+                    {
+                        PrivateMethod();
+                    }
+
+                    private void PrivateMethod()
+                    {
+                        var a = 0;
+                    }
+                }
+            ";
+
+        context.RegisterSourceOutput(assemblyNameProvider, (spc, assemblyName) =>
         {
-            i.AddSource("GeneratedClass.g.cs", generatedClassText);
-            i.AddSource("GeneratedClassPartial.g.cs", generatedClassPartialText);
+            if (assemblyName.EndsWith("Cli"))
+            {
+                spc.AddSource("GeneratedFoo.cs", generatedFooText);
+            }
+            else
+            {
+                spc.AddSource("GeneratedClass.g.cs", generatedClassText);
+                spc.AddSource("GeneratedClassPartial.g.cs", generatedClassPartialText);
+            }
         });
     }
 }

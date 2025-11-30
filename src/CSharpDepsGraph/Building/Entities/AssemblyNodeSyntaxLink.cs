@@ -6,7 +6,7 @@ internal class AssemblyNodeSyntaxLink : INodeSyntaxLink
 {
     public string Location { get; }
 
-    public LocationKind LocationKind => LocationKind.Local;
+    public LocationKind LocationKind => LocationKind.Regular;
 
     public SyntaxNode? Syntax => null;
 

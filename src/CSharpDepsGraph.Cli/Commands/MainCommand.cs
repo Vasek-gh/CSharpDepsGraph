@@ -45,6 +45,7 @@ internal sealed class MainCommand
         var props = CreateProps();
 
         using var workspace = MSBuildWorkspace.Create(props);
+        workspace.LoadMetadataForReferencedProjects = false;
 
         var projects = Path.GetExtension(_settings.FileName) switch
         {
@@ -109,7 +110,14 @@ internal sealed class MainCommand
             result.Add(prop.Key, prop.Value);
         }
 
-        //result.Add("DisableBuild", "true");
+        result.Add("CustomBeforeMicrosoftCommonTargets", "D:/Src/inject.props"); // todo
+
+        result.Add("SkipCompilerExecution", "true");
+        result.Add("ProvideCommandLineArgs", "true");
+
+        result.Add("DesignTimeBuild", "true");
+        result.Add("RunAnalyzers", "false");
+        result.Add("RunAnalyzersDuringBuild", "false");
 
         return result;
     }

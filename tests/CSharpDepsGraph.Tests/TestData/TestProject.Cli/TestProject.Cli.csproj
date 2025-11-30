@@ -4,12 +4,26 @@
     <OutputType>Exe</OutputType>
     <TargetFrameworks>netstandard2.1;net6.0;net8.0</TargetFrameworks>
     <Nullable>enable</Nullable>
+    <EmitCompilerGeneratedFiles>true</EmitCompilerGeneratedFiles>
+    <CompilerGeneratedFilesOutputPath>Generated</CompilerGeneratedFilesOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\TestProject.SameSymbols1\TestProject.SameSymbols1.csproj" />
     <ProjectReference Include="..\TestProject.SameSymbols2\TestProject.SameSymbols2.csproj" />
     <ProjectReference Include="..\TestProject\TestProject.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference
+        Include="../TestProject.Generators/TestProject.Generators.csproj"
+        OutputItemType="Analyzer"
+        ReferenceOutputAssembly="false"
+        />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="$(CompilerGeneratedFilesOutputPath)/**/*.cs" />
   </ItemGroup>
 
 </Project>

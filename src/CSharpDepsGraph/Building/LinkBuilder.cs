@@ -99,7 +99,7 @@ internal class LinkBuilder
                         """);
                     */
                     var syntax = sr.GetSyntax();
-                    _graphData.AddSyntaxLink(result, LocationKind.Local, syntax);
+                    _graphData.AddSyntaxLink(result, LocationKind.Regular, syntax);
                 });
             }
         }
