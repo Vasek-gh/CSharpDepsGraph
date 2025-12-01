@@ -60,8 +60,8 @@ public class TestGenerator : IIncrementalGenerator
             }
             else
             {
-                spc.AddSource("GeneratedClass.g.cs", generatedClassText);
-                spc.AddSource("GeneratedClassPartial.g.cs", generatedClassPartialText);
+                spc.AddSource("GeneratedClass.cs", generatedClassText);
+                spc.AddSource("GeneratedClassPartial.cs", generatedClassPartialText);
             }
         });
     }

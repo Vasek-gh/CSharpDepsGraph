@@ -2,7 +2,7 @@ using Microsoft.CodeAnalysis;
 using System.Collections.Immutable;
 using System.Text;
 
-namespace CSharpDepsGraph.Building;
+namespace CSharpDepsGraph.Building.Services;
 
 internal class FullyQualifiedUidGenerator : ISymbolUidGenerator
 {

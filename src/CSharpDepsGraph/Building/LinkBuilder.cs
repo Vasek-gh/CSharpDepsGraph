@@ -1,4 +1,5 @@
 using CSharpDepsGraph.Building.Entities;
+using CSharpDepsGraph.Building.Services;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using System.Collections.Immutable;
@@ -9,15 +10,18 @@ internal class LinkBuilder
 {
     private readonly ILogger _logger;
     private readonly BuildingData _graphData;
+    private readonly GeneratedCodeDetector _generatedCodeDetector;
     private readonly Dictionary<string, ExternalNodeSyntaxLink> _assemblyLinksCache;
 
     public LinkBuilder(
         ILogger logger,
-        BuildingData graphData
+        BuildingData graphData,
+        GeneratedCodeDetector generatedCodeDetector
         )
     {
         _logger = logger;
         _graphData = graphData;
+        _generatedCodeDetector = generatedCodeDetector;
         _assemblyLinksCache = new();
     }
 
@@ -88,18 +92,21 @@ internal class LinkBuilder
             {
                 ForEachSyntaxReference(symbol, (sr) =>
                 {
-                    // todo check generated and warning if not
-                    /*
-                     _logger.LogWarning($"""
-                        When creating an external node, it was detected that the symbol will be created as a child of the local.
-                        Source node: {fromNode.Id}.
-                        Symbol id: {_idGenerator.Execute(symbol)}.
-                        Symbol location: {symbolLocation}
-                        Parent symbol id: {_idGenerator.Execute(parentSymbol)}.
-                        """);
-                    */
+                    if (_generatedCodeDetector.GetGeneratedFileKindAsync(sr.SyntaxTree, CancellationToken.None) == GeneratedFileKind.None)
+                    {
+                        /* todo
+                        _logger.LogWarning($"""
+                            When creating an external node, it was detected that the symbol will be created as a child of the local.
+                            Source node: {fromNode.Id}.
+                            Symbol id: {_idGenerator.Execute(symbol)}.
+                            Symbol location: {symbolLocation}
+                            Parent symbol id: {_idGenerator.Execute(parentSymbol)}.
+                            """);
+                        */
+                    }
+
                     var syntax = sr.GetSyntax();
-                    _graphData.AddSyntaxLink(result, LocationKind.Regular, syntax);
+                    _graphData.AddSyntaxLink(result, LocationKind.Generated, syntax);
                 });
             }
         }

@@ -1,4 +1,5 @@
 using CSharpDepsGraph.Building.Entities;
+using CSharpDepsGraph.Building.Services;
 using Microsoft.CodeAnalysis;
 
 namespace CSharpDepsGraph.Building;

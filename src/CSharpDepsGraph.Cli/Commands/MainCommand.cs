@@ -44,7 +44,7 @@ internal sealed class MainCommand
 
         var props = CreateProps();
 
-        using var workspace = MSBuildWorkspace.Create(props);
+        using var workspace = MSBuildWorkspace.Create(props); // todo это не очень правильно что workspace диспозится тут
         workspace.LoadMetadataForReferencedProjects = false;
 
         var projects = Path.GetExtension(_settings.FileName) switch

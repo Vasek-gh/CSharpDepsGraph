@@ -1,6 +1,6 @@
 using Microsoft.CodeAnalysis;
 
-namespace CSharpDepsGraph.Building;
+namespace CSharpDepsGraph.Building.Services;
 
 internal interface ISymbolUidGenerator
 {

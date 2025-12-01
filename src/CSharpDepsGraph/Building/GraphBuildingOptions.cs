@@ -22,6 +22,8 @@ public class GraphBuildingOptions
 
     public bool GenerateLinksToNamespaceQualifier { get; set; }// todo
 
+    public bool ParseVisibleGeneratedCode { get; set; }// todo
+
     public bool MergeSystemAssemblies { get; set; }// todo
 
     /// <summary>

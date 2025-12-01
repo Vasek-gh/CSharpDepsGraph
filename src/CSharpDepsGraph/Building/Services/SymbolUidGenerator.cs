@@ -1,7 +1,7 @@
 using Microsoft.CodeAnalysis;
 using System.Globalization;
 
-namespace CSharpDepsGraph.Building;
+namespace CSharpDepsGraph.Building.Services;
 
 /// <summary>
 /// Default symbol identifier generator

@@ -19,6 +19,7 @@ public sealed class GraphBuilder
     private readonly CultureInfo _cultureInfo;
     private readonly ILoggerFactory _loggerFactory;
     private readonly SymbolComparer _symbolComparer;
+    private readonly GeneratedCodeDetector _generatedCodeDetector;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="GraphBuilder"/> class.
@@ -35,6 +36,7 @@ public sealed class GraphBuilder
         _logger = CreateLogger();
         _metrics = new();
         _symbolComparer = new(options, false, false, null);
+        _generatedCodeDetector = new();
 
         _graphData = new(
             _metrics,
@@ -71,7 +73,7 @@ public sealed class GraphBuilder
         var logger = CreateLogger(nameof(LinkBuilder));
         var _ = DoWithMeasurement(logger, () =>
         {
-            new LinkBuilder(logger, _graphData).Run();
+            new LinkBuilder(logger, _graphData, _generatedCodeDetector).Run();
             return Task.CompletedTask;
         });
     }
@@ -82,8 +84,6 @@ public sealed class GraphBuilder
         {
             return Task.CompletedTask;
         }
-
-
 
         if (projectVariants.Length == 1)
         {
@@ -110,13 +110,14 @@ public sealed class GraphBuilder
         var logger = CreateLogger(project.Name);
         return DoWithMeasurement(logger, async () =>
         {
+            await _generatedCodeDetector.PrepareProjectAsync(project, cancellationToken);
+
             var projectPath = project.FilePath ?? $"{project.Name}.dll";
-            var generatedCodeDetector = new GeneratedCodeDetector(project);
 
             var compilation = await GetCompilation(project, logger, cancellationToken);
             foreach (var syntaxTree in compilation.SyntaxTrees)
             {
-                var generatedFileKind = await generatedCodeDetector.GetGeneratedFileKindAsync(syntaxTree, cancellationToken);
+                var generatedFileKind = _generatedCodeDetector.GetGeneratedFileKindAsync(syntaxTree, cancellationToken);
                 if (generatedFileKind == GeneratedFileKind.Hiden)
                 {
                     continue;
@@ -163,16 +164,6 @@ public sealed class GraphBuilder
         HandleErrors(logger, project, compilation);
 
         return compilation;
-    }
-
-    private static async Task<ISet<string>> GetGeneratedFiles(Project project, CancellationToken cancellationToken)
-    {
-        var documents = await project.GetSourceGeneratedDocumentsAsync(cancellationToken);
-
-        return documents
-            .Where(doc => doc.FilePath != null)
-            .Select(doc => doc.FilePath ?? "")
-            .ToHashSet();
     }
 
     private async Task<T> DoWithMeasurement<T>(ILogger logger, Func<Task<T>> action)

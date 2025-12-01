@@ -1,6 +1,6 @@
 using Microsoft.Extensions.Logging;
 
-namespace CSharpDepsGraph.Building;
+namespace CSharpDepsGraph.Building.Services;
 
 internal class Metrics
 {
