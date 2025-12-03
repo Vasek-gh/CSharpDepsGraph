@@ -115,8 +115,10 @@ internal class BuildingData
         }
     }
 
-    public void AddSyntaxLink(Node node, LocationKind locationKind, SyntaxNode syntax)
+    public void AddSyntaxLink(Node node, bool isGenerated, SyntaxNode syntax)
     {
+        var locationKind = isGenerated ? LocationKind.Generated : LocationKind.Regular;
+
         _metrics.SyntaxLinkQueryCount.Inc();
         foreach (var item in node.SyntaxLinkList)
         {

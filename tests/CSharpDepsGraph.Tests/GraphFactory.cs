@@ -13,7 +13,7 @@ namespace CSharpDepsGraph.Tests;
 
 public static class GraphFactory
 {
-    public static readonly string TestFileName = "AdbTestFile";
+    public static readonly string TestFileName = "AdbTestFile.cs";
 
     private static Solution _baseSolution;
     private static AdhocWorkspace _workspace;
@@ -45,7 +45,7 @@ public static class GraphFactory
     {
         var document = CreateDocument(TestFileName, source);
         var projectInfo = CreateProject(
-            null,
+            AsmName.Test + ".csproj",
             AsmName.Test,
             [document],
             [new ProjectReference(_testProject.Id)],

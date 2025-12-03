@@ -92,7 +92,8 @@ internal class LinkBuilder
             {
                 ForEachSyntaxReference(symbol, (sr) =>
                 {
-                    if (_generatedCodeDetector.GetGeneratedFileKindAsync(sr.SyntaxTree, CancellationToken.None) == GeneratedFileKind.None)
+                    var generatedFileKind = _generatedCodeDetector.GetGeneratedFileKindAsync(sr.SyntaxTree, CancellationToken.None);
+                    if (generatedFileKind == GeneratedFileKind.None)
                     {
                         /* todo
                         _logger.LogWarning($"""
@@ -106,7 +107,7 @@ internal class LinkBuilder
                     }
 
                     var syntax = sr.GetSyntax();
-                    _graphData.AddSyntaxLink(result, LocationKind.Generated, syntax);
+                    _graphData.AddSyntaxLink(result, generatedFileKind != GeneratedFileKind.None, syntax);
                 });
             }
         }

@@ -39,6 +39,11 @@ internal class PathResolver
 
     private string Handle(INodeSyntaxLink syntaxLink, bool preparation)
     {
+        if (syntaxLink.Location.EndsWith("AssemblyInfo.cs"))
+        {
+            // todo kill
+        }
+
         if (syntaxLink.LocationKind == LocationKind.External)
         {
             return syntaxLink.Location;

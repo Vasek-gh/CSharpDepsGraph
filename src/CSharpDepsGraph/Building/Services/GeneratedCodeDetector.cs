@@ -14,9 +14,12 @@ internal class GeneratedCodeDetector
     private readonly List<string> _objPaths;
     private readonly HashSet<string> _sourceGeneratedDocuments;
     private readonly Dictionary<string, GeneratedFileKind> _resultCache;
+    private readonly GraphBuildingOptions _graphOptions;
 
-    public GeneratedCodeDetector()
+    public GeneratedCodeDetector(GraphBuildingOptions graphOptions)
     {
+        _graphOptions = graphOptions;
+
         _objPaths = new();
         _resultCache = new();
         _sourceGeneratedDocuments = new();
@@ -24,23 +27,10 @@ internal class GeneratedCodeDetector
 
     public async Task PrepareProjectAsync(Project project, CancellationToken cancellationToken)
     {
-        /* todo get BaseIntermediateOutputPath
-        var globalOptions = project.AnalyzerOptions.AnalyzerConfigOptionsProvider.GlobalOptions;
-        var opts = globalOptions.Keys
-            .Select(k =>
-            {
-                return (k, globalOptions.TryGetValue(k, out var value) ? value : null);
-            });
-        */
-
-        var asmAttrsDoc = project.Documents.SingleOrDefault(
-            d => d.FilePath?.EndsWith("AssemblyAttributes.cs", StringComparison.Ordinal) == true
-        );
-
-        var asmAttrsDocDir = Path.GetDirectoryName(asmAttrsDoc?.FilePath);
-        if (asmAttrsDocDir is not null)
+        var objPath = DetectObjPath(project);
+        if (objPath is not null)
         {
-            _objPaths.Add(asmAttrsDocDir);
+            _objPaths.Add(objPath);
         }
 
         var documents = await project.GetSourceGeneratedDocumentsAsync(cancellationToken);
@@ -75,10 +65,36 @@ internal class GeneratedCodeDetector
 
     private GeneratedFileKind AppendPath(string path, bool isGenerated)
     {
-        var result = isGenerated ? GeneratedFileKind.Hiden : GeneratedFileKind.None;
+        var result = GeneratedFileKind.None;
+        if (isGenerated)
+        {
+            var inObjDir = _objPaths.Any(op => path.StartsWith(op, StringComparison.Ordinal));
+            result = inObjDir || !_graphOptions.ParseVisibleGeneratedCode
+                ? GeneratedFileKind.Hiden
+                : GeneratedFileKind.Visible;
+        }
+
         _resultCache.TryAdd(path, result);
 
         return result;
+    }
+
+    private static string? DetectObjPath(Project project)
+    {
+        /* todo get BaseIntermediateOutputPath
+        var globalOptions = project.AnalyzerOptions.AnalyzerConfigOptionsProvider.GlobalOptions;
+        var opts = globalOptions.Keys
+            .Select(k =>
+            {
+                return (k, globalOptions.TryGetValue(k, out var value) ? value : null);
+            });
+        */
+
+        var asmAttrsDoc = project.Documents.SingleOrDefault(
+            d => d.FilePath?.EndsWith("AssemblyAttributes.cs", StringComparison.Ordinal) == true
+        );
+
+        return Path.GetDirectoryName(asmAttrsDoc?.FilePath);
     }
 
     // Base on Roslyn.Utilities.GeneratedCodeUtilities

@@ -131,7 +131,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
         }
 
         var node = PushSymbol(symbol);
-        _graphData.AddSyntaxLink(node, LocationKind.Regular, syntaxNode);
+        _graphData.AddSyntaxLink(node, _isGenerated, syntaxNode);
 
         action?.Invoke();
         PopSymbol();
@@ -247,7 +247,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
                     .Single(p => p.Identifier.ValueText == property.Name);
 
                 var node = PushSymbol(property);
-                _graphData.AddSyntaxLink(node, LocationKind.Regular, parameterSyntax);
+                _graphData.AddSyntaxLink(node, _isGenerated, parameterSyntax);
                 PopSymbol();
             }
         });

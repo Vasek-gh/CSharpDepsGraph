@@ -38,7 +38,7 @@ internal sealed class JsonExportCommand : IGraphCommand
             var options = new JsonExportOptions() // todo create cli options
             {
                 FormatOutput = _settings.Format,
-                BasePath = Path.GetDirectoryName(ctx.InputFile),
+                BasePath = Path.GetDirectoryName(ctx.InputFile)
             };
 
             await new JsonExport(_loggerFactory.CreateLogger<JsonExport>(), options).Run(graph, stream, cancellationToken);

@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -62,15 +63,38 @@ public class JsonExportTests : BaseSyntaxTests
         Assert.That(graph.Links[0].Location, Is.Null);
     }
 
+    [Test]
+    public void AssemblyAttributeLocation()
+    {
+        var graph = GetGraph(@"
+                using System.Runtime.CompilerServices;
+                [assembly: InternalsVisibleTo(""Foo.Bar"")]
+            ",
+            new JsonExportOptions()
+            );
+
+        var graphNode = GetNode(graph);
+
+        Assert.That(graph, Is.Not.Null);
+        Assert.That(graph.Paths, Is.Null);
+        Assert.That(graphNode.Locations, Is.Null);
+        Assert.That(graph.Links[0].Location, Is.Null);
+    }
+
     private JsonGraph GetGraph(JsonExportOptions exportOptions)
     {
-        var json = GetJson(@"
+        return GetGraph(@"
             using System.Threading;
             public class Test {
                 public CancellationToken Foo() => CancellationToken.None;
             }",
             exportOptions
         );
+    }
+
+    private JsonGraph GetGraph(string source, JsonExportOptions exportOptions)
+    {
+        var json = GetJson(source, exportOptions);
 
         return JsonSerializer.Deserialize<JsonGraph>(json)
             ?? throw new InvalidOperationException();
@@ -110,6 +134,7 @@ public class JsonExportTests : BaseSyntaxTests
         public required string[]? Paths { get; set; }
     }
 
+    [DebuggerDisplay("{Caption}")]
     private class JsonNode
     {
         public required string Id { get; set; }
@@ -119,6 +144,7 @@ public class JsonExportTests : BaseSyntaxTests
         public string[]? Locations { get; set; }
     }
 
+    [DebuggerDisplay("{Source} -> {Target}")]
     private class JsonLink
     {
         public required string Source { get; set; }

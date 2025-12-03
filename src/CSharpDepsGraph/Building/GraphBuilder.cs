@@ -36,7 +36,7 @@ public sealed class GraphBuilder
         _logger = CreateLogger();
         _metrics = new();
         _symbolComparer = new(options, false, false, null);
-        _generatedCodeDetector = new();
+        _generatedCodeDetector = new(options);
 
         _graphData = new(
             _metrics,
@@ -123,7 +123,13 @@ public sealed class GraphBuilder
                     continue;
                 }
 
+                if (syntaxTree.FilePath.EndsWith("AssemblyInfo.cs"))
+                {
+                    // todo kill
+                }
+
                 HandleSyntax(
+                    logger,
                     syntaxTree,
                     compilation,
                     generatedFileKind != GeneratedFileKind.None,
@@ -135,6 +141,7 @@ public sealed class GraphBuilder
     }
 
     private void HandleSyntax(
+        ILogger logger,
         SyntaxTree syntaxTree,
         Compilation compilation,
         bool isGenerated,
@@ -144,7 +151,7 @@ public sealed class GraphBuilder
     {
         var semanticModel = compilation.GetSemanticModel(syntaxTree);
         var syntaxVisitor = new SyntaxVisitor(
-            CreateLogger(nameof(SyntaxVisitor)),
+            logger,
             isGenerated,
             projectPath,
             _graphData,

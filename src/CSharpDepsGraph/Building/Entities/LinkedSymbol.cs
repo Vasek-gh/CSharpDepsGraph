@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace CSharpDepsGraph.Building.Entities;
 
-[DebuggerDisplay("{Id}")]
+[DebuggerDisplay("{Symbol}")]
 internal class LinkedSymbol
 {
     public required ISymbol Symbol { get; init; }

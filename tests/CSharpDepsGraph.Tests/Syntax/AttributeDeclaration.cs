@@ -177,4 +177,17 @@ public class AttributeDeclaration : BaseSyntaxTests
             (AsmName.Test, "TestAttrAttribute")
         );
     }
+
+    [Test]
+    public void AssemblyAttribute()
+    {
+        var graph = Build(@"
+            using System.Runtime.CompilerServices;
+            [assembly: InternalsVisibleTo(""Foo.Bar"")]
+        ");
+
+        GraphAssert.HasLink(graph, "",
+            (AsmName.CoreLib, "System/Runtime/CompilerServices/InternalsVisibleToAttribute/ctor(string)")
+        );
+    }
 }
