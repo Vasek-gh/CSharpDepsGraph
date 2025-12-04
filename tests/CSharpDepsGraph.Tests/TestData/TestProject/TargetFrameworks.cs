@@ -21,4 +21,9 @@ public class TargetFrameworks
     {
 
     }
+
+    public void StdTypes(OperationCanceledException e)
+    {
+
+    }
 }

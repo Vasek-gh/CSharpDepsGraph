@@ -37,7 +37,8 @@ public class BaseSyntaxTests
     {
         buildingOptions ??= new GraphBuildingOptions()
         {
-            IncludeLinksToPrimitveTypes = true
+            IncludeLinksToPrimitveTypes = true,
+            IgnoreLinksToAssemblies = []
         };
 
         return GraphFactory.CreateGraph(_loggerFactory, sourceText, buildingOptions);

@@ -45,11 +45,33 @@ public class SysLibTests : BaseIntergationsTests
     }
 
     [Test]
+    public void CheckDefaultUnitTestConfig()
+    {
+        var graph = GetGraph();
+        var typeNode = graph.GetNode(AsmName.TestProject, "TestProject/TargetFrameworks");
+        var methodNode1 = typeNode.Childs.Single(c => c.Symbol?.Name == "Primitive");
+        var methodNode2 = typeNode.Childs.Single(c => c.Symbol?.Name == "StdTypes");
+
+        Assert.That(graph.GetOutgoingLinks(methodNode1), Is.Not.Empty);
+        Assert.That(graph.GetOutgoingLinks(methodNode2), Is.Not.Empty);
+    }
+
+    [Test]
     public void PrimitiveTypesIgnored()
     {
-        var graph = GetGraph(new GraphBuildingOptions());
+        var graph = GetGraph(o => o.IncludeLinksToPrimitveTypes = false);
         var typeNode = graph.GetNode(AsmName.TestProject, "TestProject/TargetFrameworks");
         var methodNode = typeNode.Childs.Single(c => c.Symbol?.Name == "Primitive");
+
+        Assert.That(graph.GetOutgoingLinks(methodNode), Is.Empty);
+    }
+
+    [Test]
+    public void DefaultAssemblyFilter()
+    {
+        var graph = GetGraph(o => o.IgnoreLinksToAssemblies = GraphBuildingOptions.Default.IgnoreLinksToAssemblies);
+        var typeNode = graph.GetNode(AsmName.TestProject, "TestProject/TargetFrameworks");
+        var methodNode = typeNode.Childs.Single(c => c.Symbol?.Name == "StdTypes");
 
         Assert.That(graph.GetOutgoingLinks(methodNode), Is.Empty);
     }

@@ -1,5 +1,6 @@
 using CSharpDepsGraph.Building;
 using NUnit.Framework;
+using System;
 using System.Threading;
 
 namespace CSharpDepsGraph.Tests.Intergations;
@@ -38,8 +39,25 @@ public class BaseIntergationsTests
     {
         buildingOptions ??= new GraphBuildingOptions()
         {
-            IncludeLinksToPrimitveTypes = true
+            IncludeLinksToPrimitveTypes = true,
+            IgnoreLinksToAssemblies = [],
         };
+
+        return new GraphBuilder(_loggerFactory, buildingOptions)
+            .Run(ProjectSource.Solution.Projects, CancellationToken.None)
+            .GetAwaiter()
+            .GetResult();
+    }
+
+    public IGraph GetGraph(Action<GraphBuildingOptions>? configure)
+    {
+        var buildingOptions = new GraphBuildingOptions()
+        {
+            IncludeLinksToPrimitveTypes = true,
+            IgnoreLinksToAssemblies = [],
+        };
+
+        configure?.Invoke(buildingOptions);
 
         return new GraphBuilder(_loggerFactory, buildingOptions)
             .Run(ProjectSource.Solution.Projects, CancellationToken.None)
