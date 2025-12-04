@@ -1,5 +1,6 @@
 using CSharpDepsGraph.Building;
 using NUnit.Framework;
+using System;
 
 namespace CSharpDepsGraph.Tests.Syntax;
 
@@ -33,13 +34,15 @@ public class BaseSyntaxTests
         _loggerFactory.Check();
     }
 
-    protected IGraph Build(string sourceText, GraphBuildingOptions? buildingOptions = null)
+    protected IGraph Build(string sourceText, Action<GraphBuildingOptions>? configure = null)
     {
-        buildingOptions ??= new GraphBuildingOptions()
+        var buildingOptions = new GraphBuildingOptions()
         {
             IncludeLinksToPrimitveTypes = true,
-            IgnoreLinksToAssemblies = []
+            IgnoreLinksToAssemblies = [],
         };
+
+        configure?.Invoke(buildingOptions);
 
         return GraphFactory.CreateGraph(_loggerFactory, sourceText, buildingOptions);
     }

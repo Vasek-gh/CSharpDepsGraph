@@ -35,10 +35,11 @@ public sealed class GraphBuilder
         _cultureInfo = cultureInfo ?? CultureInfo.CurrentCulture;
 
         _logger = CreateLogger();
-        _filter = CreateFilter(options);
         _metrics = new();
         _symbolComparer = new(options, false, false, null);
         _generatedCodeDetector = new(options);
+
+        _filter = new Filter(options, _symbolComparer);
 
         _graphData = new(
             _metrics,
@@ -261,11 +262,6 @@ public sealed class GraphBuilder
     private ILogger CreateLogger(string? category = null)
     {
         return Utils.CreateLogger<GraphBuilder>(_loggerFactory, category);
-    }
-
-    private IFilter CreateFilter(GraphBuildingOptions options)
-    {
-        return new Filter(options);
     }
 
     private static Project[][] GetProjectsVariants(IEnumerable<Project> projects)

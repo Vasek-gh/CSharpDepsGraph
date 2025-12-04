@@ -14,10 +14,7 @@ public class GeneratedCodeTests : BaseIntergationsTests
         Assert.That(graph1.GetNodes(AsmName.Netstandard, "System/Runtime/Versioning/TargetFrameworkAttribute"), Is.Empty);
         Assert.That(graph1.GetNodes(AsmName.Netstandard, "System/Reflection/AssemblyCompanyAttribute"), Is.Empty);
 
-        var graph2 = GetGraph(new GraphBuildingOptions()
-        {
-            DoNotIgnoreVisibleGeneratedCode = true
-        });
+        var graph2 = GetGraph(o => o.DoNotIgnoreVisibleGeneratedCode = true);
 
         Assert.That(graph2.GetNodes(AsmName.Netstandard, "System/Runtime/Versioning/TargetFrameworkAttribute"), Is.Empty);
         Assert.That(graph2.GetNodes(AsmName.Netstandard, "System/Reflection/AssemblyCompanyAttribute"), Is.Empty);
@@ -36,10 +33,7 @@ public class GeneratedCodeTests : BaseIntergationsTests
         Assert.That(node1.Childs.Count(), Is.EqualTo(1));
         Assert.That(graph1.GetOutgoingLinks(methodNode1).Length, Is.Zero);
 
-        var graph2 = GetGraph(new GraphBuildingOptions()
-        {
-            DoNotIgnoreVisibleGeneratedCode = true
-        });
+        var graph2 = GetGraph(o => o.DoNotIgnoreVisibleGeneratedCode = true);
         var node2 = graph2.GetNode("TestProject.Cli", "TestProject/Cli/GenComment");
         var methodNode21 = node2.GetNode("PublicMethod()");
         var methodNode22 = node2.GetNode("PrivateMethod()");
@@ -66,10 +60,7 @@ public class GeneratedCodeTests : BaseIntergationsTests
         Assert.That(node1.Childs.Count(), Is.EqualTo(1));
         Assert.That(graph1.GetOutgoingLinks(methodNode1).Length, Is.Zero);
 
-        var graph2 = GetGraph(new GraphBuildingOptions()
-        {
-            DoNotIgnoreVisibleGeneratedCode = true
-        });
+        var graph2 = GetGraph(o => o.DoNotIgnoreVisibleGeneratedCode = true);
         var node2 = graph2.GetNode("TestProject.Cli", "TestProject/Generated/Foo");
         var methodNode21 = node2.GetNode("PublicMethod()");
         var methodNode22 = node2.GetNode("PrivateMethod()");

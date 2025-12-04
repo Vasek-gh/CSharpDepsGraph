@@ -10,7 +10,7 @@ public class GraphBuildingOptions
     /// </summary>
     public static readonly GraphBuildingOptions Default = new GraphBuildingOptions();
 
-    public bool IncludeLinksToSelfType { get; set; } // todo
+    public bool IncludeLinksToSelfType { get; set; }
 
     public bool IncludeLinksToPrimitveTypes { get; set; }
 
