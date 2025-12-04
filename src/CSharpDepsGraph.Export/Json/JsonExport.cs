@@ -46,10 +46,6 @@ public class JsonExport
     /// </summary>
     public Task Run(IGraph graph, Stream stream, CancellationToken cancellationToken)
     {
-        // The Paths tag comes first, but the table is only populated during serialization. Therefore, we need to
-        // first run a run to populate the table.
-        _pathResolver.Prepare(graph);
-
         var graphProxy = new Graph(_pathResolver, _exportOptions)
         {
             Root = graph.Root,
@@ -65,10 +61,9 @@ public class JsonExport
         private readonly PathResolver _pathResolver;
         private readonly JsonExportOptions _options;
 
-        // Don't move them!!! Otherwise, deserialization won't be trivial. The client will have to remember the location indexes before decrypting them.
-        public List<string>? Paths => CanExportPaths() ? _pathResolver.Paths : null;
         public required INode Root { get; set; }
         public required IEnumerable<ILink> Links { get; set; }
+        public List<string>? Paths => CanExportPaths() ? _pathResolver.Paths : null;
 
         public Graph(PathResolver pathResolver, JsonExportOptions options)
         {

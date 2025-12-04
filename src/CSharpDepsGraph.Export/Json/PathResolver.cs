@@ -19,51 +19,27 @@ internal class PathResolver
         Paths = new();
     }
 
-    public void Prepare(IGraph graph)
-    {
-        graph.Root.VisitNodes((n) =>
-        {
-            foreach (var syntaxLink in n.SyntaxLinks)
-            {
-                Handle(syntaxLink, true);
-            }
-
-            return true;
-        });
-    }
-
     public string Handle(INodeSyntaxLink syntaxLink)
     {
-        return Handle(syntaxLink, false);
-    }
-
-    private string Handle(INodeSyntaxLink syntaxLink, bool preparation)
-    {
-        if (syntaxLink.Location.EndsWith("AssemblyInfo.cs"))
-        {
-            // todo kill
-        }
-
         if (syntaxLink.LocationKind == LocationKind.External)
         {
             return syntaxLink.Location;
         }
 
-        return Handle(syntaxLink.Location, preparation);
+        return Handle(syntaxLink.Location);
     }
 
     public string Handle(ILinkSyntaxLink syntaxLink)
     {
         if (syntaxLink.LocationKind == LocationKind.External)
         {
-            // todo warnig
-            return "";
+            // todo warning
         }
 
-        return Handle(syntaxLink.Syntax.SyntaxTree.FilePath, false);
+        return Handle(syntaxLink.Syntax.SyntaxTree.FilePath);
     }
 
-    private string Handle(string path, bool preparation)
+    private string Handle(string path)
     {
         if (_options.DoNotCreateLocationTable)
         {
@@ -73,11 +49,6 @@ internal class PathResolver
         var originalPath = path;
         if (!_pathMap.TryGetValue(originalPath, out var pathIndex))
         {
-            if (!preparation)
-            {
-                // todo warning. Prepare must fill it
-            }
-
             path = HandlePath(path);
             pathIndex = Paths.Count;
 

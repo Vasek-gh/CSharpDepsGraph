@@ -66,6 +66,11 @@ public class JsonExportTests : BaseSyntaxTests
     [Test]
     public void AssemblyAttributeLocation()
     {
+        /*
+            When an assembly attribute is located in a single file, no nodes will be
+            created for that file. Therefore, it should be checked separately to
+            ensure that nodeless files are also processed.
+        */
         var graph = GetGraph(@"
                 using System.Runtime.CompilerServices;
                 [assembly: InternalsVisibleTo(""Foo.Bar"")]
@@ -73,12 +78,17 @@ public class JsonExportTests : BaseSyntaxTests
             new JsonExportOptions()
             );
 
-        var graphNode = GetNode(graph);
+        var link = graph.Links.SingleOrDefault(l =>
+            l.Source == "Test"
+            && l.Target.Contains("InternalsVisibleToAttribute.ctor")
+            );
 
-        Assert.That(graph, Is.Not.Null);
-        Assert.That(graph.Paths, Is.Null);
-        Assert.That(graphNode.Locations, Is.Null);
-        Assert.That(graph.Links[0].Location, Is.Null);
+        Assert.That(link, Is.Not.Null);
+
+        var index = int.Parse(link.Location?.Split(":").First() ?? "");
+        var filePath = graph.Paths?[index];
+
+        Assert.That(filePath, Is.EqualTo("AdbTestFile.cs"));
     }
 
     private JsonGraph GetGraph(JsonExportOptions exportOptions)
