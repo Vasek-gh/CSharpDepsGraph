@@ -310,11 +310,6 @@ internal class SymbolComparer
 
     private bool CompareMethod(IMethodSymbol? a, IMethodSymbol? b)
     {
-        if (a?.Name == "WriteUnaligned" && b?.Name == "WriteUnaligned")
-        {
-            // todo kill
-        }
-
         if (a is null
             || b is null
             || a.Arity != b.Arity

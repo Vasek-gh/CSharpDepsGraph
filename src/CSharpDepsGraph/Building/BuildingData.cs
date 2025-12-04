@@ -77,8 +77,6 @@ internal class BuildingData
             Syntax = syntaxNode,
             LocationKind = locationKind,
         });
-
-        //_counters.LinkCount++; todo
     }
 
     public void AddLinkedSymbol(Node node, ISymbol symbol, SyntaxNode syntax, LocationKind locationKind)

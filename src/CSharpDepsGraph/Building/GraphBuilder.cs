@@ -123,11 +123,6 @@ public sealed class GraphBuilder
                     continue;
                 }
 
-                if (syntaxTree.FilePath.EndsWith("AssemblyInfo.cs"))
-                {
-                    // todo kill
-                }
-
                 HandleSyntax(
                     logger,
                     syntaxTree,

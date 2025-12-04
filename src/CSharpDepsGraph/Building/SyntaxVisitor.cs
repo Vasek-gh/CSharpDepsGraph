@@ -156,7 +156,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
         Utils.CheckNull(syntaxNode.Parent, "Global statement without parent");
 
         var mainSymbol = GetDeclaredSymbol(syntaxNode.Parent);
-        var programSymbol = mainSymbol.ContainingSymbol; // todo после отказа от SymbolVistor можно откзатся от этого
+        var programSymbol = mainSymbol.ContainingSymbol;
 
         HandleDeclaration(syntaxNode.Parent, programSymbol, () =>
         {
@@ -734,11 +734,6 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
             );
 
             return;
-        }
-
-        if (_nodeStack.Peek().Id == "Confluent.SchemaRegistry.Serdes.Avro/Confluent.SchemaRegistry.Serdes.AvroDeserializerConfig.UseLatestVersion")
-        {
-            // todo kill
         }
 
         _graphData.AddLinkedSymbol(

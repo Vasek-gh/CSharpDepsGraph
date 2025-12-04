@@ -196,11 +196,6 @@ internal class FullyQualifiedUidGenerator : ISymbolUidGenerator
 
     private void AppendMethod(IMethodSymbol symbol)
     {
-        if (symbol.Name == "extractDeleteRecordsReports")
-        {
-            // todo kill
-        }
-
         Append(symbol.ContainingSymbol, false);
 
         var symbolName = symbol.Name;
