@@ -36,7 +36,10 @@ public class BaseIntergationsTests
 
     public IGraph GetGraph(GraphBuildingOptions? buildingOptions = null)
     {
-        buildingOptions ??= new GraphBuildingOptions();
+        buildingOptions ??= new GraphBuildingOptions()
+        {
+            IncludeLinksToPrimitveTypes = true
+        };
 
         return new GraphBuilder(_loggerFactory, buildingOptions)
             .Run(ProjectSource.Solution.Projects, CancellationToken.None)

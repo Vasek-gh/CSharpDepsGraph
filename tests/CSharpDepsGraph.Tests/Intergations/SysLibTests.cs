@@ -1,3 +1,4 @@
+using CSharpDepsGraph.Building;
 using NUnit.Framework;
 using System.Linq;
 
@@ -41,5 +42,15 @@ public class SysLibTests : BaseIntergationsTests
             (AsmName.Runtime80, "System/int"),
             (AsmName.Runtime80, "System/nint")
         );
+    }
+
+    [Test]
+    public void PrimitiveTypesIgnored()
+    {
+        var graph = GetGraph(new GraphBuildingOptions());
+        var typeNode = graph.GetNode(AsmName.TestProject, "TestProject/TargetFrameworks");
+        var methodNode = typeNode.Childs.Single(c => c.Symbol?.Name == "Primitive");
+
+        Assert.That(graph.GetOutgoingLinks(methodNode), Is.Empty);
     }
 }

@@ -28,7 +28,8 @@ internal static class Utils
         SpecialType.System_Double,
         SpecialType.System_String,
         SpecialType.System_IntPtr,
-        SpecialType.System_UIntPtr
+        SpecialType.System_UIntPtr,
+        SpecialType.System_DateTime
     ];
 
     public static readonly HashSet<string> CoreLibs = [
@@ -85,6 +86,11 @@ internal static class Utils
     public static bool IsInMetadata(IAssemblySymbol assemblySymbol)
     {
         return assemblySymbol.Locations.Length == 1 && assemblySymbol.Locations[0].IsInMetadata;
+    }
+
+    public static bool IsPrimiteType(ISymbol symbol)
+    {
+        return symbol is ITypeSymbol typeSymbol && IsPrimiteType(typeSymbol);
     }
 
     public static bool IsPrimiteType(ITypeSymbol typeSymbol)

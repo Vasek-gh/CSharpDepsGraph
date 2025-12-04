@@ -35,6 +35,11 @@ public class BaseSyntaxTests
 
     protected IGraph Build(string sourceText, GraphBuildingOptions? buildingOptions = null)
     {
+        buildingOptions ??= new GraphBuildingOptions()
+        {
+            IncludeLinksToPrimitveTypes = true
+        };
+
         return GraphFactory.CreateGraph(_loggerFactory, sourceText, buildingOptions);
     }
 }

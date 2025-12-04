@@ -1,4 +1,5 @@
 using CSharpDepsGraph.Building.Entities;
+using CSharpDepsGraph.Building.Services;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -9,6 +10,7 @@ namespace CSharpDepsGraph.Building;
 internal class SyntaxVisitor : CSharpSyntaxWalker
 {
     private readonly ILogger _logger;
+    private readonly IFilter _filter;
     private readonly BuildingData _graphData;
     private readonly SemanticModel _semanticModel;
     private readonly bool _isGenerated;
@@ -19,6 +21,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
 
     public SyntaxVisitor(
         ILogger logger,
+        IFilter filter,
         bool isGenerated,
         string projectPath,
         BuildingData graphData,
@@ -26,6 +29,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
         )
     {
         _logger = logger;
+        _filter = filter;
         _isGenerated = isGenerated;
         _projectPath = projectPath;
         _graphData = graphData;
@@ -733,6 +737,12 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
             """
             );
 
+            return;
+        }
+
+        var node = _nodeStack.Peek();
+        if (node.Symbol is not null && _filter.FilterLinkTarget(node.Symbol, symbol))
+        {
             return;
         }
 

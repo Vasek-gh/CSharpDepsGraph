@@ -16,7 +16,7 @@ public class GeneratedCodeTests : BaseIntergationsTests
 
         var graph2 = GetGraph(new GraphBuildingOptions()
         {
-            ParseVisibleGeneratedCode = true
+            DoNotIgnoreVisibleGeneratedCode = true
         });
 
         Assert.That(graph2.GetNodes(AsmName.Netstandard, "System/Runtime/Versioning/TargetFrameworkAttribute"), Is.Empty);
@@ -38,7 +38,7 @@ public class GeneratedCodeTests : BaseIntergationsTests
 
         var graph2 = GetGraph(new GraphBuildingOptions()
         {
-            ParseVisibleGeneratedCode = true
+            DoNotIgnoreVisibleGeneratedCode = true
         });
         var node2 = graph2.GetNode("TestProject.Cli", "TestProject/Cli/GenComment");
         var methodNode21 = node2.GetNode("PublicMethod()");
@@ -68,7 +68,7 @@ public class GeneratedCodeTests : BaseIntergationsTests
 
         var graph2 = GetGraph(new GraphBuildingOptions()
         {
-            ParseVisibleGeneratedCode = true
+            DoNotIgnoreVisibleGeneratedCode = true
         });
         var node2 = graph2.GetNode("TestProject.Cli", "TestProject/Generated/Foo");
         var methodNode21 = node2.GetNode("PublicMethod()");

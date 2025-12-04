@@ -16,4 +16,9 @@ public class TargetFrameworks
     {
 
     }
+
+    public void Primitive(int a1, nint a2, string a3, DateTime a4, object a5)
+    {
+
+    }
 }
