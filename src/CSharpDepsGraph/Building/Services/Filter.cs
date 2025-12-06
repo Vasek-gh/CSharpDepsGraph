@@ -32,7 +32,6 @@ internal class Filter : IFilter
             return true;
         }
 
-        //Utils.IsPrimiteType()
         return false;
     }
 

@@ -8,14 +8,16 @@ internal class FullyQualifiedUidGenerator : ISymbolUidGenerator
 {
     private readonly StringBuilder _stringBuilder;
     private readonly Dictionary<Version, string> _versionCache;
+    private readonly GraphBuildingOptions _options;
 
     private bool _parameterMode;
     private bool _excludeAssembly;
 
-    public FullyQualifiedUidGenerator()
+    public FullyQualifiedUidGenerator(GraphBuildingOptions options)
     {
         _stringBuilder = new(200);
         _versionCache = new();
+        _options = options;
     }
 
     public string Execute(ISymbol symbol)
@@ -42,7 +44,7 @@ internal class FullyQualifiedUidGenerator : ISymbolUidGenerator
         Append(symbol.Name);
 
         // todo check in a unit test that a version is not created for the assembly from source
-        if (Utils.IsInMetadata(symbol))
+        if (Utils.IsInMetadata(symbol) && _options.DoNotMergeAssembliesWithDifferentVersions)
         {
             var version = symbol.Identity.Version;
             if (!_versionCache.TryGetValue(version, out var versionString))

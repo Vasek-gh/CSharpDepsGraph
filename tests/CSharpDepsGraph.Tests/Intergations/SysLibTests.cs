@@ -75,4 +75,23 @@ public class SysLibTests : BaseIntergationsTests
 
         Assert.That(graph.GetOutgoingLinks(methodNode), Is.Empty);
     }
+
+    [Test]
+    public void MergeAssemblyVersion()
+    {
+        var graph1 = GetGraph(o => o.DoNotMergeAssembliesWithDifferentVersions = false);
+
+        GraphAssert.HasExactLink(graph1, (AsmName.TestProject, "TestProject/Constants/IntConst1"),
+            (AsmName.Netstandard, "System/int"),
+            (AsmName.Runtime60, "System/int")
+        );
+
+        var graph2 = GetGraph(o => o.DoNotMergeAssembliesWithDifferentVersions = true);
+
+        GraphAssert.HasExactLink(graph2, (AsmName.TestProject, "TestProject/Constants/IntConst1"),
+            (AsmName.Netstandard, "System/int"),
+            (AsmName.Runtime60, "System/int"),
+            (AsmName.Runtime80, "System/int")
+        );
+    }
 }

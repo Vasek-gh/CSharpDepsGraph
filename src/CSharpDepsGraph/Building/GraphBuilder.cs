@@ -36,7 +36,7 @@ public sealed class GraphBuilder
 
         _logger = CreateLogger();
         _metrics = new();
-        _symbolComparer = new(options, false, false, null);
+        _symbolComparer = new(options);
         _generatedCodeDetector = new(options);
 
         _filter = new Filter(options, _symbolComparer);

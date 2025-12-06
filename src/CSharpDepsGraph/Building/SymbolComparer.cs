@@ -9,25 +9,13 @@ internal class SymbolComparer
     private static readonly Version _versionStub = new Version();
 
     private readonly GraphBuildingOptions _options;
-    private readonly bool _skipAssemblyVersion;
-    private readonly bool _mergeSystemAssemblies;
     private readonly HashSet<string> _systemAssemblies;
 
     public SymbolComparer(
-        GraphBuildingOptions options,
-        bool skipAssemblyVersion,
-        bool mergeSystemAssemblies,
-        HashSet<string>? systemAssemblies
+        GraphBuildingOptions options
         )
     {
         _options = options;
-        _skipAssemblyVersion = skipAssemblyVersion;
-        _mergeSystemAssemblies = mergeSystemAssemblies;
-        _systemAssemblies = systemAssemblies ?? [
-            "mscorlib",
-            "netstandard",
-            "System.Runtime"
-        ];
     }
 
     public bool Compare(ISymbol? a, ISymbol? b, bool withParents)
@@ -103,21 +91,14 @@ internal class SymbolComparer
                     : (result, _versionStub);
             }
 
-            if (!_mergeSystemAssemblies)
-            {
-                return (result, GetAssemblyVersion(assemblySymbol));
-            }
-
-            return _systemAssemblies.Contains(result)
-                ? (_nameStub, _versionStub)
-                : (result, GetAssemblyVersion(assemblySymbol));
+            return (result, GetAssemblyVersion(assemblySymbol));
         }
 
         Version GetAssemblyVersion(IAssemblySymbol assemblySymbol)
         {
-            return _skipAssemblyVersion
-                ? _versionStub
-                : assemblySymbol.Identity.Version;
+            return _options.DoNotMergeAssembliesWithDifferentVersions
+                ? assemblySymbol.Identity.Version
+                : _versionStub;
         }
     }
 

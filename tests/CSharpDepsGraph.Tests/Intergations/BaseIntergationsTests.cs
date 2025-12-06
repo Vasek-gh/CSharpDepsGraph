@@ -41,6 +41,7 @@ public class BaseIntergationsTests
         {
             IncludeLinksToPrimitveTypes = true,
             IgnoreLinksToAssemblies = [],
+            DoNotMergeAssembliesWithDifferentVersions = true,
         };
 
         configure?.Invoke(buildingOptions);

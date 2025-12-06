@@ -20,7 +20,7 @@ public class GraphBuildingOptions
 
     public bool DoNotIgnoreVisibleGeneratedCode { get; set; }
 
-    public bool DoNotMergeAssembliesWithDifferentVersions { get; set; } // todo
+    public bool DoNotMergeAssembliesWithDifferentVersions { get; set; }
 
     public bool GenerateFullyQualifiedUid { get; set; } = true; // todo kill default value
 
