@@ -548,11 +548,6 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
 
     private void HandleIdentifier(SyntaxNode node)
     {
-        if (_nodeStack.Count == 0)
-        {
-            return;
-        }
-
         var symbol = TryGetSyntaxSymbol(node);
         if (symbol == null)
         {

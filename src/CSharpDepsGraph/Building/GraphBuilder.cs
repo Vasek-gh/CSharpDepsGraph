@@ -147,7 +147,9 @@ public sealed class GraphBuilder
         CancellationToken cancellationToken
         )
     {
+        var syntaxRoot = syntaxTree.GetRoot(cancellationToken);
         var semanticModel = compilation.GetSemanticModel(syntaxTree);
+
         var syntaxVisitor = new SyntaxVisitor(
             logger,
             _filter,
@@ -156,8 +158,6 @@ public sealed class GraphBuilder
             _graphData,
             semanticModel
             );
-
-        var syntaxRoot = syntaxTree.GetRoot(cancellationToken);
 
         syntaxVisitor.Visit(syntaxRoot);
     }
