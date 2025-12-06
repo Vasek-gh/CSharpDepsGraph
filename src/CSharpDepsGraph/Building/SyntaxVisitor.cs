@@ -574,17 +574,17 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
             symbol = symbol.OriginalDefinition;
         }
 
-        if (symbol is IFieldSymbol fieldSymbol && fieldSymbol.ContainingType.IsGenericType)
+        if (symbol.Kind == SymbolKind.Field && symbol.ContainingType.IsGenericType)
         {
             symbol = symbol.OriginalDefinition;
         }
 
-        if (symbol is IPropertySymbol propertySymbol && propertySymbol.ContainingType.IsGenericType)
+        if (symbol.Kind == SymbolKind.Property && symbol.ContainingType.IsGenericType)
         {
             symbol = symbol.OriginalDefinition;
         }
 
-        if (symbol is IEventSymbol eventSymbol && eventSymbol.ContainingType.IsGenericType)
+        if (symbol.Kind == SymbolKind.Event && symbol.ContainingType.IsGenericType)
         {
             symbol = symbol.OriginalDefinition;
         }
@@ -625,37 +625,37 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
         }
 
         // Namespaces are never referenced
-        if (symbol is INamespaceSymbol)
+        if (symbol.Kind == SymbolKind.Namespace)
         {
             return true;
         }
 
         // Skip symbols that are generic types
-        if (symbol is ITypeParameterSymbol)
+        if (symbol.Kind == SymbolKind.TypeParameter)
         {
             return true;
         }
 
         // Ignore dynamic special symbol
-        if (symbol is IDynamicTypeSymbol)
+        if (symbol.Kind == SymbolKind.DynamicType)
         {
             return true;
         }
 
         // Ignore linq range variable
-        if (symbol is IRangeVariableSymbol)
+        if (symbol.Kind == SymbolKind.RangeVariable)
         {
             return true;
         }
 
         // Ignore local variables symbols
-        if (symbol is ILocalSymbol)
+        if (symbol.Kind == SymbolKind.Local)
         {
             return true;
         }
 
         // Ignore parameters symbols
-        if (symbol is IParameterSymbol)
+        if (symbol.Kind == SymbolKind.Parameter)
         {
             return true;
         }
