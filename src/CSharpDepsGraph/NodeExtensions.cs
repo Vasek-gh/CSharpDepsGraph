@@ -1,4 +1,3 @@
-using Microsoft.CodeAnalysis;
 
 namespace CSharpDepsGraph;
 

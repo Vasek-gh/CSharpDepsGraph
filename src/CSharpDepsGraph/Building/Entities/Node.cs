@@ -29,24 +29,4 @@ internal class Node : INode
         SyntaxLinkList = Utils.GetEmptyList<INodeSyntaxLink>();
         LinkedSymbolsList = Utils.GetEmptyList<LinkedSymbol>();
     }
-
-    public Node(string id, ISymbol? symbol, LinkedSymbol linkedSymbol)
-    {
-        Id = id;
-        Symbol = symbol;
-
-        ChildList = Utils.GetEmptyList<Node>();
-        SyntaxLinkList = Utils.GetEmptyList<INodeSyntaxLink>();
-        LinkedSymbolsList = [linkedSymbol];
-    }
-
-    public Node(string id, ISymbol? symbol, List<INodeSyntaxLink>? syntaxLinks = null)
-    {
-        Id = id;
-        Symbol = symbol;
-
-        ChildList = Utils.GetEmptyList<Node>();
-        SyntaxLinkList = syntaxLinks ?? [];
-        LinkedSymbolsList = Utils.GetEmptyList<LinkedSymbol>();
-    }
 }
