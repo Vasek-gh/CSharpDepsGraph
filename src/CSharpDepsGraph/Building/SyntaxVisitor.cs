@@ -473,79 +473,30 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
         var syntax = node.Name;
         var symbol = GetSyntaxSymbol(syntax);
 
-        HandleConstructorSyntax(syntax, symbol);
+        HandleConstructorSyntax(syntax, syntax, symbol);
         HandleNodes<AttributeArgumentSyntax>(node.ArgumentList?.Arguments);
     }
 
     public override void VisitObjectCreationExpression(ObjectCreationExpressionSyntax node)
     {
-        // todo похоже весь код тут нужен только для того что бы обработать ситуацию с делгатом
-        // или IsImplicitlyDeclared конструкторами. Наверно можно тут просто обработать два этих специфических
-        // случая отдельно, а для остального сделать как и для всех
+        // For delegates or new T(), TryGetSyntaxSymbol can not find symbol for syntax. In these cases it is
+        // necessary to take the symbol from the type
+        var symbol = TryGetSyntaxSymbol(node)
+            ?? GetSyntaxSymbol(node.Type);
 
-        var syntaxSymbol = GetSyntaxSymbol(node.Type);
-
-        // ignore: new T();
-        if (syntaxSymbol.Kind == SymbolKind.TypeParameter)
-        {
-            return;
-        }
-
-        // unexpected type symbol
-        if (syntaxSymbol is not INamedTypeSymbol ctorTypeSymbol)
-        {
-            // todo warning
-            return;
-        }
-
-        // we need to get a constructor symbol. But delegates don't have a constructor,
-        // so we only need a type for them.
-        var ctorSymbol = ctorTypeSymbol.TypeKind == TypeKind.Delegate
-            ? ctorTypeSymbol
-            : GetSyntaxSymbol(node);
-
-        // for generics, we need to find the symbol of the type itself, not its instantiation
-        if (ctorTypeSymbol.IsGenericType)
-        {
-            ctorSymbol = ctorSymbol.OriginalDefinition;
-        }
-
-        // if the constructor is declared implicitly, we make a reference to its type
-        if (ctorSymbol.IsImplicitlyDeclared)
-        {
-            ctorSymbol = ctorSymbol.ContainingSymbol;
-        }
-
-        LinkSyntaxSymbol(node, ctorSymbol);
-
+        HandleConstructorSyntax(node, node.Type, symbol);
         HandleNodes<ArgumentSyntax>(node.ArgumentList?.Arguments);
         node.Initializer?.Accept(this);
-
-        var nodeType = node.Type;
-
-        if (nodeType is QualifiedNameSyntax qualifiedNameSyntax)
-        {
-            qualifiedNameSyntax.Left.Accept(this);
-            if (qualifiedNameSyntax.Right is GenericNameSyntax)
-            {
-                nodeType = qualifiedNameSyntax.Right;
-            }
-        }
-
-        if (nodeType is GenericNameSyntax genericNameSyntax)
-        {
-            HandleNodes(genericNameSyntax.TypeArgumentList.Arguments);
-        }
     }
 
-    private void HandleConstructorSyntax(TypeSyntax typeSyntax, ISymbol symbol)
+    private void HandleConstructorSyntax(SyntaxNode syntax, TypeSyntax typeSyntax, ISymbol symbol)
     {
         if (symbol.IsImplicitlyDeclared)
         {
             symbol = symbol.ContainingType;
         }
 
-        HandleIdentifier(typeSyntax, symbol);
+        HandleIdentifier(syntax, symbol);
 
         if (typeSyntax is QualifiedNameSyntax qualifiedNameSyntax)
         {
@@ -595,7 +546,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
         }
     }
 
-    private void HandleIdentifier(TypeSyntax node)
+    private void HandleIdentifier(SyntaxNode node)
     {
         if (_nodeStack.Count == 0)
         {
@@ -611,7 +562,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
         HandleIdentifier(node, symbol);
     }
 
-    private void HandleIdentifier(TypeSyntax node, ISymbol symbol)
+    private void HandleIdentifier(SyntaxNode node, ISymbol symbol)
     {
         if (IsIdentifierSymbolShouldBeSkipped(node, symbol))
         {
@@ -665,14 +616,8 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
         LinkSyntaxSymbol(node, symbol);
     }
 
-    private static bool IsIdentifierSymbolShouldBeSkipped(TypeSyntax node, ISymbol symbol)
+    private static bool IsIdentifierSymbolShouldBeSkipped(SyntaxNode node, ISymbol symbol)
     {
-        // Skip keyword var
-        if (node.IsVar)
-        {
-            return true;
-        }
-
         // At this point, all implicitly declared symbols must be redirected to real symbols
         if (symbol.IsImplicitlyDeclared)
         {
@@ -724,6 +669,12 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
             return true;
         }
 
+        // Skip keyword var
+        if (node is TypeSyntax typeSyntax && typeSyntax.IsVar)
+        {
+            return true;
+        }
+
         return false;
     }
 
@@ -757,14 +708,6 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
             );
     }
 
-    private ISymbol GetSyntaxSymbol(SyntaxNode syntax)
-    {
-        var symbol = _semanticModel.GetSymbolInfo(syntax).Symbol
-            ?? throw new Exception($"Syntax symbol not found for {syntax}");
-
-        return symbol;
-    }
-
     private ISymbol GetDeclaredSymbol(SyntaxNode syntax)
     {
         var symbol = _semanticModel.GetDeclaredSymbol(syntax)
@@ -773,7 +716,15 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
         return symbol;
     }
 
-    private ISymbol? TryGetSyntaxSymbol(TypeSyntax syntax)
+    private ISymbol GetSyntaxSymbol(SyntaxNode syntax)
+    {
+        var symbol = _semanticModel.GetSymbolInfo(syntax).Symbol
+            ?? throw new Exception($"Syntax symbol not found for {syntax}");
+
+        return symbol;
+    }
+
+    private ISymbol? TryGetSyntaxSymbol(SyntaxNode syntax)
     {
         var info = _semanticModel.GetSymbolInfo(syntax);
         if (info.Symbol != null)

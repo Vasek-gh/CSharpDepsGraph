@@ -230,7 +230,7 @@ public class Expressions : BaseSyntaxTests //todo rename
             (AsmName.CoreLib, "System/Func<TResult>"),
             (AsmName.CoreLib, "System/int"),
             ("External/System.Console_8.0.0.0", "System/Console/WriteLine(string?)"),
-            ("External/System.Console_8.0.0.0", "System/Console") // todo remove
+            ("External/System.Console_8.0.0.0", "System/Console")
         );
     }
 
