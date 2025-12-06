@@ -8,7 +8,6 @@ namespace CSharpDepsGraph.Building;
 internal static class Utils
 {
     private static readonly Dictionary<string, INodeSyntaxLink> _assemblyLinksCache = new();
-    private static readonly Dictionary<string, List<INodeSyntaxLink>> _externalLinksCache = new();
 
     public static readonly HashSet<SpecialType> PrimitiveTypes = [
         SpecialType.System_Void,
@@ -45,21 +44,6 @@ internal static class Utils
             : $"{typeof(T).Name}.{entityName}";
 
         return factory.CreateLogger(category);
-    }
-
-    public static List<INodeSyntaxLink> CreateExternalSyntaxLink(ISymbol symbol)
-    {
-        var assemblyName = symbol is IAssemblySymbol
-            ? symbol.Name
-            : symbol.ContainingAssembly.Name;
-
-        if (!_externalLinksCache.TryGetValue(assemblyName, out var links))
-        {
-            links = [new ExternalNodeSyntaxLink(assemblyName)];
-            _externalLinksCache.Add(assemblyName, links);
-        }
-
-        return links;
     }
 
     public static INodeSyntaxLink CreateAssemblySyntaxLink(string path)
