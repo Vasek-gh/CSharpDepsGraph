@@ -86,13 +86,13 @@ internal static class GraphAssert
 
         if (exact && outgoingLinks.Length != targets.Length)
         {
-            throw new AssertionException($"The node({sourceNode.Id}) has unwanted links");
+            throw new AssertionException($"The node({sourceNode.Id}) has unexpected links");
         }
 
         foreach (var targetNode in targetNodes)
         {
             var link = outgoingLinks.SingleOrDefault(l => l.Target.Id == targetNode.Id)
-                ?? throw new AssertionException($"{sourceNode.Id} has link to {targetNode.Id}");
+                ?? throw new AssertionException($"{sourceNode.Id} has not link to {targetNode.Id}");
         }
     }
 
@@ -122,7 +122,7 @@ internal static class GraphAssert
 
         if (graph.GetLinks(sourceNode, targetNode).Length > 0)
         {
-            throw new AssertionException($"{sourceNode.Id} has link to {targetNode.Id}");
+            throw new AssertionException($"{sourceNode.Id} has unexpected link to {targetNode.Id}");
         }
     }
 }

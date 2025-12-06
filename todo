@@ -5,6 +5,7 @@
 
 - DateTime.Now создает ссылку на DateTime
 - Проверить IPointerTypeSymbol при парсинге
+- Проверить ExtensionDeclarationSyntax
 - Проверить
     public void MyMethod() {
         Func<int, int, int> mySumImplementation =

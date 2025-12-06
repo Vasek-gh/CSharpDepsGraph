@@ -196,7 +196,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
     {
         HandleDeclaration(node, () =>
         {
-            HandleAttributes(node.AttributeLists);
+            HandleNodes(node.AttributeLists);
             HandleNodes<CSharpSyntaxNode>(node.BaseList?.Types);
 
             foreach (var member in node.Members)
@@ -214,7 +214,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
         HandleDeclaration(node, () =>
         {
             HandleConstraints(node.ConstraintClauses);
-            HandleAttributes(node.AttributeLists);
+            HandleNodes(node.AttributeLists);
             HandleParameterList(node.ParameterList);
             node.ReturnType?.Accept(this);
         });
@@ -263,7 +263,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
         {
             advancedHandling?.Invoke();
 
-            HandleAttributes(node.AttributeLists);
+            HandleNodes(node.AttributeLists);
             HandleConstraints(node.ConstraintClauses);
             HandleNodes<CSharpSyntaxNode>(node.BaseList?.Types);
 
@@ -287,7 +287,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
             HandleDeclaration(variable, () =>
             {
                 node.Declaration.Type.Accept(this);
-                HandleAttributes(node.AttributeLists);
+                HandleNodes(node.AttributeLists);
                 variable.Initializer?.Accept(this);
             });
         }
@@ -297,7 +297,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
     {
         HandleDeclaration(node, () =>
         {
-            HandleAttributes(node.AttributeLists);
+            HandleNodes(node.AttributeLists);
             node.Type.Accept(this);
             node.ExplicitInterfaceSpecifier?.Accept(this);
             node.AccessorList?.Accept(this);
@@ -310,7 +310,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
     {
         HandleDeclaration(node, () =>
         {
-            HandleAttributes(node.AttributeLists);
+            HandleNodes(node.AttributeLists);
             HandleParameterList(node.ParameterList);
             node.Type.Accept(this);
             node.ExplicitInterfaceSpecifier?.Accept(this);
@@ -344,7 +344,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
             HandleDeclaration(variable, () =>
             {
                 node.Declaration.Type.Accept(this);
-                HandleAttributes(node.AttributeLists);
+                HandleNodes(node.AttributeLists);
                 variable.Initializer?.Accept(this);
             });
         }
@@ -402,7 +402,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
     {
         HandleConstraints(node.ConstraintClauses);
         node.ReturnType?.Accept(this);
-        HandleAttributes(node.AttributeLists);
+        HandleNodes(node.AttributeLists);
         HandleParameterList(node.ParameterList);
         node.Body?.Accept(this);
         node.ExpressionBody?.Accept(this);
@@ -410,7 +410,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
 
     private void HandleMethod(BaseMethodDeclarationSyntax node)
     {
-        HandleAttributes(node.AttributeLists);
+        HandleNodes(node.AttributeLists);
         HandleParameterList(node.ParameterList);
         node.Body?.Accept(this);
         node.ExpressionBody?.Accept(this);
@@ -431,7 +431,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
 
     private void HandleParameter(ParameterSyntax node)
     {
-        HandleAttributes(node.AttributeLists);
+        HandleNodes(node.AttributeLists);
         node.Type?.Accept(this);
         node.Default?.Accept(this);
     }
@@ -442,17 +442,39 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
     //
     //#########################################################################
 
-    public override void VisitAttribute(AttributeSyntax node)
+    public override void VisitTupleExpression(TupleExpressionSyntax node)
     {
-        var symbol = GetSyntaxSymbol(node);
-        if (symbol is IMethodSymbol && symbol.IsImplicitlyDeclared)
+        foreach (var argument in node.Arguments)
         {
-            symbol = symbol.ContainingType;
-            LinkSyntaxSymbol(node, symbol);
+            argument.Expression.Accept(this);
+        }
+    }
+
+    public override void VisitAnonymousObjectCreationExpression(AnonymousObjectCreationExpressionSyntax node)
+    {
+        foreach (var initializer in node.Initializers)
+        {
+            initializer.Expression.Accept(this);
+        }
+    }
+
+    public override void VisitPredefinedType(PredefinedTypeSyntax node)
+    {
+        if (node.Keyword.IsKind(SyntaxKind.VoidKeyword))
+        {
             return;
         }
 
-        base.VisitAttribute(node);
+        LinkSyntaxSymbol(node);
+    }
+
+    public override void VisitAttribute(AttributeSyntax node)
+    {
+        var syntax = node.Name;
+        var symbol = GetSyntaxSymbol(syntax);
+
+        HandleConstructorSyntax(syntax, symbol);
+        HandleNodes<AttributeArgumentSyntax>(node.ArgumentList?.Arguments);
     }
 
     public override void VisitObjectCreationExpression(ObjectCreationExpressionSyntax node)
@@ -478,7 +500,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
 
         // we need to get a constructor symbol. But delegates don't have a constructor,
         // so we only need a type for them.
-        var ctorSymbol = ctorTypeSymbol is ITypeSymbol { TypeKind: TypeKind.Delegate }
+        var ctorSymbol = ctorTypeSymbol.TypeKind == TypeKind.Delegate
             ? ctorTypeSymbol
             : GetSyntaxSymbol(node);
 
@@ -516,31 +538,28 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
         }
     }
 
-    public override void VisitAnonymousObjectCreationExpression(AnonymousObjectCreationExpressionSyntax node)
+    private void HandleConstructorSyntax(TypeSyntax typeSyntax, ISymbol symbol)
     {
-        foreach (var initializer in node.Initializers)
+        if (symbol.IsImplicitlyDeclared)
         {
-            initializer.Expression.Accept(this);
-        }
-    }
-
-    public override void VisitTupleExpression(TupleExpressionSyntax node)
-    {
-        // todo нужно ли это?
-        foreach (var argument in node.Arguments)
-        {
-            argument.Expression.Accept(this);
-        }
-    }
-
-    public override void VisitPredefinedType(PredefinedTypeSyntax node)
-    {
-        if (node.Keyword.IsKind(SyntaxKind.VoidKeyword))
-        {
-            return;
+            symbol = symbol.ContainingType;
         }
 
-        LinkSyntaxSymbol(node);
+        HandleIdentifier(typeSyntax, symbol);
+
+        if (typeSyntax is QualifiedNameSyntax qualifiedNameSyntax)
+        {
+            qualifiedNameSyntax.Left.Accept(this);
+            if (qualifiedNameSyntax.Right is GenericNameSyntax)
+            {
+                typeSyntax = qualifiedNameSyntax.Right;
+            }
+        }
+
+        if (typeSyntax is GenericNameSyntax genericNameSyntax)
+        {
+            HandleNodes(genericNameSyntax.TypeArgumentList.Arguments);
+        }
     }
 
     public override void VisitGenericName(GenericNameSyntax node)
@@ -568,11 +587,6 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
         HandleNodes(constraintClauses.SelectMany(c => c.Constraints));
     }
 
-    private void HandleAttributes(SyntaxList<AttributeListSyntax> attributes)
-    {
-        HandleNodes(attributes);
-    }
-
     private void HandleNodes<T>(IEnumerable<T>? nodes) where T : CSharpSyntaxNode
     {
         foreach (var node in nodes ?? [])
@@ -581,14 +595,9 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
         }
     }
 
-    private void HandleIdentifier(SimpleNameSyntax node)
+    private void HandleIdentifier(TypeSyntax node)
     {
         if (_nodeStack.Count == 0)
-        {
-            return;
-        }
-
-        if (IsIdentifierShouldBeSkipped(node))
         {
             return;
         }
@@ -599,41 +608,34 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
             return;
         }
 
+        HandleIdentifier(node, symbol);
+    }
+
+    private void HandleIdentifier(TypeSyntax node, ISymbol symbol)
+    {
         if (IsIdentifierSymbolShouldBeSkipped(node, symbol))
         {
             return;
         }
 
-        if (symbol is INamedTypeSymbol namedTypeSymbol)
+        if (symbol is INamedTypeSymbol namedTypeSymbol && namedTypeSymbol.IsGenericType)
         {
-            if (namedTypeSymbol.IsGenericType)
-            {
-                symbol = symbol.OriginalDefinition;
-            }
+            symbol = symbol.OriginalDefinition;
         }
 
-        if (symbol is IFieldSymbol fieldSymbol)
+        if (symbol is IFieldSymbol fieldSymbol && fieldSymbol.ContainingType.IsGenericType)
         {
-            if (fieldSymbol.ContainingType.IsGenericType)
-            {
-                symbol = symbol.OriginalDefinition;
-            }
+            symbol = symbol.OriginalDefinition;
         }
 
-        if (symbol is IPropertySymbol propertySymbol)
+        if (symbol is IPropertySymbol propertySymbol && propertySymbol.ContainingType.IsGenericType)
         {
-            if (propertySymbol.ContainingType.IsGenericType)
-            {
-                symbol = symbol.OriginalDefinition;
-            }
+            symbol = symbol.OriginalDefinition;
         }
 
-        if (symbol is IEventSymbol eventSymbol)
+        if (symbol is IEventSymbol eventSymbol && eventSymbol.ContainingType.IsGenericType)
         {
-            if (eventSymbol.ContainingType.IsGenericType)
-            {
-                symbol = symbol.OriginalDefinition;
-            }
+            symbol = symbol.OriginalDefinition;
         }
 
         if (symbol is IMethodSymbol methodSymbol)
@@ -663,56 +665,57 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
         LinkSyntaxSymbol(node, symbol);
     }
 
-    private static bool IsIdentifierShouldBeSkipped(SimpleNameSyntax node)
+    private static bool IsIdentifierSymbolShouldBeSkipped(TypeSyntax node, ISymbol symbol)
     {
         // Skip keyword var
-        return node.IsVar;
-    }
+        if (node.IsVar)
+        {
+            return true;
+        }
 
-    private static bool IsIdentifierSymbolShouldBeSkipped(SimpleNameSyntax node, ISymbol symbol)
-    {
+        // At this point, all implicitly declared symbols must be redirected to real symbols
         if (symbol.IsImplicitlyDeclared)
         {
             return true;
         }
 
-        // namespaces are never referenced
+        // Namespaces are never referenced
         if (symbol is INamespaceSymbol)
         {
             return true;
         }
 
-        // skip symbols that are generic types
+        // Skip symbols that are generic types
         if (symbol is ITypeParameterSymbol)
         {
             return true;
         }
 
-        // ignore dynamic special symbol
+        // Ignore dynamic special symbol
         if (symbol is IDynamicTypeSymbol)
         {
             return true;
         }
 
-        // ignore linq range variable
+        // Ignore linq range variable
         if (symbol is IRangeVariableSymbol)
         {
             return true;
         }
 
-        // ignore local variables symbols
+        // Ignore local variables symbols
         if (symbol is ILocalSymbol)
         {
             return true;
         }
 
-        // ignore parameters symbols
+        // Ignore parameters symbols
         if (symbol is IParameterSymbol)
         {
             return true;
         }
 
-        // ignore references to members of an anonymous class
+        // Ignore references to members of an anonymous class
         if (node.Parent is MemberAccessExpressionSyntax
             && symbol.ContainingSymbol is ITypeSymbol typeSymbol
             && typeSymbol.IsAnonymousType
@@ -757,7 +760,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
     private ISymbol GetSyntaxSymbol(SyntaxNode syntax)
     {
         var symbol = _semanticModel.GetSymbolInfo(syntax).Symbol
-            ?? throw new Exception($"Symbol not found for {syntax}");
+            ?? throw new Exception($"Syntax symbol not found for {syntax}");
 
         return symbol;
     }
@@ -765,12 +768,12 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
     private ISymbol GetDeclaredSymbol(SyntaxNode syntax)
     {
         var symbol = _semanticModel.GetDeclaredSymbol(syntax)
-            ?? throw new Exception($"Symbol not found for {syntax}");
+            ?? throw new Exception($"Declared symbol not found for {syntax}");
 
         return symbol;
     }
 
-    private ISymbol? TryGetSyntaxSymbol(SimpleNameSyntax syntax)
+    private ISymbol? TryGetSyntaxSymbol(TypeSyntax syntax)
     {
         var info = _semanticModel.GetSymbolInfo(syntax);
         if (info.Symbol != null)

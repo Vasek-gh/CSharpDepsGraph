@@ -192,6 +192,27 @@ public class Expressions : BaseSyntaxTests //todo rename
     }
 
     [Test]
+    public void ObjectCreationImplicitNew()
+    {
+        var graph = Build(@"
+            using TestProject.Entities;
+            public class Test {
+                public void Foo() {
+                    Car car = new();
+                }
+            }
+        ");
+
+        GraphAssert.HasLink(graph, "Test/Foo()",
+            (AsmName.TestProject, "TestProject/Entities/Car")
+        );
+
+        GraphAssert.HasNotLink(graph, "Test/Foo()",
+            (AsmName.TestProject, "TestProject/Entities/Car/ctor()")
+        );
+    }
+
+    [Test]
     public void ObjectCreationDelegate()
     {
         var graph = Build(@"
