@@ -1,6 +1,6 @@
-namespace CSharpDepsGraph.Cli.Commands.Settings;
+namespace CSharpDepsGraph.Cli.Options;
 
-internal class ExportSettings
+internal class ExportOptions
 {
     public string? OutputPath { get; set; } // todo rename path -> filename
 
@@ -8,7 +8,7 @@ internal class ExportSettings
 
     public NodeExportLevel ExportLevel { get; set; } // todo nullable and max as default
 
-    public required IEnumerable<RegexSymbolFilter> SymbolFilters { get; init; }
+    public IEnumerable<RegexSymbolFilter> SymbolFilters { get; set; } = [];
 
     public static class Defaults
     {

@@ -8,11 +8,11 @@ internal class SymbolComparer
     private static readonly string _nameStub = "_";
     private static readonly Version _versionStub = new Version();
 
-    private readonly GraphBuildingOptions _options;
+    private readonly GraphBuildOptions _options;
     private readonly HashSet<string> _systemAssemblies;
 
     public SymbolComparer(
-        GraphBuildingOptions options
+        GraphBuildOptions options
         )
     {
         _options = options;

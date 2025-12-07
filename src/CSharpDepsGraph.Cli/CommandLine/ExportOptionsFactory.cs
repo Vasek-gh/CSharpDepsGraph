@@ -1,10 +1,10 @@
 using System.CommandLine;
-using CSharpDepsGraph.Cli.Commands.Settings;
+using CSharpDepsGraph.Cli.Options;
 using CSharpDepsGraph.Mutation.Filtering;
 
 namespace CSharpDepsGraph.Cli.CommandLine;
 
-internal static class ExportOptions
+internal static class ExportOptionsFactory
 {
     public static Option<bool> HideExternal { get; } = OptionBuilder.Create(() =>
     {
@@ -31,7 +31,7 @@ internal static class ExportOptions
             "el",
             "level",
             "Defines the level below which all nodes are excluded.",
-            ExportSettings.Defaults.ExportLevelFull,
+            ExportOptions.Defaults.ExportLevelFull,
             Enum.GetValues<NodeExportLevel>()
         );
     });
@@ -43,7 +43,7 @@ internal static class ExportOptions
             "el",
             "level",
             "Defines the level of nodes to export.",
-            ExportSettings.Defaults.ExportLevelOneLevel,
+            ExportOptions.Defaults.ExportLevelOneLevel,
             [NodeExportLevel.Assembly, NodeExportLevel.Namespace]
         );
     });

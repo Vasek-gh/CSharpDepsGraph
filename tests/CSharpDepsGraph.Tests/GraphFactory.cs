@@ -41,7 +41,7 @@ public static class GraphFactory
         _workspace.Dispose();
     }
 
-    public static IGraph CreateGraph(ILoggerFactory loggerFactory, string source, GraphBuildingOptions? buildingOptions)
+    public static IGraph CreateGraph(ILoggerFactory loggerFactory, string source, GraphBuildOptions? options)
     {
         var document = CreateDocument(TestFileName, source);
         var projectInfo = CreateProject(
@@ -52,8 +52,8 @@ public static class GraphFactory
             _metadataReferences
             );
 
+        options ??= new GraphBuildOptions();
         var solution = _baseSolution.AddProject(projectInfo);
-        var options = buildingOptions ?? new GraphBuildingOptions();
 
         return new GraphBuilder(loggerFactory, options)
             .Run(solution.Projects, CancellationToken.None)

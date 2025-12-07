@@ -1,16 +1,15 @@
 using Microsoft.Extensions.Logging;
-using CSharpDepsGraph.Cli.Commands.Settings;
 using CSharpDepsGraph.Export.Json;
 
 namespace CSharpDepsGraph.Cli.Commands.Export;
 
-internal sealed class JsonExportCommand : IGraphCommand
+internal sealed class JsonExportCommand : IGraphHandlerCommand
 {
     private readonly ILogger _logger;
     private readonly ILoggerFactory _loggerFactory;
-    private readonly JsonExportSettings _settings;
+    private readonly Options.JsonExportOptions _settings;
 
-    public JsonExportCommand(ILoggerFactory loggerFactory, JsonExportSettings settings)
+    public JsonExportCommand(ILoggerFactory loggerFactory, Options.JsonExportOptions settings)
     {
         _logger = loggerFactory.CreateLogger(nameof(JsonExportCommand));
         _loggerFactory = loggerFactory;
@@ -19,23 +18,17 @@ internal sealed class JsonExportCommand : IGraphCommand
 
     public Task Execute(GraphContext ctx, CancellationToken cancellationToken)
     {
-        return Utils.ExecuteWithReport(_logger, async () =>
+        return CommandsUtils.ExecuteWithReport(_logger, async () =>
         {
-            _logger.LogValue(_settings.OutputPath);
-            _logger.LogValue(_settings.HideExternal);
-            _logger.LogValue(_settings.ExportLevel);
-            _logger.LogValue(_settings.SymbolFilters);
-            _logger.LogValue(_settings.Format);
-
             _logger.LogDebug("Mutation...");
 
-            var graph = Utils.GetHierarchyExportMutator(_settings).Run(ctx.Graph);
+            var graph = CommandsUtils.GetHierarchyExportMutator(_settings).Run(ctx.Graph);
 
             _logger.LogDebug("Export...");
 
-            using var stream = Utils.CreateOutputStream(ctx.InputFile, _settings.OutputPath, "json");
+            using var stream = CommandsUtils.CreateOutputStream(ctx.InputFile, _settings.OutputPath, "json");
 
-            var options = new JsonExportOptions() // todo create cli options
+            var options = new CSharpDepsGraph.Export.Json.JsonExportOptions() // todo create cli options
             {
                 FormatOutput = _settings.Format,
                 BasePath = Path.GetDirectoryName(ctx.InputFile)

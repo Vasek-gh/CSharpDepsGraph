@@ -1,29 +1,12 @@
 using System.Diagnostics;
 using Microsoft.Extensions.Logging;
-using CSharpDepsGraph.Cli.Commands.Settings;
 using CSharpDepsGraph.Mutation;
+using CSharpDepsGraph.Cli.Options;
 
 namespace CSharpDepsGraph.Cli.Commands;
 
-internal static class Utils
+internal static class CommandsUtils
 {
-    public static string? GetFileNameError(string fileName)
-    {
-        var extension = Path.GetExtension(fileName);
-
-        if (extension != ".sln" && extension != ".csproj")
-        {
-            return $"Unsupported file type: {fileName}";
-        }
-
-        if (!File.Exists(fileName))
-        {
-            return $"File not found: {fileName}";
-        }
-
-        return null;
-    }
-
     public static Stream CreateOutputStream(string? inputFileName, string? outputFileName, string defaultExtension)
     {
         outputFileName = inputFileName == null
@@ -33,7 +16,7 @@ internal static class Utils
         return new FileStream(outputFileName, FileMode.Create);
     }
 
-    public static IMutator GetFlatExportMutator(ExportSettings settings)
+    public static IMutator GetFlatExportMutator(ExportOptions settings)
     {
         return new MutatorBuilder()
             .WithExternalHide(settings.HideExternal)
@@ -42,7 +25,7 @@ internal static class Utils
             .Build();
     }
 
-    public static IMutator GetHierarchyExportMutator(ExportSettings settings)
+    public static IMutator GetHierarchyExportMutator(ExportOptions settings)
     {
         return new MutatorBuilder()
             .WithExternalHide(settings.HideExternal)

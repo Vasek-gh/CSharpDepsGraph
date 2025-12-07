@@ -1,11 +1,59 @@
 using System.Collections;
 using System.Runtime.CompilerServices;
+using CSharpDepsGraph.Building;
+using CSharpDepsGraph.Cli.Options;
 using Microsoft.Extensions.Logging;
 
-namespace CSharpDepsGraph.Cli.Commands;
+namespace CSharpDepsGraph.Cli.CommandLine;
 
 internal static class LoggerExtensions
 {
+    public static void Verbose(this ILogger logger, BuildOptions options)
+    {
+        if (!logger.IsEnabled(LogLevel.Debug))
+        {
+            return;
+        }
+
+        logger.LogValue(options.FileName);
+        logger.LogValue(options.Configuration);
+        logger.LogValue(options.Properties);
+    }
+
+    public static void Verbose(this ILogger logger, GraphBuildOptions options)
+    {
+        if (!logger.IsEnabled(LogLevel.Debug))
+        {
+            return;
+        }
+
+        // todo
+    }
+
+    public static void Verbose(this ILogger logger, ExportOptions options)
+    {
+        if (!logger.IsEnabled(LogLevel.Debug))
+        {
+            return;
+        }
+
+        logger.LogValue(options.OutputPath);
+        logger.LogValue(options.HideExternal);
+        logger.LogValue(options.ExportLevel);
+        logger.LogValue(options.SymbolFilters);
+    }
+
+    public static void Verbose(this ILogger logger, JsonExportOptions options)
+    {
+        if (!logger.IsEnabled(LogLevel.Debug))
+        {
+            return;
+        }
+
+        logger.Verbose((ExportOptions)options);
+        logger.LogValue(options.Format);
+    }
+
     public static void LogValue(
         this ILogger logger,
         object? value,

@@ -4,11 +4,11 @@ namespace CSharpDepsGraph.Building.Services;
 
 internal class Filter : IFilter
 {
-    private readonly GraphBuildingOptions _options;
+    private readonly GraphBuildOptions _options;
     private readonly SymbolComparer _symbolComparer;
     private readonly HashSet<string> _ignoreLinksToAssemblies;
 
-    public Filter(GraphBuildingOptions options, SymbolComparer symbolComparer)
+    public Filter(GraphBuildOptions options, SymbolComparer symbolComparer)
     {
         _options = options;
         _symbolComparer = symbolComparer;

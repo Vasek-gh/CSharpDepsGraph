@@ -1,39 +1,36 @@
 using Microsoft.Extensions.Logging;
-using CSharpDepsGraph.Cli.Commands.Settings;
 using CSharpDepsGraph.Export.Graphviz;
+using CSharpDepsGraph.Cli.Options;
 
 namespace CSharpDepsGraph.Cli.Commands.Export;
 
-internal sealed class GraphvizExportCommand : IGraphCommand
+internal sealed class GraphvizExportCommand : IGraphHandlerCommand
 {
     private readonly ILogger _logger;
     private readonly ILoggerFactory _loggerFactory;
-    private readonly ExportSettings _settings;
+    private readonly ExportOptions _options;
 
-    public GraphvizExportCommand(ILoggerFactory loggerFactory, ExportSettings settings)
+    public GraphvizExportCommand(ILoggerFactory loggerFactory, ExportOptions options)
     {
         _logger = loggerFactory.CreateLogger(nameof(GraphvizExportCommand));
         _loggerFactory = loggerFactory;
 
-        _settings = settings;
+        _options = options;
     }
 
-    public async Task Execute(GraphContext ctx, CancellationToken cancellationToken)
+    public Task Execute(GraphContext ctx, CancellationToken cancellationToken)
     {
-        _logger.LogDebug("Execute");
-        _logger.LogValue(_settings.OutputPath);
-        _logger.LogValue(_settings.HideExternal);
-        _logger.LogValue(_settings.ExportLevel);
-        _logger.LogValue(_settings.SymbolFilters);
+        return CommandsUtils.ExecuteWithReport(_logger, async () =>
+        {
+            _logger.LogDebug("Mutation...");
 
-        _logger.LogDebug("Mutation...");
+            var graph = CommandsUtils.GetFlatExportMutator(_options).Run(ctx.Graph);
 
-        var graph = Utils.GetFlatExportMutator(_settings).Run(ctx.Graph);
+            _logger.LogDebug("Export...");
 
-        _logger.LogDebug("Export...");
+            using var stream = CommandsUtils.CreateOutputStream(ctx.InputFile, _options.OutputPath, "dot");
 
-        using var stream = Utils.CreateOutputStream(ctx.InputFile, _settings.OutputPath, "dot");
-
-        await new GraphvizExport(_loggerFactory.CreateLogger<GraphvizExport>()).Run(graph, stream, cancellationToken);
+            await new GraphvizExport(_loggerFactory.CreateLogger<GraphvizExport>()).Run(graph, stream, cancellationToken);
+        });
     }
 }

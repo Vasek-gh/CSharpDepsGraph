@@ -1,6 +1,6 @@
 using CSharpDepsGraph.Mutation.Filtering;
 
-namespace CSharpDepsGraph.Cli.Commands.Settings;
+namespace CSharpDepsGraph.Cli.Options;
 
 internal class RegexSymbolFilter
 {

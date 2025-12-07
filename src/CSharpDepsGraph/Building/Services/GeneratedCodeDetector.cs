@@ -14,11 +14,11 @@ internal class GeneratedCodeDetector
     private readonly List<string> _objPaths;
     private readonly HashSet<string> _sourceGeneratedDocuments;
     private readonly Dictionary<string, GeneratedFileKind> _resultCache;
-    private readonly GraphBuildingOptions _graphOptions;
+    private readonly GraphBuildOptions _options;
 
-    public GeneratedCodeDetector(GraphBuildingOptions graphOptions)
+    public GeneratedCodeDetector(GraphBuildOptions options)
     {
-        _graphOptions = graphOptions;
+        _options = options;
 
         _objPaths = new();
         _resultCache = new();
@@ -69,7 +69,7 @@ internal class GeneratedCodeDetector
         if (isGenerated)
         {
             var inObjDir = _objPaths.Any(op => path.StartsWith(op, StringComparison.Ordinal));
-            result = inObjDir || !_graphOptions.DoNotIgnoreVisibleGeneratedCode
+            result = inObjDir || !_options.DoNotIgnoreVisibleGeneratedCode
                 ? GeneratedFileKind.Hiden
                 : GeneratedFileKind.Visible;
         }

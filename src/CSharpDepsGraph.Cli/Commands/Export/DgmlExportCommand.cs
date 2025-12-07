@@ -1,39 +1,34 @@
 using Microsoft.Extensions.Logging;
-using CSharpDepsGraph.Cli.Commands.Settings;
 using CSharpDepsGraph.Export.Dgml;
+using CSharpDepsGraph.Cli.Options;
 
 namespace CSharpDepsGraph.Cli.Commands.Export;
 
-internal sealed class DgmlExportCommand : IGraphCommand
+internal sealed class DgmlExportCommand : IGraphHandlerCommand
 {
     private readonly ILogger _logger;
     private readonly ILoggerFactory _loggerFactory;
-    private readonly ExportSettings _settings;
+    private readonly ExportOptions _options;
 
-    public DgmlExportCommand(ILoggerFactory loggerFactory, ExportSettings settings)
+    public DgmlExportCommand(ILoggerFactory loggerFactory, ExportOptions options)
     {
         _logger = loggerFactory.CreateLogger(nameof(DgmlExportCommand));
         _loggerFactory = loggerFactory;
 
-        _settings = settings;
+        _options = options;
     }
 
     public Task Execute(GraphContext ctx, CancellationToken cancellationToken)
     {
-        return Utils.ExecuteWithReport(_logger, async () =>
+        return CommandsUtils.ExecuteWithReport(_logger, async () =>
         {
-            _logger.LogValue(_settings.OutputPath);
-            _logger.LogValue(_settings.HideExternal);
-            _logger.LogValue(_settings.ExportLevel);
-            _logger.LogValue(_settings.SymbolFilters);
-
             _logger.LogDebug("Mutation...");
 
-            var graph = Utils.GetHierarchyExportMutator(_settings).Run(ctx.Graph);
+            var graph = CommandsUtils.GetHierarchyExportMutator(_options).Run(ctx.Graph);
 
             _logger.LogDebug("Export...");
 
-            using var stream = Utils.CreateOutputStream(ctx.InputFile, _settings.OutputPath, "dgml");
+            using var stream = CommandsUtils.CreateOutputStream(ctx.InputFile, _options.OutputPath, "dgml");
 
             await new DgmlExport(_loggerFactory.CreateLogger<DgmlExport>()).Run(graph, stream, cancellationToken);
         });

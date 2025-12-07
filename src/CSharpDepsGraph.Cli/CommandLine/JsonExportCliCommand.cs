@@ -2,33 +2,28 @@ using System.CommandLine.Invocation;
 using Microsoft.Extensions.Logging;
 using CSharpDepsGraph.Cli.Commands;
 using CSharpDepsGraph.Cli.Commands.Export;
-using CSharpDepsGraph.Cli.Commands.Settings;
+using CSharpDepsGraph.Cli.Options;
 
 namespace CSharpDepsGraph.Cli.CommandLine;
 
-internal class JsonExportCliCommand : BaseCliCommand
+internal sealed class JsonExportCliCommand : BaseCliCommand
 {
-    private readonly OptionsHost<JsonExportSettings> _optionsHost;
+    private readonly OptionsHost<JsonExportOptions> _optionsHost;
 
     public JsonExportCliCommand()
         : base("json", "Json export")
     {
-        _optionsHost = new OptionsHost<JsonExportSettings>(this, (host) =>
-        {
-            return new JsonExportSettings
-            {
-                OutputPath = host.GetOption(() => ExportOptions.OutputFileName)?.FullName,
-                HideExternal = host.GetOption(() => ExportOptions.HideExternal),
-                ExportLevel = host.GetOption(() => ExportOptions.ExportLevelFull),
-                SymbolFilters = host.GetOption(() => ExportOptions.SymbolFilters) ?? [],
-                Format = host.GetOption(() => ExportOptions.Json.Format)
-            };
-        });
+        _optionsHost = AddOptionHost<JsonExportOptions>((logger, o) => logger.Verbose(o))
+            .AddOption(ExportOptionsFactory.OutputFileName, (o, v) => o.OutputPath = v?.FullName)
+            .AddOption(ExportOptionsFactory.HideExternal, (o, v) => o.HideExternal = v)
+            .AddOption(ExportOptionsFactory.ExportLevelFull, (o, v) => o.ExportLevel = v)
+            .AddOption(ExportOptionsFactory.SymbolFilters, (o, v) => o.SymbolFilters = v ?? [])
+            .AddOption(ExportOptionsFactory.Json.Format, (o, v) => o.Format = v);
     }
 
-    protected override IGraphCommand CreateCommand(InvocationContext ctx, ILoggerFactory loggerFactory)
+    protected override IGraphHandlerCommand CreateHandlerCommand(InvocationContext ctx, ILoggerFactory loggerFactory)
     {
-        var settings = _optionsHost.GetSettings(ctx);
+        var settings = _optionsHost.GetValue(ctx);
 
         return new JsonExportCommand(loggerFactory, settings);
     }

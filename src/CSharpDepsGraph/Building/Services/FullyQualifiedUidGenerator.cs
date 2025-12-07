@@ -8,12 +8,12 @@ internal class FullyQualifiedUidGenerator : ISymbolUidGenerator
 {
     private readonly StringBuilder _stringBuilder;
     private readonly Dictionary<Version, string> _versionCache;
-    private readonly GraphBuildingOptions _options;
+    private readonly GraphBuildOptions _options;
 
     private bool _parameterMode;
     private bool _excludeAssembly;
 
-    public FullyQualifiedUidGenerator(GraphBuildingOptions options)
+    public FullyQualifiedUidGenerator(GraphBuildOptions options)
     {
         _stringBuilder = new(200);
         _versionCache = new();

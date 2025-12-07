@@ -34,16 +34,16 @@ public class BaseSyntaxTests
         _loggerFactory.Check();
     }
 
-    protected IGraph Build(string sourceText, Action<GraphBuildingOptions>? configure = null)
+    protected IGraph Build(string sourceText, Action<GraphBuildOptions>? configure = null)
     {
-        var buildingOptions = new GraphBuildingOptions()
+        var options = new GraphBuildOptions()
         {
             IncludeLinksToPrimitveTypes = true,
             IgnoreLinksToAssemblies = [],
         };
 
-        configure?.Invoke(buildingOptions);
+        configure?.Invoke(options);
 
-        return GraphFactory.CreateGraph(_loggerFactory, sourceText, buildingOptions);
+        return GraphFactory.CreateGraph(_loggerFactory, sourceText, options);
     }
 }

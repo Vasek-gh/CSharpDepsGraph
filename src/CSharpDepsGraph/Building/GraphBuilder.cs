@@ -27,7 +27,7 @@ public sealed class GraphBuilder
     /// </summary>
     public GraphBuilder(
         ILoggerFactory loggerFactory,
-        GraphBuildingOptions options,
+        GraphBuildOptions options,
         CultureInfo? cultureInfo = null
         )
     {

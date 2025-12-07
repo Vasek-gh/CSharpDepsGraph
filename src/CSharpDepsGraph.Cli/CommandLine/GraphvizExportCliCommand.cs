@@ -2,32 +2,27 @@ using System.CommandLine.Invocation;
 using Microsoft.Extensions.Logging;
 using CSharpDepsGraph.Cli.Commands;
 using CSharpDepsGraph.Cli.Commands.Export;
-using CSharpDepsGraph.Cli.Commands.Settings;
+using CSharpDepsGraph.Cli.Options;
 
 namespace CSharpDepsGraph.Cli.CommandLine;
 
-internal class GraphvizExportCliCommand : BaseCliCommand
+internal sealed class GraphvizExportCliCommand : BaseCliCommand
 {
-    private readonly OptionsHost<ExportSettings> _optionsHost;
+    private readonly OptionsHost<ExportOptions> _optionsHost;
 
     public GraphvizExportCliCommand()
         : base("graphviz", "Graphviz export")
     {
-        _optionsHost = new OptionsHost<ExportSettings>(this, (host) =>
-        {
-            return new ExportSettings
-            {
-                OutputPath = host.GetOption(() => ExportOptions.OutputFileName)?.FullName,
-                HideExternal = host.GetOption(() => ExportOptions.HideExternal),
-                ExportLevel = host.GetOption(() => ExportOptions.ExportLevelFull),
-                SymbolFilters = host.GetOption(() => ExportOptions.SymbolFilters) ?? []
-            };
-        });
+        _optionsHost = AddOptionHost<ExportOptions>((logger, o) => logger.Verbose(o))
+            .AddOption(ExportOptionsFactory.OutputFileName, (o, v) => o.OutputPath = v?.FullName)
+            .AddOption(ExportOptionsFactory.HideExternal, (o, v) => o.HideExternal = v)
+            .AddOption(ExportOptionsFactory.ExportLevelFull, (o, v) => o.ExportLevel = v)
+            .AddOption(ExportOptionsFactory.SymbolFilters, (o, v) => o.SymbolFilters = v ?? []);
     }
 
-    protected override IGraphCommand CreateCommand(InvocationContext ctx, ILoggerFactory loggerFactory)
+    protected override IGraphHandlerCommand CreateHandlerCommand(InvocationContext ctx, ILoggerFactory loggerFactory)
     {
-        var settings = _optionsHost.GetSettings(ctx);
+        var settings = _optionsHost.GetValue(ctx);
 
         return new GraphvizExportCommand(loggerFactory, settings);
     }

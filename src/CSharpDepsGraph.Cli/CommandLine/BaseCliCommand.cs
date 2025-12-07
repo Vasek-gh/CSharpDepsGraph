@@ -1,40 +1,37 @@
 using System.CommandLine;
 using System.CommandLine.Invocation;
-using CSharpDepsGraph.Cli.Commands.Settings;
 using Microsoft.Extensions.Logging;
 using CSharpDepsGraph.Cli.Commands;
 using Microsoft.Extensions.Logging.Console;
+using CSharpDepsGraph.Cli.Options;
+using CSharpDepsGraph.Building;
 
 namespace CSharpDepsGraph.Cli.CommandLine;
 
 internal abstract class BaseCliCommand : Command
 {
-    private readonly OptionsHost<BuildSettings> _buildOptionsHost;
-    private readonly OptionsHost<LoggingSettings> _loggingOptionsHost;
+    private readonly OptionsHost<BuildOptions> _buildOptionsHost;
+    private readonly OptionsHost<GraphBuildOptions> _graphBuildOptionsHost;
+    private readonly OptionsHost<LoggingOptions> _loggingOptionsHost;
+    private readonly List<Action<ILoggerFactory, InvocationContext>> _optionsHostsLoggers;
 
     public BaseCliCommand(string name, string description)
         : base(name, description)
     {
         this.SetHandler(Execute);
 
-        _buildOptionsHost = new OptionsHost<BuildSettings>(this, (host) =>
-        {
-            return new BuildSettings
-            {
-                FileName = host.GetArgument(() => FileNameArgument)?.FullName
-                    ?? "todo optional",
-                Configuration = host.GetOption(() => ConfigurationOption),
-                Properties = host.GetOption(() => PropertiesOption) ?? []
-            };
-        });
+        _optionsHostsLoggers = new();
 
-        _loggingOptionsHost = new OptionsHost<LoggingSettings>(this, (host) =>
-        {
-            return new LoggingSettings
-            {
-                Verbosity = host.GetOption(() => VerbosityOption),
-            };
-        });
+        _loggingOptionsHost = AddOptionHost<LoggingOptions>()
+            .AddOption(VerbosityOption, (o, v) => o.Verbosity = v);
+
+        _buildOptionsHost = AddOptionHost<BuildOptions>((logger, o) => logger.Verbose(o))
+            .AddOption(ConfigurationOption, (o, v) => o.Configuration = v)
+            .AddOption(PropertiesOption, (o, v) => o.Properties = v ?? [])
+            .AddArgument(FileNameArgument, (o, v) => o.FileName = v?.FullName ?? "todo optional");
+
+        _graphBuildOptionsHost = AddOptionHost<GraphBuildOptions>((logger, o) => logger.Verbose(o));
+            // todo
     }
 
     private async Task Execute(InvocationContext ctx)
@@ -43,15 +40,15 @@ internal abstract class BaseCliCommand : Command
 
         PrintOptions(loggerFactory, ctx);
 
-        var command = CreateCommand(ctx, loggerFactory);
-        var mainCommand = CreateMainCommand(ctx, loggerFactory, command);
+        var handlerCommand = CreateHandlerCommand(ctx, loggerFactory);
+        var buildCommand = CreateBuildCommand(ctx, loggerFactory, handlerCommand);
 
-        await mainCommand.Execute(ctx.GetCancellationToken());
+        await buildCommand.Execute(ctx.GetCancellationToken());
     }
 
     private ILoggerFactory CreateLoggerFactory(InvocationContext ctx)
     {
-        var settings = _loggingOptionsHost.GetSettings(ctx);
+        var settings = _loggingOptionsHost.GetValue(ctx);
 
         return LoggerFactory.Create(builder =>
         {
@@ -79,33 +76,63 @@ internal abstract class BaseCliCommand : Command
         }
     }
 
-    private MainCommand CreateMainCommand(InvocationContext ctx, ILoggerFactory loggerFactory, IGraphCommand command)
+    private GraphBuildCommand CreateBuildCommand(
+        InvocationContext ctx,
+        ILoggerFactory loggerFactory,
+        IGraphHandlerCommand command
+        )
     {
-        var buildSettings = _buildOptionsHost.GetSettings(ctx);
+        var buildSettings = _buildOptionsHost.GetValue(ctx);
+        var graphBuildSettings = _graphBuildOptionsHost.GetValue(ctx);
 
-        return new MainCommand(loggerFactory, buildSettings, command);
+        return new GraphBuildCommand(loggerFactory, buildSettings, graphBuildSettings, command);
+    }
+
+    protected OptionsHost<T> AddOptionHost<T>(
+        Action<ILogger, T>? debugLogger = null
+        )
+        where T : class, new()
+    {
+        var host = new OptionsHost<T>(this);
+
+        if (debugLogger != null)
+        {
+            _optionsHostsLoggers.Add((lf, ctx) =>
+            {
+                var logger = lf.CreateLogger(typeof(T).Name);
+                var value = host.GetValue(ctx);
+                debugLogger(logger, value);
+            });
+        }
+
+        return host;
     }
 
     private void PrintOptions(ILoggerFactory loggerFactory, InvocationContext ctx)
     {
-        var logger = loggerFactory.CreateLogger("Options");
+        var cliOptionsLogger = loggerFactory.CreateLogger("CliOptions");
 
         foreach (var argument in Arguments)
         {
             var name = argument.Name;
             var value = ctx.ParseResult.GetValueForArgument(argument);
-            logger.LogValue(value, name);
+            cliOptionsLogger.LogValue(value, name);
         }
 
         foreach (var option in Options)
         {
             var name = option.Name;
             var value = ctx.ParseResult.GetValueForOption(option);
-            logger.LogValue(value, name);
+            cliOptionsLogger.LogValue(value, name);
+        }
+
+        foreach (var logger in _optionsHostsLoggers)
+        {
+            logger(loggerFactory, ctx);
         }
     }
 
-    protected virtual IGraphCommand CreateCommand(InvocationContext ctx, ILoggerFactory loggerFactory)
+    protected virtual IGraphHandlerCommand CreateHandlerCommand(InvocationContext ctx, ILoggerFactory loggerFactory)
     {
         throw new NotImplementedException();
     }
@@ -119,7 +146,7 @@ internal abstract class BaseCliCommand : Command
         fileNameArgument.AddValidator(result =>
         {
             var fileName = result.GetValueForArgument(fileNameArgument).FullName;
-            result.ErrorMessage = Utils.GetFileNameError(fileName);
+            result.ErrorMessage = OptionsUtils.GetFileNameError(fileName);
         });
 
         return fileNameArgument;
@@ -132,7 +159,7 @@ internal abstract class BaseCliCommand : Command
             "v",
             "level",
             "Sets the verbosity level of the command.",
-            LoggingSettings.Defaults.Verbosity,
+            OptionsDefaults.Verbosity,
             [
                 ( Verbosity.Quiet, "q", "q[uiet]" ),
                 ( Verbosity.Minimal, "m", "m[inimal]" ),

@@ -1,4 +1,4 @@
-namespace CSharpDepsGraph.Cli.Commands.Settings;
+namespace CSharpDepsGraph.Cli.Options;
 
 internal enum Verbosity
 {

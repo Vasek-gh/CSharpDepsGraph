@@ -35,18 +35,18 @@ public class BaseIntergationsTests
         _loggerFactory.Check();
     }
 
-    public IGraph GetGraph(Action<GraphBuildingOptions>? configure = null)
+    public IGraph GetGraph(Action<GraphBuildOptions>? configure = null)
     {
-        var buildingOptions = new GraphBuildingOptions()
+        var options = new GraphBuildOptions()
         {
             IncludeLinksToPrimitveTypes = true,
             IgnoreLinksToAssemblies = [],
             DoNotMergeAssembliesWithDifferentVersions = true,
         };
 
-        configure?.Invoke(buildingOptions);
+        configure?.Invoke(options);
 
-        return new GraphBuilder(_loggerFactory, buildingOptions)
+        return new GraphBuilder(_loggerFactory, options)
             .Run(ProjectSource.Solution.Projects, CancellationToken.None)
             .GetAwaiter()
             .GetResult();

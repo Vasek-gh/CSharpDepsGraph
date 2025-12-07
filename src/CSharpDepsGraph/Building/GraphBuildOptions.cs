@@ -3,12 +3,12 @@ namespace CSharpDepsGraph.Building;
 /// <summary>
 /// Provides configuration options for building a graph.
 /// </summary>
-public class GraphBuildingOptions
+public class GraphBuildOptions
 {
     /// <summary>
     /// Default configuration
     /// </summary>
-    public static readonly GraphBuildingOptions Default = new GraphBuildingOptions();
+    public static readonly GraphBuildOptions Default = new GraphBuildOptions();
 
     public bool IncludeLinksToSelfType { get; set; }
 

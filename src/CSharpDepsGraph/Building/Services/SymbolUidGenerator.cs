@@ -15,10 +15,10 @@ internal class SymbolUidGenerator : ISymbolUidGenerator
         return _counter++.ToString(CultureInfo.InvariantCulture);
     }
 
-    public static ISymbolUidGenerator Create(GraphBuildingOptions graphOptions)
+    public static ISymbolUidGenerator Create(GraphBuildOptions options)
     {
-        return graphOptions.GenerateFullyQualifiedUid
-            ? new FullyQualifiedUidGenerator(graphOptions)
+        return options.GenerateFullyQualifiedUid
+            ? new FullyQualifiedUidGenerator(options)
             : new SymbolUidGenerator();
     }
 }
