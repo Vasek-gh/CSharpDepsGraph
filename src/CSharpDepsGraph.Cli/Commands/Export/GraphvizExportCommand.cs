@@ -4,7 +4,7 @@ using CSharpDepsGraph.Cli.Options;
 
 namespace CSharpDepsGraph.Cli.Commands.Export;
 
-internal sealed class GraphvizExportCommand : IGraphHandlerCommand
+internal sealed class GraphvizExportCommand : IHandlerCommand
 {
     private readonly ILogger _logger;
     private readonly ILoggerFactory _loggerFactory;

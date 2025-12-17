@@ -8,12 +8,17 @@ namespace CSharpDepsGraph.Cli;
 
 internal class Program
 {
-    public static async Task<int> Main(string[] args)
+    public static Task<int> Main(string[] args)
+    {
+        return Run(args, new CommandFactory());
+    }
+
+    public static async Task<int> Run(string[] args, ICommandFactory commandFactory)
     {
         var rootCommand = new RootCommand($"{nameof(CSharpDepsGraph)} cli tool");
-        rootCommand.AddCommand(new JsonExportCliCommand());
-        rootCommand.AddCommand(new DgmlExportCliCommand());
-        rootCommand.AddCommand(new GraphvizExportCliCommand());
+        rootCommand.AddCommand(new JsonExportCliCommand(commandFactory));
+        rootCommand.AddCommand(new DgmlExportCliCommand(commandFactory));
+        rootCommand.AddCommand(new GraphvizExportCliCommand(commandFactory));
 
         await new CommandLineBuilder(rootCommand)
             .UseDefaults()

@@ -1,6 +1,6 @@
 namespace CSharpDepsGraph.Cli.Commands;
 
-internal interface IGraphHandlerCommand
+internal interface IHandlerCommand
 {
     Task Execute(GraphContext graphContext, CancellationToken cancellationToken);
 }

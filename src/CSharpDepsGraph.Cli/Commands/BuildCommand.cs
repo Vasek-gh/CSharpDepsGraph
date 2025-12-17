@@ -7,19 +7,19 @@ using CSharpDepsGraph.Cli.Options;
 
 namespace CSharpDepsGraph.Cli.Commands;
 
-internal sealed class GraphBuildCommand : IGraphBuildCommand
+internal sealed class BuildCommand : IRootCommand
 {
     private readonly ILogger _logger;
     private readonly ILoggerFactory _loggerFactory;
     private readonly GraphBuildOptions _graphOptions;
-    private readonly IGraphHandlerCommand _command;
+    private readonly IHandlerCommand _command;
     private readonly BuildOptions _options;
 
-    public GraphBuildCommand(
+    public BuildCommand(
         ILoggerFactory loggerFactory,
         BuildOptions options,
         GraphBuildOptions graphOptions,
-        IGraphHandlerCommand command
+        IHandlerCommand command
         )
     {
         _loggerFactory = loggerFactory;
@@ -27,15 +27,13 @@ internal sealed class GraphBuildCommand : IGraphBuildCommand
         _graphOptions = graphOptions;
         _command = command;
 
-        _logger = loggerFactory.CreateLogger(nameof(GraphBuildCommand));
+        _logger = loggerFactory.CreateLogger(nameof(BuildCommand));
     }
 
     public Task Execute(CancellationToken cancellationToken)
     {
         return CommandsUtils.ExecuteWithReport(_logger, () =>
         {
-            return Task.CompletedTask;
-
             return DoExecute(cancellationToken);
         });
     }
@@ -139,6 +137,12 @@ internal sealed class GraphBuildCommand : IGraphBuildCommand
         }
 
         result.Add("CustomBeforeMicrosoftCommonTargets", "D:/Src/inject.props"); // todo
+
+        result.Add("Configuration", "Debug");
+        result.Add("Platform", "Any CPU");
+
+        result.Add("GenerateDocumentationFile", "false");
+        result.Add("CopyLocalLockFileAssemblies", "false");
 
         result.Add("SkipCompilerExecution", "true");
         result.Add("ProvideCommandLineArgs", "true");

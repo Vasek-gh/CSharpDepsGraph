@@ -3,7 +3,7 @@ using CSharpDepsGraph.Export.Json;
 
 namespace CSharpDepsGraph.Cli.Commands.Export;
 
-internal sealed class JsonExportCommand : IGraphHandlerCommand
+internal sealed class JsonExportCommand : IHandlerCommand
 {
     private readonly ILogger _logger;
     private readonly ILoggerFactory _loggerFactory;

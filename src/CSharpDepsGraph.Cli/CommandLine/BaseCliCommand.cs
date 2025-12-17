@@ -13,25 +13,22 @@ internal abstract class BaseCliCommand : Command
     private readonly OptionsHost<BuildOptions> _buildOptionsHost;
     private readonly OptionsHost<GraphBuildOptions> _graphBuildOptionsHost;
     private readonly OptionsHost<LoggingOptions> _loggingOptionsHost;
-    private readonly List<Action<ILoggerFactory, InvocationContext>> _optionsHostsLoggers;
 
     public BaseCliCommand(string name, string description)
         : base(name, description)
     {
         this.SetHandler(Execute);
 
-        _optionsHostsLoggers = new();
-
-        _loggingOptionsHost = AddOptionHost<LoggingOptions>()
+        _loggingOptionsHost = new OptionsHost<LoggingOptions>(this)
             .AddOption(VerbosityOption, (o, v) => o.Verbosity = v);
 
-        _buildOptionsHost = AddOptionHost<BuildOptions>((logger, o) => logger.Verbose(o))
+        _buildOptionsHost = new OptionsHost<BuildOptions>(this)
             .AddOption(ConfigurationOption, (o, v) => o.Configuration = v)
             .AddOption(PropertiesOption, (o, v) => o.Properties = v ?? [])
             .AddArgument(FileNameArgument, (o, v) => o.FileName = v?.FullName ?? "todo optional");
 
-        _graphBuildOptionsHost = AddOptionHost<GraphBuildOptions>((logger, o) => logger.Verbose(o));
-            // todo
+        _graphBuildOptionsHost = new OptionsHost<GraphBuildOptions>(this);
+        // todo
     }
 
     private async Task Execute(InvocationContext ctx)
@@ -40,10 +37,32 @@ internal abstract class BaseCliCommand : Command
 
         PrintOptions(loggerFactory, ctx);
 
-        var handlerCommand = CreateHandlerCommand(ctx, loggerFactory);
-        var buildCommand = CreateBuildCommand(ctx, loggerFactory, handlerCommand);
+        var buildOptions = _buildOptionsHost.GetValue(ctx);
+        var graphBuildOptions = _graphBuildOptionsHost.GetValue(ctx);
 
-        await buildCommand.Execute(ctx.GetCancellationToken());
+        var logger = loggerFactory.CreateLogger(GetType().Name);
+        logger.Verbose(buildOptions);
+        logger.Verbose(graphBuildOptions);
+        BeforeExecute(logger, ctx);
+
+        var command = CreateCommand(ctx, loggerFactory, buildOptions, graphBuildOptions);
+
+        await command.Execute(ctx.GetCancellationToken());
+    }
+
+    protected virtual void BeforeExecute(ILogger logger, InvocationContext ctx)
+    {
+        throw new NotImplementedException();
+    }
+
+    protected virtual IRootCommand CreateCommand(
+        InvocationContext ctx,
+        ILoggerFactory loggerFactory,
+        BuildOptions buildOptions,
+        GraphBuildOptions graphBuildOptions
+        )
+    {
+        throw new NotImplementedException();
     }
 
     private ILoggerFactory CreateLoggerFactory(InvocationContext ctx)
@@ -76,38 +95,6 @@ internal abstract class BaseCliCommand : Command
         }
     }
 
-    private GraphBuildCommand CreateBuildCommand(
-        InvocationContext ctx,
-        ILoggerFactory loggerFactory,
-        IGraphHandlerCommand command
-        )
-    {
-        var buildSettings = _buildOptionsHost.GetValue(ctx);
-        var graphBuildSettings = _graphBuildOptionsHost.GetValue(ctx);
-
-        return new GraphBuildCommand(loggerFactory, buildSettings, graphBuildSettings, command);
-    }
-
-    protected OptionsHost<T> AddOptionHost<T>(
-        Action<ILogger, T>? debugLogger = null
-        )
-        where T : class, new()
-    {
-        var host = new OptionsHost<T>(this);
-
-        if (debugLogger != null)
-        {
-            _optionsHostsLoggers.Add((lf, ctx) =>
-            {
-                var logger = lf.CreateLogger(typeof(T).Name);
-                var value = host.GetValue(ctx);
-                debugLogger(logger, value);
-            });
-        }
-
-        return host;
-    }
-
     private void PrintOptions(ILoggerFactory loggerFactory, InvocationContext ctx)
     {
         var cliOptionsLogger = loggerFactory.CreateLogger("CliOptions");
@@ -125,16 +112,6 @@ internal abstract class BaseCliCommand : Command
             var value = ctx.ParseResult.GetValueForOption(option);
             cliOptionsLogger.LogValue(value, name);
         }
-
-        foreach (var logger in _optionsHostsLoggers)
-        {
-            logger(loggerFactory, ctx);
-        }
-    }
-
-    protected virtual IGraphHandlerCommand CreateHandlerCommand(InvocationContext ctx, ILoggerFactory loggerFactory)
-    {
-        throw new NotImplementedException();
     }
 
     private static Argument<FileInfo> FileNameArgument { get; } = OptionBuilder.Create(() =>
