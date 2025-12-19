@@ -26,7 +26,7 @@ internal static class ExportOptionsFactory
 
     public static Option<NodeExportLevel> ExportLevelFull { get; } = OptionBuilder.Create(() =>
     {
-        return OptionBuilder.CreateOption<NodeExportLevel>(
+        return OptionBuilder.CreateEnumOption<NodeExportLevel>(
             "export-level",
             "el",
             "level",
@@ -38,7 +38,7 @@ internal static class ExportOptionsFactory
 
     public static Option<NodeExportLevel> ExportLevelOneLevel { get; } = OptionBuilder.Create(() =>
     {
-        return OptionBuilder.CreateOption<NodeExportLevel>(
+        return OptionBuilder.CreateEnumOption<NodeExportLevel>(
             "export-level",
             "el",
             "level",
@@ -75,8 +75,7 @@ internal static class ExportOptionsFactory
                     var commaIndex = token.IndexOf(',', StringComparison.InvariantCulture);
                     if (commaIndex < 0)
                     {
-                        argResult.ErrorMessage = MakeSymbolFilterError(token);
-                        return [];
+                        return ([], MakeSymbolFilterError(token));
                     }
 
                     var filterActionSubToken = token.Substring(0, commaIndex).Trim();
@@ -87,8 +86,7 @@ internal static class ExportOptionsFactory
                         || !Enum.TryParse<FilterAction>(filterActionSubToken, true, out var filterAction)
                         )
                     {
-                        argResult.ErrorMessage = MakeSymbolFilterError(token);
-                        return [];
+                        return ([], MakeSymbolFilterError(token));
                     }
 
                     items.Add(new RegexSymbolFilter()
@@ -100,11 +98,10 @@ internal static class ExportOptionsFactory
 
                 if (items.Count == 0)
                 {
-                    argResult.ErrorMessage = "Empty symbol-filter";
-                    return [];
+                    return ([], "Empty symbol-filter");
                 }
 
-                return items;
+                return (items, null);
             }
         );
 
@@ -121,8 +118,8 @@ internal static class ExportOptionsFactory
             return OptionBuilder.CreateOption<bool>(
                 "format",
                 null,
-                "When enabled json writes formatted output")
-                ;
+                "When enabled json writes formatted output"
+                );
         });
     }
 }

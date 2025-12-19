@@ -1,7 +1,7 @@
-using System.CommandLine.Invocation;
 using Microsoft.Extensions.Logging;
 using CSharpDepsGraph.Cli.Commands;
 using CSharpDepsGraph.Cli.Options;
+using System.CommandLine;
 
 namespace CSharpDepsGraph.Cli.CommandLine;
 
@@ -23,17 +23,17 @@ internal sealed class JsonExportCliCommand : BaseCliCommand
             .AddOption(ExportOptionsFactory.Json.Format, (o, v) => o.Format = v);
     }
 
-    protected override void BeforeExecute(ILogger logger, InvocationContext ctx)
+    protected override void BeforeExecute(ILogger logger, ParseResult parseResult)
     {
-        logger.Verbose(_optionsHost.GetValue(ctx));
+        logger.Verbose(_optionsHost.GetValue(parseResult));
     }
 
     protected override ICommand CreateCommand(
-        InvocationContext ctx,
+        ParseResult parseResult,
         ILoggerFactory loggerFactory,
         BuildOptions buildOptions
         )
     {
-        return _commandFactory.CreateJsonExport(loggerFactory, buildOptions, _optionsHost.GetValue(ctx));
+        return _commandFactory.CreateJsonExport(loggerFactory, buildOptions, _optionsHost.GetValue(parseResult));
     }
 }

@@ -388,6 +388,9 @@ dotnet_naming_symbols.members_are_not_fields.applicable_accessibilities = public
 # CA1024 Use properties where appropriate
 dotnet_diagnostic.CA1024.severity = none
 
+# CA1031 Do not catch general exception types
+dotnet_diagnostic.CA1031.severity = none
+
 # CA1032 Implement standard exception constructors
 dotnet_diagnostic.CA1032.severity = none
 

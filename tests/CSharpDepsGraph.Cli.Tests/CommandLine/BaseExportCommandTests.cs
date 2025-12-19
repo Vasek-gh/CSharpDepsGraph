@@ -8,8 +8,6 @@ namespace CSharpDepsGraph.Cli.Tests.CommandLine;
 
 internal class BaseExportCommandTests<TOptions> where TOptions : ExportOptions
 {
-    private static readonly Parser _argParser = new Parser();
-
     private readonly string _baseCommnad;
 
     protected BaseExportCommandTests(string baseCommnad)
@@ -244,10 +242,7 @@ internal class BaseExportCommandTests<TOptions> where TOptions : ExportOptions
 
     private static string[] GetArgs(string commandLine)
     {
-        return _argParser.Parse(commandLine)
-            .Tokens
-            .Select(t => t.Value)
-            .ToArray();
+        return CommandLineParser.SplitCommandLine(commandLine).ToArray();
     }
 
     private static void CreateDummySln()

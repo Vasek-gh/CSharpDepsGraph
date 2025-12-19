@@ -1,7 +1,7 @@
-using System.CommandLine.Invocation;
 using Microsoft.Extensions.Logging;
 using CSharpDepsGraph.Cli.Commands;
 using CSharpDepsGraph.Cli.Options;
+using System.CommandLine;
 
 namespace CSharpDepsGraph.Cli.CommandLine;
 
@@ -22,17 +22,17 @@ internal sealed class DgmlExportCliCommand : BaseCliCommand
             .AddOption(ExportOptionsFactory.SymbolFilters, (o, v) => o.SymbolFilters = v ?? []);
     }
 
-    protected override void BeforeExecute(ILogger logger, InvocationContext ctx)
+    protected override void BeforeExecute(ILogger logger, ParseResult parseResult)
     {
-        logger.Verbose(_optionsHost.GetValue(ctx));
+        logger.Verbose(_optionsHost.GetValue(parseResult));
     }
 
     protected override ICommand CreateCommand(
-        InvocationContext ctx,
+        ParseResult parseResult,
         ILoggerFactory loggerFactory,
         BuildOptions buildOptions
         )
     {
-        return _commandFactory.CreateDgmlExport(loggerFactory, buildOptions, _optionsHost.GetValue(ctx));
+        return _commandFactory.CreateDgmlExport(loggerFactory, buildOptions, _optionsHost.GetValue(parseResult));
     }
 }

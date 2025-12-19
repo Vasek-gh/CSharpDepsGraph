@@ -1,10 +1,10 @@
 using System.CommandLine;
-using System.CommandLine.Invocation;
 using Microsoft.Extensions.Logging;
 using CSharpDepsGraph.Cli.Commands;
 using Microsoft.Extensions.Logging.Console;
 using CSharpDepsGraph.Cli.Options;
 using CSharpDepsGraph.Building;
+using System.CommandLine.Parsing;
 
 namespace CSharpDepsGraph.Cli.CommandLine;
 
@@ -17,7 +17,7 @@ internal abstract class BaseCliCommand : Command
     public BaseCliCommand(string name, string description)
         : base(name, description)
     {
-        this.SetHandler(Execute);
+        SetAction(Execute);
 
         _loggingOptionsHost = new OptionsHost<LoggingOptions>(this)
             .AddOption(VerbosityOption, (o, v) => o.Verbosity = v);
@@ -31,33 +31,33 @@ internal abstract class BaseCliCommand : Command
         // todo
     }
 
-    private async Task Execute(InvocationContext ctx)
+    private async Task Execute(ParseResult parseResult, CancellationToken cancellationToken)
     {
-        using var loggerFactory = CreateLoggerFactory(ctx);
+        using var loggerFactory = CreateLoggerFactory(parseResult);
 
-        PrintOptions(loggerFactory, ctx);
+        PrintOptions(loggerFactory, parseResult);
 
-        var buildOptions = _buildOptionsHost.GetValue(ctx);
-        var graphBuildOptions = _graphBuildOptionsHost.GetValue(ctx);
+        var buildOptions = _buildOptionsHost.GetValue(parseResult);
+        var graphBuildOptions = _graphBuildOptionsHost.GetValue(parseResult);
         buildOptions.GraphOptions = graphBuildOptions;
 
         var logger = loggerFactory.CreateLogger(GetType().Name);
         logger.Verbose(buildOptions);
         logger.Verbose(graphBuildOptions);
-        BeforeExecute(logger, ctx);
+        BeforeExecute(logger, parseResult);
 
-        var command = CreateCommand(ctx, loggerFactory, buildOptions);
+        var command = CreateCommand(parseResult, loggerFactory, buildOptions);
 
-        await command.Execute(ctx.GetCancellationToken());
+        await command.Execute(cancellationToken);
     }
 
-    protected virtual void BeforeExecute(ILogger logger, InvocationContext ctx)
+    protected virtual void BeforeExecute(ILogger logger, ParseResult parseResult)
     {
         throw new NotImplementedException();
     }
 
     protected virtual ICommand CreateCommand(
-        InvocationContext ctx,
+        ParseResult parseResult,
         ILoggerFactory loggerFactory,
         BuildOptions buildOptions
         )
@@ -65,9 +65,9 @@ internal abstract class BaseCliCommand : Command
         throw new NotImplementedException();
     }
 
-    private ILoggerFactory CreateLoggerFactory(InvocationContext ctx)
+    private ILoggerFactory CreateLoggerFactory(ParseResult parseResult)
     {
-        var settings = _loggingOptionsHost.GetValue(ctx);
+        var settings = _loggingOptionsHost.GetValue(parseResult);
 
         return LoggerFactory.Create(builder =>
         {
@@ -95,21 +95,37 @@ internal abstract class BaseCliCommand : Command
         }
     }
 
-    private void PrintOptions(ILoggerFactory loggerFactory, InvocationContext ctx)
+    private void PrintOptions(ILoggerFactory loggerFactory, ParseResult parseResult)
     {
         var cliOptionsLogger = loggerFactory.CreateLogger("CliOptions");
 
         foreach (var argument in Arguments)
         {
-            var name = argument.Name;
-            var value = ctx.ParseResult.GetValueForArgument(argument);
-            cliOptionsLogger.LogValue(value, name);
+            LogResult(argument.Name, parseResult.GetResult(argument), false);
         }
 
         foreach (var option in Options)
         {
-            var name = option.Name;
-            var value = ctx.ParseResult.GetValueForOption(option);
+            var result = parseResult.GetResult(option);
+            LogResult(option.Name, parseResult.GetResult(option), result?.IdentifierTokenCount > 0);
+        }
+
+        void LogResult(string name, SymbolResult? symbolResult, bool defined)
+        {
+            var value = "";
+            if (symbolResult is null)
+            {
+                value = "null";
+            }
+            else if (symbolResult.Tokens.Count > 0)
+            {
+                value = string.Join(" ", symbolResult.Tokens.Select(t => t.Value));
+            }
+            else if (symbolResult is not null && defined)
+            {
+                value = "+";
+            }
+
             cliOptionsLogger.LogValue(value, name);
         }
     }
@@ -118,12 +134,17 @@ internal abstract class BaseCliCommand : Command
     {
         var description = @"sln or csproj file";
 
-        var fileNameArgument = new Argument<FileInfo>("filename", description);
+        var fileNameArgument = new Argument<FileInfo>("filename");
+        fileNameArgument.Description = description;
         fileNameArgument.HelpName = "solution|project";
-        fileNameArgument.AddValidator(result =>
+        fileNameArgument.Validators.Add(result =>
         {
-            var fileName = result.GetValueForArgument(fileNameArgument).FullName;
-            result.ErrorMessage = OptionsUtils.GetFileNameError(fileName);
+            var fileName = result.GetRequiredValue(fileNameArgument).FullName;
+            var error = OptionsUtils.GetFileNameError(fileName);
+            if (error is not null)
+            {
+                result.AddError(error);
+            }
         });
 
         return fileNameArgument;
@@ -131,7 +152,7 @@ internal abstract class BaseCliCommand : Command
 
     private static Option<Verbosity> VerbosityOption { get; } = OptionBuilder.Create(() =>
     {
-        return OptionBuilder.CreateOption<Verbosity>(
+        return OptionBuilder.CreateEnumOption<Verbosity>(
             "verbosity",
             "v",
             "level",
@@ -180,14 +201,13 @@ internal abstract class BaseCliCommand : Command
                         || string.IsNullOrWhiteSpace(propParts[1])
                         )
                     {
-                        argResult.ErrorMessage = $"Invalid property format: {token}";
-                        return Array.Empty<KeyValuePair<string, string>>();
+                        return ([], $"Invalid property format: {token}");
                     }
 
                     items.Add(new KeyValuePair<string, string>(propParts[0], propParts[1]));
                 }
 
-                return items;
+                return (items, null);
             }
         );
     });

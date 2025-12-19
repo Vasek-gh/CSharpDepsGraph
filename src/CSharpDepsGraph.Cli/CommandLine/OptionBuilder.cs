@@ -8,59 +8,51 @@ internal static class OptionBuilder
     public static Option<T> CreateOption<T>(
         string name,
         string? alias,
-        string description,
-        string? argumentHelpName = null,
-        Func<SymbolResult, (T value, string? error)>? parser = null
+        string description
         )
     {
-        var aliases = new List<string>() { $"--{name}" };
-        if (alias != null)
-        {
-            aliases.Add($"-{alias}");
-        }
+        return DoCreateOption<T>(name, alias, description);
+    }
 
-        var result = parser == null
-            ? new Option<T>(aliases: aliases.ToArray())
-            : new Option<T>(
-                aliases: aliases.ToArray(),
-                parseArgument: ar =>
-                {
-                    var (value, error) = parser(ar);
-                    ar.ErrorMessage = error;
-                    return value;
-                }
-            );
+    public static Option<IEnumerable<T>> CreateListOption<T>(
+        string name,
+        string? alias,
+        string description,
+        string helpName,
+        Func<ArgumentResult, (IEnumerable<T> value, string? error)> parser
+        )
+    {
+        var result = DoCreateOption<IEnumerable<T>>(name, alias, description, helpName, parser);
 
-        result.Description = Description(description);
-        result.ArgumentHelpName = argumentHelpName;
+        result.Arity = ArgumentArity.ZeroOrMore;
 
         return result;
     }
 
-    public static Option<T> CreateOption<T>(
+    public static Option<T> CreateEnumOption<T>(
         string name,
         string? alias,
-        string argumentHelpName,
+        string helpName,
         string description,
         T defaultValue,
         T[] values
         )
         where T : struct, Enum
     {
-        return CreateOption(
+        return CreateEnumOption(
             name,
             alias,
-            argumentHelpName,
+            helpName,
             description,
             defaultValue,
             values.Select(i => (i, "", "")).ToArray()
         );
     }
 
-    public static Option<T> CreateOption<T>(
+    public static Option<T> CreateEnumOption<T>(
         string name,
         string? alias,
-        string argumentHelpName,
+        string helpName,
         string description,
         T defaultValue,
         (T value, string alias, string hint)[] values
@@ -79,16 +71,17 @@ internal static class OptionBuilder
 
         var validValues = values.Select(i => new EnumMemberMeta<T>(i.value, i.alias, i.hint));
         var validValuesHint = string.Join(", ", validValues.Select(v => v.Hint));
-        var descriptionWithHint = description
-            + $@" Allowed values are: {validValuesHint}.
-            ";
+        var descriptionWithHint = description + $@" Allowed values are: {validValuesHint}.";
 
-        var result = CreateOption(name, alias, descriptionWithHint, argumentHelpName, Parse);
-        result.SetDefaultValue(defaultValue);
-        result.AddValidator(vsr =>
+        var result = DoCreateOption(name, alias, descriptionWithHint, helpName, Parse);
+        result.DefaultValueFactory = _ => defaultValue;
+        result.Validators.Add(vsr =>
         {
             var (value, error) = Parse(vsr);
-            vsr.ErrorMessage = error;
+            if (error is not null)
+            {
+                vsr.AddError(error);
+            }
         });
 
         return result;
@@ -123,23 +116,33 @@ internal static class OptionBuilder
         }
     }
 
-    public static Option<IEnumerable<T>> CreateListOption<T>(
+    private static Option<T> DoCreateOption<T>(
         string name,
-        string alias,
+        string? alias,
         string description,
-        string argumentHelpName,
-        ParseArgument<IEnumerable<T>> parser
+        string? helpName = null,
+        Func<ArgumentResult, (T value, string? error)>? parser = null
         )
     {
-        var result = new Option<IEnumerable<T>>(
-            aliases: [$"--{name}", $"-{alias}"],
-            description: Description(description),
-            parseArgument: parser
-        );
+        var result = alias is null
+            ? new Option<T>("--" + name)
+            : new Option<T>("--" + name, "-" + alias);
 
-        result.Arity = ArgumentArity.ZeroOrMore;
-        result.ArgumentHelpName = argumentHelpName.ToLowerInvariant();
-        result.SetDefaultValue(Array.Empty<T>());
+        result.Description = Description(description);
+        result.HelpName = helpName?.ToLowerInvariant();
+
+        result.CustomParser = parser is null
+            ? null
+            : argumentResult =>
+            {
+                var (value, error) = parser(argumentResult);
+                if (error is not null)
+                {
+                    argumentResult.AddError(error);
+                }
+
+                return value;
+            };
 
         return result;
     }

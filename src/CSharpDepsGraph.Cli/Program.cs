@@ -1,8 +1,5 @@
 ﻿using CSharpDepsGraph.Cli.CommandLine;
 using System.CommandLine;
-using System.CommandLine.Builder;
-using System.CommandLine.Invocation;
-using System.CommandLine.Parsing;
 
 namespace CSharpDepsGraph.Cli;
 
@@ -22,23 +19,28 @@ internal class Program
     public static async Task<int> Run(string[] args, ICommandFactory commandFactory)
     {
         var rootCommand = new RootCommand($"{nameof(CSharpDepsGraph)} cli tool");
-        rootCommand.AddCommand(new JsonExportCliCommand(commandFactory));
-        rootCommand.AddCommand(new DgmlExportCliCommand(commandFactory));
-        rootCommand.AddCommand(new GraphvizExportCliCommand(commandFactory));
+        rootCommand.Subcommands.Add(new JsonExportCliCommand(commandFactory));
+        rootCommand.Subcommands.Add(new DgmlExportCliCommand(commandFactory));
+        rootCommand.Subcommands.Add(new GraphvizExportCliCommand(commandFactory));
 
-        var result = await new CommandLineBuilder(rootCommand)
-            .UseDefaults()
-            .UseExceptionHandler(HandleException)
-            .UseParseErrorReporting()
-            .Build()
-            .InvokeAsync(args);
+        var parseResult = rootCommand.Parse(args);
 
-        return result;
+        try
+        {
+            return await parseResult.InvokeAsync(new InvocationConfiguration()
+            {
+                EnableDefaultExceptionHandler = false,
+            });
+        }
+        catch (Exception e)
+        {
+            HandleException(e);
+            return 1;
+        }
     }
 
-    private static void HandleException(Exception ex, InvocationContext ctx)
+    private static void HandleException(Exception ex)
     {
-        ctx.ExitCode = 1;
         if (ex is OperationCanceledException)
         {
             return;
@@ -46,12 +48,12 @@ internal class Program
 
         var error = ex is CSharpDepsGraphException
             ? ex.Message
-            : ex.ToString();
+            : "Unhandled exception: " + ex.ToString();
 
         SetForegroundColor(ConsoleColor.Red);
         try
         {
-            ctx.Console.Error.Write(error);
+            Console.Error.WriteLine(error);
         }
         finally
         {
