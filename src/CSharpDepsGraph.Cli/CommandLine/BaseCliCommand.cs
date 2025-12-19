@@ -39,13 +39,14 @@ internal abstract class BaseCliCommand : Command
 
         var buildOptions = _buildOptionsHost.GetValue(ctx);
         var graphBuildOptions = _graphBuildOptionsHost.GetValue(ctx);
+        buildOptions.GraphOptions = graphBuildOptions;
 
         var logger = loggerFactory.CreateLogger(GetType().Name);
         logger.Verbose(buildOptions);
         logger.Verbose(graphBuildOptions);
         BeforeExecute(logger, ctx);
 
-        var command = CreateCommand(ctx, loggerFactory, buildOptions, graphBuildOptions);
+        var command = CreateCommand(ctx, loggerFactory, buildOptions);
 
         await command.Execute(ctx.GetCancellationToken());
     }
@@ -55,11 +56,10 @@ internal abstract class BaseCliCommand : Command
         throw new NotImplementedException();
     }
 
-    protected virtual IRootCommand CreateCommand(
+    protected virtual ICommand CreateCommand(
         InvocationContext ctx,
         ILoggerFactory loggerFactory,
-        BuildOptions buildOptions,
-        GraphBuildOptions graphBuildOptions
+        BuildOptions buildOptions
         )
     {
         throw new NotImplementedException();

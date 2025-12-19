@@ -2,7 +2,6 @@ using System.CommandLine.Invocation;
 using Microsoft.Extensions.Logging;
 using CSharpDepsGraph.Cli.Commands;
 using CSharpDepsGraph.Cli.Options;
-using CSharpDepsGraph.Building;
 
 namespace CSharpDepsGraph.Cli.CommandLine;
 
@@ -19,7 +18,7 @@ internal sealed class GraphvizExportCliCommand : BaseCliCommand
         _optionsHost = new OptionsHost<ExportOptions>(this)
             .AddOption(ExportOptionsFactory.OutputFileName, (o, v) => o.OutputPath = v?.FullName)
             .AddOption(ExportOptionsFactory.HideExternal, (o, v) => o.HideExternal = v)
-            .AddOption(ExportOptionsFactory.ExportLevelFull, (o, v) => o.ExportLevel = v)
+            .AddOption(ExportOptionsFactory.ExportLevelOneLevel, (o, v) => o.ExportLevel = v)
             .AddOption(ExportOptionsFactory.SymbolFilters, (o, v) => o.SymbolFilters = v ?? []);
     }
 
@@ -28,18 +27,12 @@ internal sealed class GraphvizExportCliCommand : BaseCliCommand
         logger.Verbose(_optionsHost.GetValue(ctx));
     }
 
-    protected override IRootCommand CreateCommand(
+    protected override ICommand CreateCommand(
         InvocationContext ctx,
         ILoggerFactory loggerFactory,
-        BuildOptions buildOptions,
-        GraphBuildOptions graphBuildOptions
+        BuildOptions buildOptions
         )
     {
-        return _commandFactory.CreateGraphVizExportCommand(loggerFactory, new ExportOptionsHost<ExportOptions>()
-        {
-            BuildOptions = buildOptions,
-            GraphBuildOptions = graphBuildOptions,
-            ExportOptions = _optionsHost.GetValue(ctx)
-        });
+        return _commandFactory.CreateGraphVizExport(loggerFactory, buildOptions, _optionsHost.GetValue(ctx));
     }
 }

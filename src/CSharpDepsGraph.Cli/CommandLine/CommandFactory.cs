@@ -7,26 +7,26 @@ namespace CSharpDepsGraph.Cli.CommandLine;
 
 internal class CommandFactory : ICommandFactory
 {
-    public IRootCommand CreateDgmlExportCommand(ILoggerFactory loggerFactory, ExportOptionsHost<ExportOptions> options)
+    public ICommand CreateDgmlExport(ILoggerFactory loggerFactory, BuildOptions buildOptions, ExportOptions exportOptions)
     {
-        var command = new DgmlExportCommand(loggerFactory, options.ExportOptions);
-        var buildCommand = new BuildCommand(loggerFactory, options.BuildOptions, options.GraphBuildOptions, command);
+        var command = new DgmlExportCommand(loggerFactory, exportOptions);
+        var buildCommand = new BuildCommand(loggerFactory, buildOptions, command);
 
         return buildCommand;
     }
 
-    public IRootCommand CreateGraphVizExportCommand(ILoggerFactory loggerFactory, ExportOptionsHost<ExportOptions> options)
+    public ICommand CreateGraphVizExport(ILoggerFactory loggerFactory, BuildOptions buildOptions, ExportOptions exportOptions)
     {
-        var command = new GraphvizExportCommand(loggerFactory, options.ExportOptions);
-        var buildCommand = new BuildCommand(loggerFactory, options.BuildOptions, options.GraphBuildOptions, command);
+        var command = new GraphvizExportCommand(loggerFactory, exportOptions);
+        var buildCommand = new BuildCommand(loggerFactory, buildOptions, command);
 
         return buildCommand;
     }
 
-    public IRootCommand CreateJsonExportCommand(ILoggerFactory loggerFactory, ExportOptionsHost<JsonExportOptions> options)
+    public ICommand CreateJsonExport(ILoggerFactory loggerFactory, BuildOptions buildOptions, JsonExportOptions exportOptions)
     {
-        var command = new JsonExportCommand(loggerFactory, options.ExportOptions);
-        var buildCommand = new BuildCommand(loggerFactory, options.BuildOptions, options.GraphBuildOptions, command);
+        var command = new JsonExportCommand(loggerFactory, exportOptions);
+        var buildCommand = new BuildCommand(loggerFactory, buildOptions, command);
 
         return buildCommand;
     }

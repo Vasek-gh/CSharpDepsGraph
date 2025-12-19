@@ -2,7 +2,6 @@ using System.CommandLine.Invocation;
 using Microsoft.Extensions.Logging;
 using CSharpDepsGraph.Cli.Commands;
 using CSharpDepsGraph.Cli.Options;
-using CSharpDepsGraph.Building;
 
 namespace CSharpDepsGraph.Cli.CommandLine;
 
@@ -28,18 +27,12 @@ internal sealed class DgmlExportCliCommand : BaseCliCommand
         logger.Verbose(_optionsHost.GetValue(ctx));
     }
 
-    protected override IRootCommand CreateCommand(
+    protected override ICommand CreateCommand(
         InvocationContext ctx,
         ILoggerFactory loggerFactory,
-        BuildOptions buildOptions,
-        GraphBuildOptions graphBuildOptions
+        BuildOptions buildOptions
         )
     {
-        return _commandFactory.CreateGraphVizExportCommand(loggerFactory, new ExportOptionsHost<ExportOptions>()
-        {
-            BuildOptions = buildOptions,
-            GraphBuildOptions = graphBuildOptions,
-            ExportOptions = _optionsHost.GetValue(ctx)
-        });
+        return _commandFactory.CreateDgmlExport(loggerFactory, buildOptions, _optionsHost.GetValue(ctx));
     }
 }

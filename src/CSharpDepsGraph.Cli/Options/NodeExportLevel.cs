@@ -1,8 +1,8 @@
 namespace CSharpDepsGraph.Cli.Options;
 
-internal enum NodeExportLevel
+public enum NodeExportLevel
 {
-    All,
+    Default,
 
     Assembly,
 
@@ -11,4 +11,6 @@ internal enum NodeExportLevel
     Type,
 
     PublicMember,
+
+    All,
 }

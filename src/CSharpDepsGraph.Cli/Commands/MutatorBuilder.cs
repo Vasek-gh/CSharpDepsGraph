@@ -57,6 +57,7 @@ internal class MutatorBuilder
         {
             IMutator mutator = nodeExportLevel switch
             {
+                NodeExportLevel.Default => new AssemblyOnlyMutator(),
                 NodeExportLevel.Assembly => new AssemblyOnlyMutator(),
                 NodeExportLevel.Namespace => new NamespaceOnlyTransformer(),
                 _ => throw new NotSupportedException()
@@ -68,10 +69,10 @@ internal class MutatorBuilder
         {
             var filter = nodeExportLevel switch
             {
-                NodeExportLevel.PublicMember => Filters.HidePrivate,
-                NodeExportLevel.Type => Filters.HideMembers,
-                NodeExportLevel.Namespace => Filters.HideTypes,
                 NodeExportLevel.Assembly => Filters.HideNamespaces,
+                NodeExportLevel.Namespace => Filters.HideTypes,
+                NodeExportLevel.Type => Filters.HideMembers,
+                NodeExportLevel.PublicMember => Filters.HidePrivate,
                 _ => Filters.Empty
             };
 

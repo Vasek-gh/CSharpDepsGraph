@@ -2,7 +2,7 @@ using CSharpDepsGraph.Mutation.Filtering;
 
 namespace CSharpDepsGraph.Cli.Options;
 
-internal class RegexSymbolFilter
+public class RegexSymbolFilter
 {
     public required FilterAction FilterAction { get; set; }
 

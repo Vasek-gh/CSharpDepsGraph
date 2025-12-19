@@ -1,12 +1,16 @@
+using CSharpDepsGraph.Building;
+
 namespace CSharpDepsGraph.Cli.Options;
 
-internal class BuildOptions
+public class BuildOptions
 {
     public string FileName { get; set; } = ""; // todo optional / FileName -> FilePath
 
     public string? Configuration { get; set; } // todo kill
 
     public IEnumerable<KeyValuePair<string, string>> Properties { get; set; } = [];
+
+    public GraphBuildOptions GraphOptions { get; set; } = new GraphBuildOptions();
 
     public BuildOptions Validate()
     {
@@ -33,7 +37,8 @@ internal class BuildOptions
         {
             FileName = FileName,
             Configuration = string.IsNullOrWhiteSpace(Configuration) ? null : Configuration,
-            Properties = Properties
+            Properties = Properties,
+            GraphOptions = GraphOptions
         };
     }
 }

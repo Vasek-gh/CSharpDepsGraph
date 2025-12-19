@@ -8,9 +8,15 @@ namespace CSharpDepsGraph.Cli;
 
 internal class Program
 {
-    public static Task<int> Main(string[] args)
+    public static async Task<int> Main(string[] args)
     {
-        return Run(args, new CommandFactory());
+        var result = await Run(args, new CommandFactory());
+
+        Console.WriteLine(GC.GetTotalMemory(false).ToString("N0")); // todo kill
+        Console.WriteLine("Wait"); // todo kill
+        Console.ReadKey();
+
+        return result;
     }
 
     public static async Task<int> Run(string[] args, ICommandFactory commandFactory)
@@ -20,17 +26,14 @@ internal class Program
         rootCommand.AddCommand(new DgmlExportCliCommand(commandFactory));
         rootCommand.AddCommand(new GraphvizExportCliCommand(commandFactory));
 
-        await new CommandLineBuilder(rootCommand)
+        var result = await new CommandLineBuilder(rootCommand)
             .UseDefaults()
             .UseExceptionHandler(HandleException)
+            .UseParseErrorReporting()
             .Build()
             .InvokeAsync(args);
 
-        Console.WriteLine(GC.GetTotalMemory(false).ToString("N0")); // todo kill
-        Console.WriteLine("Wait"); // todo kill
-        Console.ReadKey();
-
-        return 0;
+        return result;
     }
 
     private static void HandleException(Exception ex, InvocationContext ctx)

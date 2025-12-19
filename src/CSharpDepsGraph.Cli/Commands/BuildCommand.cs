@@ -7,24 +7,21 @@ using CSharpDepsGraph.Cli.Options;
 
 namespace CSharpDepsGraph.Cli.Commands;
 
-internal sealed class BuildCommand : IRootCommand
+internal sealed class BuildCommand : ICommand
 {
     private readonly ILogger _logger;
     private readonly ILoggerFactory _loggerFactory;
-    private readonly GraphBuildOptions _graphOptions;
     private readonly IHandlerCommand _command;
     private readonly BuildOptions _options;
 
     public BuildCommand(
         ILoggerFactory loggerFactory,
         BuildOptions options,
-        GraphBuildOptions graphOptions,
         IHandlerCommand command
         )
     {
         _loggerFactory = loggerFactory;
         _options = options.Validate();
-        _graphOptions = graphOptions;
         _command = command;
 
         _logger = loggerFactory.CreateLogger(nameof(BuildCommand));
@@ -70,7 +67,7 @@ internal sealed class BuildCommand : IRootCommand
         CancellationToken cancellationToken
         )
     {
-        var builder = new GraphBuilder(_loggerFactory, _graphOptions);
+        var builder = new GraphBuilder(_loggerFactory, _options.GraphOptions);
         return builder.Run(projects, cancellationToken);
     }
 

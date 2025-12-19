@@ -31,8 +31,8 @@ internal static class ExportOptionsFactory
             "el",
             "level",
             "Defines the level below which all nodes are excluded.",
-            ExportOptions.Defaults.ExportLevelFull,
-            Enum.GetValues<NodeExportLevel>()
+            NodeExportLevel.All,
+            Enum.GetValues<NodeExportLevel>().Where(e => e > NodeExportLevel.Default).ToArray()
         );
     });
 
@@ -43,13 +43,14 @@ internal static class ExportOptionsFactory
             "el",
             "level",
             "Defines the level of nodes to export.",
-            ExportOptions.Defaults.ExportLevelOneLevel,
+            NodeExportLevel.Assembly,
             [NodeExportLevel.Assembly, NodeExportLevel.Namespace]
         );
     });
 
     public static Option<IEnumerable<RegexSymbolFilter>> SymbolFilters { get; } = OptionBuilder.Create(() =>
     {
+        // todo Regex is applied on the node path not id
         var description = @"
             Defines one or more symbol filter.
             Regex is applied on the node id.
@@ -75,7 +76,7 @@ internal static class ExportOptionsFactory
                     if (commaIndex < 0)
                     {
                         argResult.ErrorMessage = MakeSymbolFilterError(token);
-                        return Array.Empty<RegexSymbolFilter>();
+                        return [];
                     }
 
                     var filterActionSubToken = token.Substring(0, commaIndex).Trim();
@@ -87,7 +88,7 @@ internal static class ExportOptionsFactory
                         )
                     {
                         argResult.ErrorMessage = MakeSymbolFilterError(token);
-                        return Array.Empty<RegexSymbolFilter>();
+                        return [];
                     }
 
                     items.Add(new RegexSymbolFilter()
@@ -97,13 +98,19 @@ internal static class ExportOptionsFactory
                     });
                 }
 
+                if (items.Count == 0)
+                {
+                    argResult.ErrorMessage = "Empty symbol-filter";
+                    return [];
+                }
+
                 return items;
             }
         );
 
         string MakeSymbolFilterError(string token)
         {
-            return $"Invalid symbol filter format: {token}";
+            return $"Invalid symbol-filter format: {token}";
         }
     });
 
