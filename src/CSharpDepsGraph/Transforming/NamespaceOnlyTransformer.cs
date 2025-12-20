@@ -5,7 +5,7 @@ namespace CSharpDepsGraph.Transforming;
 /// <summary>
 /// todo
 /// </summary>
-public class NamespaceOnlyTransformer : IMutator
+public class NamespaceOnlyTransformer : ITransformer
 {
     internal const string GlobalId = "global::";
 
@@ -20,7 +20,7 @@ public class NamespaceOnlyTransformer : IMutator
     }
 
     /// <inheritdoc/>
-    public IGraph Run(IGraph graph)
+    public IGraph Execute(IGraph graph)
     {
         var nodes = GetNodes(graph.Root);
         return new MutatedGraph()

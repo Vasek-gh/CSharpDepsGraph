@@ -4,7 +4,7 @@ namespace CSharpDepsGraph.Transforming.Filtering;
 /// <summary>
 /// todo
 /// </summary>
-public class FilterMutator : IMutator
+public class FilterMutator : ITransformer
 {
     private readonly IEnumerable<IFilter> _filters;
     private readonly Dictionary<string, INode> _nodeMap;
@@ -27,7 +27,7 @@ public class FilterMutator : IMutator
     }
 
     /// <inheritdoc/>
-    public IGraph Run(IGraph graph)
+    public IGraph Execute(IGraph graph)
     {
         var root = MutateNode(graph.Root);
         var links = MutateLinks(graph.Links);

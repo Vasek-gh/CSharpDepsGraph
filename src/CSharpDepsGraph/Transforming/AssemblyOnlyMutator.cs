@@ -5,7 +5,7 @@ namespace CSharpDepsGraph.Transforming;
 /// <summary>
 /// todo
 /// </summary>
-public class AssemblyOnlyMutator : IMutator
+public class AssemblyOnlyMutator : ITransformer
 {
     private readonly Dictionary<string, INode> _newNodeIdMap;
 
@@ -18,7 +18,7 @@ public class AssemblyOnlyMutator : IMutator
     }
 
     /// <inheritdoc/>
-    public IGraph Run(IGraph graph)
+    public IGraph Execute(IGraph graph)
     {
         var rootNodes = GetAssemblies(graph.Root);
 

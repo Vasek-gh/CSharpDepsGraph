@@ -8,17 +8,17 @@ internal class MutatorBuilder
 {
     private readonly List<IFilter> _filters;
 
-    private readonly List<IMutator> _mutators;
+    private readonly List<ITransformer> _mutators;
 
     public MutatorBuilder()
     {
         _filters = new List<IFilter>();
-        _mutators = new List<IMutator>();
+        _mutators = new List<ITransformer>();
     }
 
-    public IMutator Build()
+    public ITransformer Build()
     {
-        var mutators = new List<IMutator>();
+        var mutators = new List<ITransformer>();
         mutators.Add(new FlattenNamespacesMutator());
         mutators.AddRange(_mutators);
         mutators.Add(new FilterMutator(_filters));
@@ -55,7 +55,7 @@ internal class MutatorBuilder
     {
         if (levelOnlyMode)
         {
-            IMutator mutator = nodeExportLevel switch
+            ITransformer mutator = nodeExportLevel switch
             {
                 NodeExportLevel.Default => new AssemblyOnlyMutator(),
                 NodeExportLevel.Assembly => new AssemblyOnlyMutator(),
@@ -92,7 +92,7 @@ internal class MutatorBuilder
         return this;
     }
 
-    public MutatorBuilder WithMutator(IMutator? mutator)
+    public MutatorBuilder WithMutator(ITransformer? mutator)
     {
         if (mutator != null)
         {

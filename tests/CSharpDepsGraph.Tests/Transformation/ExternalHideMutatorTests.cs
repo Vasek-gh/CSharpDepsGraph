@@ -17,7 +17,7 @@ public class ExternalHideMutatorTests
     public void FullHide()
     {
         var graph = new ExternalHideMutator(false)
-            .Run(CreateGraph());
+            .Execute(CreateGraph());
 
         var externalRoot = graph.Root.Childs.SingleOrDefault(n => n.Id == GraphConsts.ExternalRootNodeId);
         Assert.That(externalRoot, Is.Null);
@@ -33,7 +33,7 @@ public class ExternalHideMutatorTests
     public void HideOnlyChilds()
     {
         var graph = new ExternalHideMutator(true)
-            .Run(CreateGraph());
+            .Execute(CreateGraph());
 
         var node = graph.Root.Childs.Single(n => n.Id == _nodeId1);
         var externalRoot = graph.Root.Childs.Single(n => n.Id == GraphConsts.ExternalRootNodeId);

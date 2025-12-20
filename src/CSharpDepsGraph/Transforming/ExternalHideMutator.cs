@@ -3,7 +3,7 @@ namespace CSharpDepsGraph.Transforming;
 /// <summary>
 /// todo
 /// </summary>
-public class ExternalHideMutator : IMutator
+public class ExternalHideMutator : ITransformer
 {
     private readonly bool _hideOnlyChilds;
 
@@ -16,7 +16,7 @@ public class ExternalHideMutator : IMutator
     }
 
     /// <inheritdoc/>
-    public IGraph Run(IGraph graph)
+    public IGraph Execute(IGraph graph)
     {
         var externalRootNode = graph.Root.Childs.Single(n => n.IsExternalsRoot());
         var externalsNodes = externalRootNode.CollectChildNodes().ToDictionary(n => n.Id);

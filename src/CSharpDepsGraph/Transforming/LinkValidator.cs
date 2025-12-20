@@ -3,10 +3,10 @@ namespace CSharpDepsGraph.Transforming;
 /// <summary>
 /// Mutator to validate that all links are attached to existing nodes
 /// </summary>
-public class LinkValidator : IMutator
+public class LinkValidator : ITransformer
 {
     /// <inheritdoc/>
-    public IGraph Run(IGraph graph)
+    public IGraph Execute(IGraph graph)
     {
         var nodeMap = graph.Root.CollectChildNodes().ToDictionary(n => n.Id);
 

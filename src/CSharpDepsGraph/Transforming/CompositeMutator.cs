@@ -3,33 +3,33 @@ namespace CSharpDepsGraph.Transforming;
 /// <summary>
 /// todo
 /// </summary>
-public class CompositeMutator : IMutator
+public class CompositeMutator : ITransformer
 {
-    private readonly IEnumerable<IMutator> _mutators;
+    private readonly IEnumerable<ITransformer> _mutators;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CompositeMutator"/> class.
     /// </summary>
-    public CompositeMutator(params IMutator[] mutators)
-        : this(mutators as IEnumerable<IMutator>)
+    public CompositeMutator(params ITransformer[] mutators)
+        : this(mutators as IEnumerable<ITransformer>)
     {
     }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="CompositeMutator"/> class.
     /// </summary>
-    public CompositeMutator(IEnumerable<IMutator> mutators)
+    public CompositeMutator(IEnumerable<ITransformer> mutators)
     {
         _mutators = mutators;
     }
 
     /// <inheritdoc/>
-    public IGraph Run(IGraph graph)
+    public IGraph Execute(IGraph graph)
     {
         var result = graph;
         foreach (var mutator in _mutators)
         {
-            result = mutator.Run(result);
+            result = mutator.Execute(result);
         }
 
         return result;

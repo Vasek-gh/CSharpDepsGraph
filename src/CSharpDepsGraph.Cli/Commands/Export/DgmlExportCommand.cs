@@ -24,7 +24,7 @@ internal sealed class DgmlExportCommand : IHandlerCommand
         {
             _logger.LogDebug("Mutation...");
 
-            var graph = CommandsUtils.GetHierarchyExportMutator(_options).Run(ctx.Graph);
+            var graph = CommandsUtils.GetHierarchyExportMutator(_options).Execute(ctx.Graph);
 
             _logger.LogDebug("Export...");
 

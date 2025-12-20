@@ -16,7 +16,7 @@ internal static class CommandsUtils
         return new FileStream(outputFileName, FileMode.Create);
     }
 
-    public static IMutator GetFlatExportMutator(ExportOptions settings)
+    public static ITransformer GetFlatExportMutator(ExportOptions settings)
     {
         return new MutatorBuilder()
             .WithExternalHide(settings.HideExternal)
@@ -25,7 +25,7 @@ internal static class CommandsUtils
             .Build();
     }
 
-    public static IMutator GetHierarchyExportMutator(ExportOptions settings)
+    public static ITransformer GetHierarchyExportMutator(ExportOptions settings)
     {
         return new MutatorBuilder()
             .WithExternalHide(settings.HideExternal)

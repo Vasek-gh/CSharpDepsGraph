@@ -26,7 +26,7 @@ public class NamespaceOnlyTransformerTests
             .AddAssemblyNode(_assemblyName2)
             .AddNamespaceNode(_namespaceName2);
 
-        var graph = new NamespaceOnlyTransformer().Run(graphMock);
+        var graph = new NamespaceOnlyTransformer().Execute(graphMock);
 
         Assert.That(graph.Root.Id, Is.EqualTo(GraphConsts.RootNodeId));
         Assert.That(graph.Root.Childs.Count(), Is.EqualTo(2));
@@ -56,7 +56,7 @@ public class NamespaceOnlyTransformerTests
 
         graphMock.AddLink(Mocks.CreateLink(childNode2Mock, childNode1Mock));
 
-        var graph = new NamespaceOnlyTransformer().Run(graphMock);
+        var graph = new NamespaceOnlyTransformer().Execute(graphMock);
 
         Assert.That(graph.Links.Count(), Is.EqualTo(1));
         Assert.That(graph.Root.Childs.Count(), Is.EqualTo(2));
@@ -95,7 +95,7 @@ public class NamespaceOnlyTransformerTests
         graphMock.AddLink(Mocks.CreateLink(childNode3Mock, childNode1Mock));
         graphMock.AddLink(Mocks.CreateLink(childNode3Mock, childNode2Mock));
 
-        var graph = new NamespaceOnlyTransformer().Run(graphMock);
+        var graph = new NamespaceOnlyTransformer().Execute(graphMock);
 
         Assert.That(graph.Root.Childs.Count(), Is.EqualTo(2));
 
@@ -149,7 +149,7 @@ public class NamespaceOnlyTransformerTests
         graphMock.LinkList.Add(Mocks.CreateLink(childNode2, childNode12));
         graphMock.LinkList.Add(Mocks.CreateLink(childNode2, childNode13));
 
-        var graph = new NamespaceOnlyTransformer().Run(graphMock);
+        var graph = new NamespaceOnlyTransformer().Execute(graphMock);
 
         Assert.That(graph.Root.Childs.Count(), Is.EqualTo(2));
 

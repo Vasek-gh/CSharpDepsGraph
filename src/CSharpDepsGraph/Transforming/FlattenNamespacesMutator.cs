@@ -5,10 +5,10 @@ namespace CSharpDepsGraph.Transforming;
 /// <summary>
 /// todo
 /// </summary>
-public class FlattenNamespacesMutator : IMutator
+public class FlattenNamespacesMutator : ITransformer
 {
     /// <inheritdoc/>
-    public IGraph Run(IGraph graph)
+    public IGraph Execute(IGraph graph)
     {
         var root = DoRun(graph.Root);
 
