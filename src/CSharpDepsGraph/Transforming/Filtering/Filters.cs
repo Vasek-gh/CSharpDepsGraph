@@ -1,6 +1,6 @@
 using Microsoft.CodeAnalysis;
 
-namespace CSharpDepsGraph.Mutation.Filtering;
+namespace CSharpDepsGraph.Transforming.Filtering;
 
 public static class Filters
 {

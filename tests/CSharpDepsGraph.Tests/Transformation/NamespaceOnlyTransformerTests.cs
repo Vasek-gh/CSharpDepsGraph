@@ -1,6 +1,6 @@
 using Microsoft.CodeAnalysis;
 using NUnit.Framework;
-using CSharpDepsGraph.Mutation;
+using CSharpDepsGraph.Transforming;
 using System.Linq;
 using System;
 

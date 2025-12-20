@@ -1,4 +1,4 @@
-namespace CSharpDepsGraph.Mutation;
+namespace CSharpDepsGraph.Transforming;
 
 /// <summary>
 /// Defines a processor that modifies graph. Implementations should transform the input graph and return a modified version.

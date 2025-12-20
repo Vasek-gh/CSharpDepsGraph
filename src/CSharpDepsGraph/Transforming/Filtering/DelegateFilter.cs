@@ -1,4 +1,4 @@
-namespace CSharpDepsGraph.Mutation.Filtering;
+namespace CSharpDepsGraph.Transforming.Filtering;
 
 public class DelegateFilter : IFilter
 {

@@ -1,7 +1,7 @@
 using System.Diagnostics;
 using Microsoft.CodeAnalysis;
 
-namespace CSharpDepsGraph.Mutation;
+namespace CSharpDepsGraph.Transforming;
 
 [DebuggerDisplay("{Id}")]
 internal class MutatedNode : INode

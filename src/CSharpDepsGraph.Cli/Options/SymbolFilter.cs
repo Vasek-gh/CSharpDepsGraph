@@ -1,4 +1,4 @@
-using CSharpDepsGraph.Mutation.Filtering;
+using CSharpDepsGraph.Transforming.Filtering;
 
 namespace CSharpDepsGraph.Cli.Options;
 

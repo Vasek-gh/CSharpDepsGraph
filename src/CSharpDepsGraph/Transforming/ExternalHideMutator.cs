@@ -1,4 +1,4 @@
-namespace CSharpDepsGraph.Mutation;
+namespace CSharpDepsGraph.Transforming;
 
 /// <summary>
 /// todo

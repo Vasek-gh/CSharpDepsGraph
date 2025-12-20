@@ -1,4 +1,5 @@
 ﻿using CSharpDepsGraph.Cli.CommandLine;
+using Microsoft.Extensions.FileSystemGlobbing;
 using System.CommandLine;
 
 namespace CSharpDepsGraph.Cli;
@@ -7,6 +8,10 @@ internal class Program
 {
     public static async Task<int> Main(string[] args)
     {
+        Matcher matcher = new();
+        matcher.AddInclude("**/System/*");
+        var q = matcher.Match(".", "qwerty.foo/System/");
+
         var result = await Run(args, new CommandFactory());
 
         Console.WriteLine(GC.GetTotalMemory(false).ToString("N0")); // todo kill

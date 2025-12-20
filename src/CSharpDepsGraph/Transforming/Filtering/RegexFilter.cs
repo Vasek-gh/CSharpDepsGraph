@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace CSharpDepsGraph.Mutation.Filtering;
+namespace CSharpDepsGraph.Transforming.Filtering;
 
 public class RegexFilter : IFilter
 {

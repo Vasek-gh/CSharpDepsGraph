@@ -1,4 +1,4 @@
-namespace CSharpDepsGraph.Mutation;
+namespace CSharpDepsGraph.Transforming;
 
 /// <summary>
 /// Mutator to validate that all links are attached to existing nodes

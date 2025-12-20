@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace CSharpDepsGraph.Mutation;
+namespace CSharpDepsGraph.Transforming;
 
 [DebuggerDisplay("{Source.Id} -> {Target.Id}")]
 internal class MutatedLink : ILink

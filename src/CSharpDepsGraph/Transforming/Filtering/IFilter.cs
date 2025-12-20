@@ -1,4 +1,4 @@
-namespace CSharpDepsGraph.Mutation.Filtering;
+namespace CSharpDepsGraph.Transforming.Filtering;
 
 /// <summary>
 /// Filter interface for nodes

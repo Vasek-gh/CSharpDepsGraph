@@ -1,6 +1,6 @@
 using CSharpDepsGraph.Cli.Options;
-using CSharpDepsGraph.Mutation;
-using CSharpDepsGraph.Mutation.Filtering;
+using CSharpDepsGraph.Transforming;
+using CSharpDepsGraph.Transforming.Filtering;
 
 namespace CSharpDepsGraph.Cli.Commands;
 

@@ -1,4 +1,4 @@
-namespace CSharpDepsGraph.Mutation;
+namespace CSharpDepsGraph.Transforming;
 
 internal class MutatedGraph : IGraph
 {
