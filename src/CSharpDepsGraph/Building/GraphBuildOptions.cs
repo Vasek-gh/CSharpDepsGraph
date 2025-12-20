@@ -13,7 +13,7 @@ public class GraphBuildOptions
 
     public bool DoNotMergeAssembliesWithDifferentVersions { get; set; }
 
-    public bool GenerateFullyQualifiedUid { get; set; } = true; // todo kill default value
+    public bool GenerateFullyQualifiedUid { get; set; }
 
     public HashSet<string> IgnoreLinksToAssemblies { get; set; } = new HashSet<string>(Utils.CoreLibs);
 }

@@ -13,7 +13,7 @@ namespace CSharpDepsGraph.Export.Dgml;
 
 // todo link category
 /// <summary>
-/// todo
+/// Export graph to dgml file
 /// </summary>
 public class DgmlExport
 {
@@ -50,9 +50,9 @@ public class DgmlExport
     }
 
     /// <summary>
-    /// todo
+    /// Execute export
     /// </summary>
-    public Task Run(IGraph graph, Stream stream, CancellationToken cancellationToken) // todo rename RunAsync + cancellationToken = deafult
+    public Task RunAsync(IGraph graph, Stream stream, CancellationToken cancellationToken = default)
     {
         var msaglNodes = new List<XElement>();
         var msgalLinks = new Dictionary<string, XElement>();

@@ -3,9 +3,7 @@ using NUnit.Framework;
 
 namespace CSharpDepsGraph.Tests.Syntax;
 
-#pragma warning disable CA1724
-public class Expressions : BaseSyntaxTests //todo rename
-#pragma warning restore CA2000
+public class Expression : BaseSyntaxTests
 {
     [Test]
     public void ObjectCreationSimple()

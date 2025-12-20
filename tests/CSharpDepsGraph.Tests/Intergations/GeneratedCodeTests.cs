@@ -1,4 +1,3 @@
-using CSharpDepsGraph.Building;
 using NUnit.Framework;
 using System.Linq;
 

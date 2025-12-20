@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 namespace CSharpDepsGraph.Export.Graphviz;
 
 /// <summary>
-/// todo
+/// Export graph to graphviz file
 /// </summary>
 public class GraphvizExport
 {
@@ -30,9 +30,9 @@ public class GraphvizExport
     }
 
     /// <summary>
-    /// todo
+    /// Execute export
     /// </summary>
-    public Task Run(IGraph graph, Stream stream, CancellationToken cancellationToken)
+    public Task RunAsync(IGraph graph, Stream stream, CancellationToken cancellationToken = default)
     {
         // todo currently DotNetGraph does not support CancellationToken
         cancellationToken.ThrowIfCancellationRequested();

@@ -307,7 +307,7 @@ internal class FullyQualifiedUidGenerator : ISymbolUidGenerator
                 RefKind.In => "in ",
                 RefKind.RefReadOnlyParameter => "ref readonly ",
                 RefKind.None => string.Empty,
-                _ => throw new Exception("todo"),
+                _ => kind.ToString(),
             };
 
         }

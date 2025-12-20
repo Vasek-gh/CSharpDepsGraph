@@ -30,7 +30,7 @@ public sealed class DgmlExportCommand : IHandlerCommand
 
             using var stream = CommandsUtils.CreateOutputStream(graphContext.InputFile, _options.OutputPath, "dgml");
 
-            await new DgmlExport(_loggerFactory.CreateLogger<DgmlExport>()).Run(graph, stream, cancellationToken);
+            await new DgmlExport(_loggerFactory.CreateLogger<DgmlExport>()).RunAsync(graph, stream, cancellationToken);
         });
     }
 }

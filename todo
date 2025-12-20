@@ -1,6 +1,5 @@
 - Огромное количество не нужных сборок загружается в память
 
-- DateTime.Now создает ссылку на DateTime
 - Проверить IPointerTypeSymbol при парсинге
 - Проверить C# 14 ExtensionDeclarationSyntax
 - Проверить

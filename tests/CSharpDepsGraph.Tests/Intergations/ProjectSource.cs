@@ -44,7 +44,10 @@ public static class ProjectSource
                 RedirectStandardError = true,
                 RedirectStandardOutput = true,
                 Environment = {
-                    { "DOTNET_CLI_UI_LANGUAGE", "en" } // todo disable telemetry
+                    { "DOTNET_NOLOGO", "1" },
+                    { "DOTNET_CLI_UI_LANGUAGE", "en" },
+                    { "DOTNET_CLI_TELEMETRY_OPTOUT", "1" },
+                    { "DOTNET_SKIP_FIRST_TIME_EXPERIENCE", "1" }
                 }
             }
         };

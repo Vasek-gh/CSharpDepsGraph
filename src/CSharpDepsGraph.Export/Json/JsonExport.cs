@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 namespace CSharpDepsGraph.Export.Json;
 
 /// <summary>
-/// todo
+/// Export graph to json file
 /// </summary>
 public class JsonExport
 {
@@ -42,9 +42,9 @@ public class JsonExport
     }
 
     /// <summary>
-    /// todo
+    /// Execute export
     /// </summary>
-    public Task Run(IGraph graph, Stream stream, CancellationToken cancellationToken)
+    public Task RunAsync(IGraph graph, Stream stream, CancellationToken cancellationToken = default)
     {
         var graphProxy = new Graph(_pathResolver, _exportOptions)
         {

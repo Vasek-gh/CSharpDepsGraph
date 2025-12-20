@@ -30,7 +30,7 @@ public sealed class GraphvizExportCommand : IHandlerCommand
 
             using var stream = CommandsUtils.CreateOutputStream(graphContext.InputFile, _options.OutputPath, "dot");
 
-            await new GraphvizExport(_loggerFactory.CreateLogger<GraphvizExport>()).Run(graph, stream, cancellationToken);
+            await new GraphvizExport(_loggerFactory.CreateLogger<GraphvizExport>()).RunAsync(graph, stream, cancellationToken);
         });
     }
 }

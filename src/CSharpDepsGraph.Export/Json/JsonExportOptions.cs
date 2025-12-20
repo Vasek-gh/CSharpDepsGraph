@@ -8,7 +8,7 @@ public class JsonExportOptions
     /// <summary>
     /// Indicate whether the JSON output should be formatted with indentation and line breaks
     /// </summary>
-    public bool FormatOutput { get; set; } = true; // todo kill true
+    public bool FormatOutput { get; set; }
 
     /// <summary>
     /// Indicating whether to exclude source code location from the export

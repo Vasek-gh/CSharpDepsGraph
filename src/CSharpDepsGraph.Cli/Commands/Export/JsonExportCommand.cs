@@ -34,7 +34,7 @@ public sealed class JsonExportCommand : IHandlerCommand
                 BasePath = Path.GetDirectoryName(graphContext.InputFile)
             };
 
-            await new JsonExport(_loggerFactory.CreateLogger<JsonExport>(), options).Run(graph, stream, cancellationToken);
+            await new JsonExport(_loggerFactory.CreateLogger<JsonExport>(), options).RunAsync(graph, stream, cancellationToken);
         });
     }
 }
