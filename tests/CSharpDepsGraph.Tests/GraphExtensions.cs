@@ -39,16 +39,16 @@ public static class GraphExtensions
 
     public static ILink[] GetLinks(this IGraph graph, INode source, INode target)
     {
-        return graph.Links.Where(l => l.Source.Id == source.Id && l.Target.Id == target.Id).ToArray();
+        return graph.Links.Where(l => l.Source.Uid == source.Uid && l.Target.Uid == target.Uid).ToArray();
     }
 
     public static ILink[] GetOutgoingLinks(this IGraph graph, INode node)
     {
-        return graph.Links.Where(l => l.Source.Id == node.Id).ToArray();
+        return graph.Links.Where(l => l.Source.Uid == node.Uid).ToArray();
     }
 
     public static ILink[] GetIncomingLinks(this IGraph graph, INode node)
     {
-        return graph.Links.Where(l => l.Target.Id == node.Id).ToArray();
+        return graph.Links.Where(l => l.Target.Uid == node.Uid).ToArray();
     }
 }

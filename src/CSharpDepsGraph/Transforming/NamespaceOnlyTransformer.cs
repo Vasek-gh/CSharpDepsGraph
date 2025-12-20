@@ -56,13 +56,13 @@ public class NamespaceOnlyTransformer : ITransformer
 
         if (globalNamespaceData?.SyntaxLinkList.Count > 0)
         {
-            namespaceMap.Add(globalNamespaceData.Id, globalNamespaceData);
+            namespaceMap.Add(globalNamespaceData.Uid, globalNamespaceData);
         }
 
         return namespaceMap.Values.Select(nd =>
             new MutatedNode()
             {
-                Id = nd.Id,
+                Uid = nd.Uid,
                 Symbol = nd.Symbol,
                 SyntaxLinks = nd.SyntaxLinks,
                 Childs = []
@@ -85,7 +85,7 @@ public class NamespaceOnlyTransformer : ITransformer
         foreach (var assemblyChildNode in assemblyGlobalChildNodes)
         {
             hasNodes = true;
-            _newNodeIdMap.Add(assemblyChildNode.Id, globalNamespaceNode);
+            _newNodeIdMap.Add(assemblyChildNode.Uid, globalNamespaceNode);
         }
 
         if (hasNodes)
@@ -103,13 +103,13 @@ public class NamespaceOnlyTransformer : ITransformer
         if (!namespaceMap.TryGetValue(namespaceId, out var namespaceNode))
         {
             namespaceNode = new NamespaceNode(namespaceId, namespaceSymbol);
-            namespaceMap.Add(namespaceNode.Id, namespaceNode);
+            namespaceMap.Add(namespaceNode.Uid, namespaceNode);
         }
 
         var namespaceChildNodes = node.Childs.SelectMany(c => c.CollectNodeData(c => c));
         foreach (var namespaceChildNode in namespaceChildNodes)
         {
-            _newNodeIdMap.Add(namespaceChildNode.Id, namespaceNode);
+            _newNodeIdMap.Add(namespaceChildNode.Uid, namespaceNode);
         }
 
         namespaceNode.SyntaxLinkList.AddRange(node.SyntaxLinks);
@@ -120,8 +120,8 @@ public class NamespaceOnlyTransformer : ITransformer
         var result = new List<ILink>();
         foreach (var link in links)
         {
-            if (!_newNodeIdMap.TryGetValue(link.Source.Id, out var newSource)
-                || !_newNodeIdMap.TryGetValue(link.Target.Id, out var newTarget)
+            if (!_newNodeIdMap.TryGetValue(link.Source.Uid, out var newSource)
+                || !_newNodeIdMap.TryGetValue(link.Target.Uid, out var newTarget)
                 )
             {
                 continue;
@@ -135,7 +135,7 @@ public class NamespaceOnlyTransformer : ITransformer
 
     private class NamespaceNode : INode
     {
-        public string Id { get; }
+        public string Uid { get; }
 
         public ISymbol? Symbol { get; }
 
@@ -147,7 +147,7 @@ public class NamespaceOnlyTransformer : ITransformer
 
         public NamespaceNode(string id, ISymbol symbol)
         {
-            Id = id;
+            Uid = id;
             Symbol = symbol;
         }
     }

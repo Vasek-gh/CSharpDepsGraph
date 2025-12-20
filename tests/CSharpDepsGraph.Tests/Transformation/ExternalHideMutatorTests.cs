@@ -19,14 +19,14 @@ public class ExternalHideTransformerTests
         var graph = new ExternalHideTransformer(false)
             .Execute(CreateGraph());
 
-        var externalRoot = graph.Root.Childs.SingleOrDefault(n => n.Id == GraphConsts.ExternalRootNodeId);
+        var externalRoot = graph.Root.Childs.SingleOrDefault(n => n.Uid == GraphConsts.ExternalRootNodeId);
         Assert.That(externalRoot, Is.Null);
 
         var link = graph.Links.Single();
-        Assert.That(link.Source.Id, Is.EqualTo(_nodeId1));
-        Assert.That(link.OriginalSource.Id, Is.EqualTo(_nodeId1));
-        Assert.That(link.Target.Id, Is.EqualTo(_nodeId2));
-        Assert.That(link.OriginalTarget.Id, Is.EqualTo(_nodeId2));
+        Assert.That(link.Source.Uid, Is.EqualTo(_nodeId1));
+        Assert.That(link.OriginalSource.Uid, Is.EqualTo(_nodeId1));
+        Assert.That(link.Target.Uid, Is.EqualTo(_nodeId2));
+        Assert.That(link.OriginalTarget.Uid, Is.EqualTo(_nodeId2));
     }
 
     [Test]
@@ -35,26 +35,26 @@ public class ExternalHideTransformerTests
         var graph = new ExternalHideTransformer(true)
             .Execute(CreateGraph());
 
-        var node = graph.Root.Childs.Single(n => n.Id == _nodeId1);
-        var externalRoot = graph.Root.Childs.Single(n => n.Id == GraphConsts.ExternalRootNodeId);
+        var node = graph.Root.Childs.Single(n => n.Uid == _nodeId1);
+        var externalRoot = graph.Root.Childs.Single(n => n.Uid == GraphConsts.ExternalRootNodeId);
 
         var inLink = graph.GetIncomingLinks(node).Single();
-        Assert.That(inLink.Source.Id, Is.EqualTo(GraphConsts.ExternalRootNodeId));
-        Assert.That(inLink.OriginalSource.Id, Is.EqualTo(_externalId2));
-        Assert.That(inLink.Target.Id, Is.EqualTo(_nodeId1));
-        Assert.That(inLink.OriginalTarget.Id, Is.EqualTo(_nodeId1));
+        Assert.That(inLink.Source.Uid, Is.EqualTo(GraphConsts.ExternalRootNodeId));
+        Assert.That(inLink.OriginalSource.Uid, Is.EqualTo(_externalId2));
+        Assert.That(inLink.Target.Uid, Is.EqualTo(_nodeId1));
+        Assert.That(inLink.OriginalTarget.Uid, Is.EqualTo(_nodeId1));
 
         var outLinks = graph.GetOutgoingLinks(node);
         Assert.That(outLinks.Length, Is.EqualTo(3));
 
-        var outLink1 = outLinks.Single(l => l.OriginalTarget.Id == _externalId1);
-        Assert.That(outLink1.Target.Id, Is.EqualTo(GraphConsts.ExternalRootNodeId));
+        var outLink1 = outLinks.Single(l => l.OriginalTarget.Uid == _externalId1);
+        Assert.That(outLink1.Target.Uid, Is.EqualTo(GraphConsts.ExternalRootNodeId));
 
-        var outLink2 = outLinks.Single(l => l.OriginalTarget.Id == _externalId2);
-        Assert.That(outLink2.Target.Id, Is.EqualTo(GraphConsts.ExternalRootNodeId));
+        var outLink2 = outLinks.Single(l => l.OriginalTarget.Uid == _externalId2);
+        Assert.That(outLink2.Target.Uid, Is.EqualTo(GraphConsts.ExternalRootNodeId));
 
-        var outLink3 = outLinks.Single(l => l.OriginalTarget.Id == _nodeId2);
-        Assert.That(outLink3.Target.Id, Is.EqualTo(_nodeId2));
+        var outLink3 = outLinks.Single(l => l.OriginalTarget.Uid == _nodeId2);
+        Assert.That(outLink3.Target.Uid, Is.EqualTo(_nodeId2));
     }
 
     private static IGraph CreateGraph()
@@ -86,7 +86,7 @@ public class ExternalHideTransformerTests
     {
         var node = new NodeMock()
         {
-            Id = id,
+            Uid = id,
             Symbol = symbol,
         };
 

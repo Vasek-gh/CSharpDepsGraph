@@ -45,7 +45,7 @@ public class AssemblyOnlyTransformer : ITransformer
         {
             assemblyNode.VisitNodes(node =>
             {
-                _newNodeIdMap.Add(node.Id, assemblyNode);
+                _newNodeIdMap.Add(node.Uid, assemblyNode);
                 return true;
             });
         }
@@ -55,7 +55,7 @@ public class AssemblyOnlyTransformer : ITransformer
 
     private void CollectIds(INode node, INode parentNode)
     {
-        _newNodeIdMap.Add(node.Id, parentNode);
+        _newNodeIdMap.Add(node.Uid, parentNode);
         foreach (var child in node.Childs)
         {
             CollectIds(child, parentNode);
@@ -67,8 +67,8 @@ public class AssemblyOnlyTransformer : ITransformer
         var result = new List<ILink>();
         foreach (var link in links)
         {
-            if (!_newNodeIdMap.TryGetValue(link.Source.Id, out var newSource)
-                || !_newNodeIdMap.TryGetValue(link.Target.Id, out var newTarget)
+            if (!_newNodeIdMap.TryGetValue(link.Source.Uid, out var newSource)
+                || !_newNodeIdMap.TryGetValue(link.Target.Uid, out var newTarget)
                 )
             {
                 continue;

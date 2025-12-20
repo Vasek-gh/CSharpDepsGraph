@@ -281,7 +281,7 @@ public class Expressions : BaseSyntaxTests //todo rename
         Assert.That(
             graph.GetNode(AsmName.Test)
                 .Childs
-                .Count(n => n.Id.Contains("AnonymousProp")),
+                .Count(n => n.Uid.Contains("AnonymousProp")),
             Is.EqualTo(0)
         );
     }
@@ -641,7 +641,7 @@ public class Expressions : BaseSyntaxTests //todo rename
 
         var node = graph.GetNode(AsmName.Test, "Test/Method()");
         var nodeCar = graph.GetNode(AsmName.TestProject, "TestProject/Entities/Car/ctor()");
-        Assert.That(graph.GetOutgoingLinks(node).Count(l => l.Target.Id == nodeCar.Id), Is.EqualTo(2));
+        Assert.That(graph.GetOutgoingLinks(node).Count(l => l.Target.Uid == nodeCar.Uid), Is.EqualTo(2));
     }
 
     [Test]
@@ -756,7 +756,7 @@ public class Expressions : BaseSyntaxTests //todo rename
         Assert.That(
             !graph.GetNode(AsmName.Test, "Test/TestMethod()")
                 .Childs
-                .Any(c => c.Id.EndsWith("InnerMethod(TestProject/Entities/Vehicle)"))
+                .Any(c => c.Uid.EndsWith("InnerMethod(TestProject/Entities/Vehicle)"))
         );
 
         GraphAssert.HasLink(graph, "Test/TestMethod()",

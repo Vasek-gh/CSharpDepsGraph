@@ -6,7 +6,7 @@ namespace CSharpDepsGraph.Transforming;
 [DebuggerDisplay("{Id}")]
 internal class MutatedNode : INode
 {
-    public required string Id { get; init; }
+    public required string Uid { get; init; }
 
     public required ISymbol? Symbol { get; init; }
 
@@ -18,7 +18,7 @@ internal class MutatedNode : INode
     {
         return new MutatedNode()
         {
-            Id = node.Id,
+            Uid = node.Uid,
             Symbol = node.Symbol,
             Childs = childs.ToArray(),
             SyntaxLinks = node.SyntaxLinks

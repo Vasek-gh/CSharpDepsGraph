@@ -28,8 +28,8 @@ internal class NodeConverter : JsonConverter<INode>
 
         writer.WriteStartObject();
 
-        writer.WritePropertyName(nameof(node.Id));
-        writer.WriteStringValue(node.Id);
+        writer.WritePropertyName(nameof(node.Uid));
+        writer.WriteStringValue(node.Uid);
 
         writer.WritePropertyName("Type");
         writer.WriteStringValue(node.GetNodeType().ToString());

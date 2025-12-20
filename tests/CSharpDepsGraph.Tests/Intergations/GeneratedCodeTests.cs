@@ -45,7 +45,7 @@ public class GeneratedCodeTests : BaseIntergationsTests
 
         Assert.That(node2.Childs.Count(), Is.EqualTo(2));
         Assert.That(methodNode21Links.Length, Is.EqualTo(1));
-        Assert.That(methodNode21Links[0].Target.Id, Is.EqualTo(methodNode22.Id));
+        Assert.That(methodNode21Links[0].Target.Uid, Is.EqualTo(methodNode22.Uid));
     }
 
     [Test]
@@ -72,7 +72,7 @@ public class GeneratedCodeTests : BaseIntergationsTests
 
         Assert.That(node2.Childs.Count(), Is.EqualTo(2));
         Assert.That(methodNode21Links.Length, Is.EqualTo(1));
-        Assert.That(methodNode21Links[0].Target.Id, Is.EqualTo(methodNode22.Id));
+        Assert.That(methodNode21Links[0].Target.Uid, Is.EqualTo(methodNode22.Uid));
     }
 
     [Test]

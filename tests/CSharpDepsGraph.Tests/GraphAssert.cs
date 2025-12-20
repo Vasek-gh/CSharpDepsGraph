@@ -26,7 +26,7 @@ internal static class GraphAssert
 
             if (child != null)
             {
-                throw new AssertionException($"Unexpected symbol {child.Id}");
+                throw new AssertionException($"Unexpected symbol {child.Uid}");
             }
         }
     }
@@ -76,23 +76,23 @@ internal static class GraphAssert
     {
         var sourceNode = graph.GetNode(source.assemblyName, source.fullQualifiedName);
         var targetNodes = targets.Select(t => graph.GetNode(t.assemblyName, t.fullQualifiedName))
-            .ToDictionary(i => i.Id) // check duplicates
+            .ToDictionary(i => i.Uid) // check duplicates
             .Select(kv => kv.Value);
 
         var outgoingLinks = graph.GetOutgoingLinks(sourceNode)
-            .GroupBy(n => n.Target.Id)
+            .GroupBy(n => n.Target.Uid)
             .Select(g => g.First())
             .ToArray();
 
         if (exact && outgoingLinks.Length != targets.Length)
         {
-            throw new AssertionException($"The node({sourceNode.Id}) has unexpected links");
+            throw new AssertionException($"The node({sourceNode.Uid}) has unexpected links");
         }
 
         foreach (var targetNode in targetNodes)
         {
-            var link = outgoingLinks.SingleOrDefault(l => l.Target.Id == targetNode.Id)
-                ?? throw new AssertionException($"{sourceNode.Id} has not link to {targetNode.Id}");
+            var link = outgoingLinks.SingleOrDefault(l => l.Target.Uid == targetNode.Uid)
+                ?? throw new AssertionException($"{sourceNode.Uid} has not link to {targetNode.Uid}");
         }
     }
 
@@ -122,7 +122,7 @@ internal static class GraphAssert
 
         if (graph.GetLinks(sourceNode, targetNode).Length > 0)
         {
-            throw new AssertionException($"{sourceNode.Id} has unexpected link to {targetNode.Id}");
+            throw new AssertionException($"{sourceNode.Uid} has unexpected link to {targetNode.Uid}");
         }
     }
 }

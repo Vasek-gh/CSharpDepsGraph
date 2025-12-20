@@ -52,8 +52,8 @@ public class EventsDeclaration : BaseSyntaxTests
         );
 
         var testClassNode = graph.GetNode("Test");
-        Assert.That(testClassNode.Childs.SingleOrDefault(c => c.Id.EndsWith(".add")), Is.Null);
-        Assert.That(testClassNode.Childs.SingleOrDefault(c => c.Id.EndsWith(".remove")), Is.Null);
+        Assert.That(testClassNode.Childs.SingleOrDefault(c => c.Uid.EndsWith(".add")), Is.Null);
+        Assert.That(testClassNode.Childs.SingleOrDefault(c => c.Uid.EndsWith(".remove")), Is.Null);
     }
 
     [Test]

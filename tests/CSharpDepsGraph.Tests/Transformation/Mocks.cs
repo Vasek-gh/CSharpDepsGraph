@@ -12,7 +12,7 @@ internal static class Mocks
     public static IGraph CreateGraph(IEnumerable<INode> nodes, IEnumerable<ILink> links)
     {
         var rootMock = new Mock<INode>();
-        rootMock.Setup(m => m.Id).Returns(GraphConsts.RootNodeId);
+        rootMock.Setup(m => m.Uid).Returns(GraphConsts.RootNodeId);
         rootMock.Setup(m => m.Childs).Returns(nodes);
         rootMock.Setup(m => m.SyntaxLinks).Returns([]);
 

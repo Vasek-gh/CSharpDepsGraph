@@ -80,7 +80,7 @@ public class DgmlExport
 
     private void AddNode(INode node, List<XElement> msaglNodes, Dictionary<string, XElement> msaglLinks)
     {
-        _logger.LogTrace($"Add node: {node.Id}...");
+        _logger.LogTrace($"Add node: {node.Uid}...");
 
         var attrs = new List<XAttribute>() {
             new XAttribute("Id", GetNodeId(node)),
@@ -98,20 +98,20 @@ public class DgmlExport
         foreach (var child in node.Childs)
         {
             AddNode(child, msaglNodes, msaglLinks);
-            msaglLinks.Add(child.Id, CreateLinkElement(node, child, true));
+            msaglLinks.Add(child.Uid, CreateLinkElement(node, child, true));
         }
     }
 
     private void AddEdge(ILink link, Dictionary<string, XElement> msaglLinks)
     {
-        _logger.LogTrace($"Add edge: {link.Source.Id} -> {link.Target.Id}");
+        _logger.LogTrace($"Add edge: {link.Source.Uid} -> {link.Target.Uid}");
 
-        if (link.Source.Id == link.Target.Id)
+        if (link.Source.Uid == link.Target.Uid)
         {
             return;
         }
 
-        var edgeId = $"{link.Source.Id}-{link.Target.Id}";
+        var edgeId = $"{link.Source.Uid}-{link.Target.Uid}";
         if (msaglLinks.ContainsKey(edgeId))
         {
             return;
@@ -137,11 +137,11 @@ public class DgmlExport
 
     private string GetNodeId(INode node)
     {
-        if (!_idsMap.TryGetValue(node.Id, out var result))
+        if (!_idsMap.TryGetValue(node.Uid, out var result))
         {
             _idCounter++;
             result = _idCounter.ToString(CultureInfo.InvariantCulture);
-            _idsMap.Add(node.Id, result);
+            _idsMap.Add(node.Uid, result);
         }
 
         return result;

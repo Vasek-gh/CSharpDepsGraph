@@ -156,7 +156,7 @@ public class TypeDeclaration : BaseSyntaxTests
         var node1 = graph1.GetNode("Foo");
         var nodeLinks1 = graph1.GetOutgoingLinks(node1);
         Assert.That(nodeLinks1.Length, Is.EqualTo(1));
-        Assert.That(nodeLinks1[0].Target.Id, Is.Not.EqualTo(node1.Id));
+        Assert.That(nodeLinks1[0].Target.Uid, Is.Not.EqualTo(node1.Uid));
         Assert.That(graph1.GetOutgoingLinks(node1.GetNode("Prop")), Is.Empty);
         Assert.That(graph1.GetOutgoingLinks(node1.GetNode("Method(Foo)")), Is.Empty);
 

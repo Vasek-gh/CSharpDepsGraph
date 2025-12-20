@@ -25,21 +25,21 @@ internal class LinkConverter : JsonConverter<ILink>
         writer.WriteStartObject();
 
         writer.WritePropertyName(nameof(link.Source));
-        writer.WriteStringValue(link.Source.Id);
+        writer.WriteStringValue(link.Source.Uid);
 
-        if (link.Source.Id != link.OriginalSource.Id)
+        if (link.Source.Uid != link.OriginalSource.Uid)
         {
             writer.WritePropertyName(nameof(link.OriginalSource));
-            writer.WriteStringValue(link.OriginalSource.Id);
+            writer.WriteStringValue(link.OriginalSource.Uid);
         }
 
         writer.WritePropertyName(nameof(link.Target));
-        writer.WriteStringValue(link.Target.Id);
+        writer.WriteStringValue(link.Target.Uid);
 
-        if (link.Target.Id != link.OriginalTarget.Id)
+        if (link.Target.Uid != link.OriginalTarget.Uid)
         {
             writer.WritePropertyName(nameof(link.OriginalTarget));
-            writer.WriteStringValue(link.OriginalTarget.Id);
+            writer.WriteStringValue(link.OriginalTarget.Uid);
         }
 
         writer.WritePropertyName("Type");

@@ -68,12 +68,12 @@ public class GraphvizExport
 
     private DotElement AddNode(INode node)
     {
-        _logger.LogTrace($"Create node: {node.Id}...");
+        _logger.LogTrace($"Create node: {node.Uid}...");
 
         var nodeColor = GetNodeColor(node);
 
         var dotNode = new DotNode()
-            .WithIdentifier(node.Id)
+            .WithIdentifier(node.Uid)
             .WithLabel(node.GetCaption())
             .WithShape(DotNodeShape.Box)
             .WithStyle(DotNodeStyle.Filled)
@@ -82,14 +82,14 @@ public class GraphvizExport
             .WithFontColor(Color.White.AlphaLastStr)
             ;
 
-        _nodeMap.Add(node.Id, dotNode);
+        _nodeMap.Add(node.Uid, dotNode);
 
         return dotNode;
     }
 
     private void AddEdge(DotBaseGraph dotGraph, ILink link, HashSet<string> edges)
     {
-        _logger.LogTrace($"Write link: {link.Source.Id} -> {link.Target.Id}");
+        _logger.LogTrace($"Write link: {link.Source.Uid} -> {link.Target.Uid}");
 
         var srcNodeDotElement = GetDotElement(link.Source);
         var dstNodeDotElement = GetDotElement(link.Target);
@@ -144,7 +144,7 @@ public class GraphvizExport
 
     private DotElement? GetDotElement(INode node)
     {
-        _nodeMap.TryGetValue(node.Id, out var dotElement);
+        _nodeMap.TryGetValue(node.Uid, out var dotElement);
 
         return dotElement;
     }

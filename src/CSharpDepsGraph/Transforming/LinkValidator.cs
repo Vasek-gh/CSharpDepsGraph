@@ -8,18 +8,18 @@ public class LinkValidator : ITransformer
     /// <inheritdoc/>
     public IGraph Execute(IGraph graph)
     {
-        var nodeMap = graph.Root.CollectChildNodes().ToDictionary(n => n.Id);
+        var nodeMap = graph.Root.CollectChildNodes().ToDictionary(n => n.Uid);
 
         foreach (var link in graph.Links)
         {
-            if (!nodeMap.ContainsKey(link.Source.Id) || !nodeMap.ContainsKey(link.Target.Id))
+            if (!nodeMap.ContainsKey(link.Source.Uid) || !nodeMap.ContainsKey(link.Target.Uid))
             {
                 throw new CSharpDepsGraphException($"""
                     Detect corrupted link:
-                        SourceId: {link.Source.Id}
-                        TargetId: {link.Target.Id}
-                        OriginalSourceId: {link.OriginalSource.Id}
-                        OriginalTargetId: {link.OriginalTarget.Id}
+                        SourceId: {link.Source.Uid}
+                        TargetId: {link.Target.Uid}
+                        OriginalSourceId: {link.OriginalSource.Uid}
+                        OriginalTargetId: {link.OriginalTarget.Uid}
                     """);
             }
         }

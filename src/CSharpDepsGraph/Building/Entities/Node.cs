@@ -6,7 +6,7 @@ namespace CSharpDepsGraph.Building.Entities;
 [DebuggerDisplay("{Id}")]
 internal class Node : INode
 {
-    public string Id { get; }
+    public string Uid { get; }
 
     public ISymbol? Symbol { get; }
 
@@ -22,7 +22,7 @@ internal class Node : INode
 
     public Node(string id, ISymbol? symbol)
     {
-        Id = id;
+        Uid = id;
         Symbol = symbol;
 
         ChildList = Utils.GetEmptyList<Node>();

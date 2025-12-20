@@ -6,7 +6,7 @@ internal class GraphMock : IGraph
 {
     public NodeMock RootNode { get; } = new NodeMock()
     {
-        Id = GraphConsts.RootNodeId
+        Uid = GraphConsts.RootNodeId
     };
 
     public INode Root => RootNode;

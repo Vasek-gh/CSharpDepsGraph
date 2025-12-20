@@ -58,7 +58,7 @@ public static class NodeExtensions
             _ when node.Symbol is INamedTypeSymbol => node.Symbol.ToDisplayString(GeneralDisplayFormat),
             _ when node.Symbol is IAssemblySymbol assemblySymbol => GetAssemblyName(assemblySymbol),
             _ when node.Symbol is not null => node.Symbol.Name,
-            _ => node.Id
+            _ => node.Uid
         };
     }
 

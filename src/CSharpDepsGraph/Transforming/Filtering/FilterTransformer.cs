@@ -33,7 +33,7 @@ public class FilterTransformer : ITransformer
         {
             Node = graph.Root,
             Parent = graph.Root, // Because MutateNode only processes child elements, it doesn't matter what's in that field.
-            Path = graph.Root.Id
+            Path = graph.Root.Uid
         };
 
         var root = MutateNode(rootContext);
@@ -48,7 +48,7 @@ public class FilterTransformer : ITransformer
 
     private INode MutateNode(NodeContext nodeContext)
     {
-        _nodeMap[nodeContext.Node.Id] = nodeContext.Node;
+        _nodeMap[nodeContext.Node.Uid] = nodeContext.Node;
 
         var childs = new List<INode>();
         var childsChanged = false;
@@ -88,7 +88,7 @@ public class FilterTransformer : ITransformer
         {
             nodeContext.Node.VisitNodes(n =>
             {
-                _nodeMap[n.Id] = parent;
+                _nodeMap[n.Uid] = parent;
                 return true;
             });
         }
@@ -114,7 +114,7 @@ public class FilterTransformer : ITransformer
     {
         return new NodeContext()
         {
-            Path = parentContext.Path + "/" + (node.Symbol?.Name ?? node.Id),
+            Path = parentContext.Path + "/" + (node.Symbol?.Name ?? node.Uid),
             Parent = parentContext.Node,
             Node = node
         };
@@ -133,7 +133,7 @@ public class FilterTransformer : ITransformer
                 continue;
             }
 
-            if (sourceNode.Id != link.Source.Id || targetNode.Id != link.Target.Id)
+            if (sourceNode.Uid != link.Source.Uid || targetNode.Uid != link.Target.Uid)
             {
                 result.Add(MutatedLink.Copy(link, sourceNode, targetNode));
                 continue;
@@ -147,7 +147,7 @@ public class FilterTransformer : ITransformer
 
     private INode? GetNode(INode node)
     {
-        _nodeMap.TryGetValue(node.Id, out var result);
+        _nodeMap.TryGetValue(node.Uid, out var result);
 
         return result;
     }

@@ -11,7 +11,7 @@ public static class NodeExtensions
     /// </summary>
     public static bool IsRoot(this INode node)
     {
-        return node.Id == GraphConsts.RootNodeId;
+        return node.Uid == GraphConsts.RootNodeId;
     }
 
     /// <summary>
@@ -19,7 +19,7 @@ public static class NodeExtensions
     /// </summary>
     public static bool IsExternalsRoot(this INode node)
     {
-        return node.Id == GraphConsts.ExternalRootNodeId;
+        return node.Uid == GraphConsts.ExternalRootNodeId;
     }
 
     /// <summary>

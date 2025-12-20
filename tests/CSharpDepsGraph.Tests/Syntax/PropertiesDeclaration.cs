@@ -161,7 +161,7 @@ public class PropertiesDeclaration : BaseSyntaxTests
 
         Assert.That(
             graph.GetNode(AsmName.Test, "Test").Childs
-                .GroupBy(c => c.Id)
+                .GroupBy(c => c.Uid)
                 .Count(g => g.Count() > 1),
             Is.EqualTo(0)
             );

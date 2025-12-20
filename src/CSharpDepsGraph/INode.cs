@@ -10,7 +10,7 @@ public interface INode
     /// <summary>
     /// Unique no identifier
     /// </summary>
-    string Id { get; }
+    string Uid { get; }
 
     /// <summary>
     /// The symbol for which the node was created

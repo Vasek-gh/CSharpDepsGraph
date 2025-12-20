@@ -10,7 +10,7 @@ internal class NodeMock : INode
 {
     private static uint _counter;
 
-    public required string Id { get; set; }
+    public required string Uid { get; set; }
 
     public ISymbol? Symbol { get; set; }
 
@@ -26,7 +26,7 @@ internal class NodeMock : INode
     {
         var node = new NodeMock()
         {
-            Id = id,
+            Uid = id,
             Symbol = symbol,
         };
 
@@ -47,7 +47,7 @@ internal class NodeMock : INode
 
         var node = new NodeMock()
         {
-            Id = GenUid(),
+            Uid = GenUid(),
             Symbol = assemblySymbol,
             SyntaxLinkList = [Utils.CreateAssemblySyntaxLink(name)]
         };
@@ -69,7 +69,7 @@ internal class NodeMock : INode
 
         var node = new NodeMock()
         {
-            Id = GenUid(),
+            Uid = GenUid(),
             Symbol = namespaceSymbol
         };
 

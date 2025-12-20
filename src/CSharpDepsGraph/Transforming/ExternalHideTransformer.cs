@@ -19,7 +19,7 @@ public class ExternalHideTransformer : ITransformer
     public IGraph Execute(IGraph graph)
     {
         var externalRootNode = graph.Root.Childs.Single(n => n.IsExternalsRoot());
-        var externalsNodes = externalRootNode.CollectChildNodes().ToDictionary(n => n.Id);
+        var externalsNodes = externalRootNode.CollectChildNodes().ToDictionary(n => n.Uid);
 
         return new MutatedGraph()
         {
@@ -30,7 +30,7 @@ public class ExternalHideTransformer : ITransformer
 
     private INode MutateRoot(INode root, INode externalRootNode)
     {
-        var childs = root.Childs.Where(c => c.Id != externalRootNode.Id);
+        var childs = root.Childs.Where(c => c.Uid != externalRootNode.Uid);
         if (_hideOnlyChilds)
         {
             childs = childs.Append(MutatedNode.Copy(externalRootNode, Array.Empty<INode>()));
@@ -47,8 +47,8 @@ public class ExternalHideTransformer : ITransformer
         var result = new List<ILink>();
         foreach (var link in links)
         {
-            var externalIsSource = externalsNodes.ContainsKey(link.Source.Id);
-            var externalIsTarget = externalsNodes.ContainsKey(link.Target.Id);
+            var externalIsSource = externalsNodes.ContainsKey(link.Source.Uid);
+            var externalIsTarget = externalsNodes.ContainsKey(link.Target.Uid);
 
             if (!externalIsSource && !externalIsTarget)
             {

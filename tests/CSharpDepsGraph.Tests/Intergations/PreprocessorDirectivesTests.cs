@@ -63,8 +63,8 @@ public class PreprocessorDirectivesTests : BaseIntergationsTests
         var links = graph.GetOutgoingLinks(node).ToArray();
 
         Assert.That(links.Length, Is.EqualTo(2));
-        Assert.That(links.SingleOrDefault(l => l.Target.Id == nodeCar.Id), Is.Not.Null);
-        Assert.That(links.SingleOrDefault(l => l.Target.Id == nodeAirplane.Id), Is.Not.Null);
+        Assert.That(links.SingleOrDefault(l => l.Target.Uid == nodeCar.Uid), Is.Not.Null);
+        Assert.That(links.SingleOrDefault(l => l.Target.Uid == nodeAirplane.Uid), Is.Not.Null);
     }
 
     [Test]
@@ -82,10 +82,10 @@ public class PreprocessorDirectivesTests : BaseIntergationsTests
 
         var links = graph.GetOutgoingLinks(userMethodNode).ToArray();
         Assert.That(links.Length, Is.EqualTo(4));
-        Assert.That(links.SingleOrDefault(l => l.Target.Id == nodeType1.Id), Is.Not.Null);
-        Assert.That(links.SingleOrDefault(l => l.Target.Id == nodeMethod1.Id), Is.Not.Null);
-        Assert.That(links.SingleOrDefault(l => l.Target.Id == nodeType1.Id), Is.Not.Null);
-        Assert.That(links.SingleOrDefault(l => l.Target.Id == nodeMethod2.Id), Is.Not.Null);
+        Assert.That(links.SingleOrDefault(l => l.Target.Uid == nodeType1.Uid), Is.Not.Null);
+        Assert.That(links.SingleOrDefault(l => l.Target.Uid == nodeMethod1.Uid), Is.Not.Null);
+        Assert.That(links.SingleOrDefault(l => l.Target.Uid == nodeType1.Uid), Is.Not.Null);
+        Assert.That(links.SingleOrDefault(l => l.Target.Uid == nodeMethod2.Uid), Is.Not.Null);
     }
 
     private static void CheckMethodLinks(
@@ -112,7 +112,7 @@ public class PreprocessorDirectivesTests : BaseIntergationsTests
     private static string GetLinkShortLocation(ILink[] links, INode target)
     {
 
-        return links.Single(l => l.Target.Id == target.Id)
+        return links.Single(l => l.Target.Uid == target.Uid)
             .SyntaxLink
             .GetDisplayString()
             .Split(_pathSeparators)

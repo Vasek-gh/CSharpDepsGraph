@@ -11,8 +11,8 @@ public static class NodeExtensions
     public static string GetCaption(this INode node)
     {
         return node.Symbol is null
-            ? node.Id
-            : SymbolExtensions.GetCaption(node.Symbol) ?? node.Id;
+            ? node.Uid
+            : SymbolExtensions.GetCaption(node.Symbol) ?? node.Uid;
     }
 
     /// <summary>

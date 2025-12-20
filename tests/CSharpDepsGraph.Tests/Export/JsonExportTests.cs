@@ -148,7 +148,7 @@ public class JsonExportTests : BaseSyntaxTests
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA1812")]
     private class JsonNode
     {
-        public required string Id { get; set; }
+        public required string Uid { get; set; }
         public required string Type { get; set; }
         public required string Caption { get; set; }
         public JsonNode[]? Childs { get; set; }
