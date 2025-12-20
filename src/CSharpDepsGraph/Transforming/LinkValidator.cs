@@ -1,7 +1,7 @@
 namespace CSharpDepsGraph.Transforming;
 
 /// <summary>
-/// Mutator to validate that all links are attached to existing nodes
+/// Transformer to validate that all links are attached to existing nodes
 /// </summary>
 public class LinkValidator : ITransformer
 {

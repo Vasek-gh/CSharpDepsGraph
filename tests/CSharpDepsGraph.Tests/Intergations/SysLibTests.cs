@@ -69,7 +69,7 @@ public class SysLibTests : BaseIntergationsTests
     [Test]
     public void DefaultAssemblyFilter()
     {
-        var graph = GetGraph(o => o.IgnoreLinksToAssemblies = GraphBuildOptions.Default.IgnoreLinksToAssemblies);
+        var graph = GetGraph(o => o.IgnoreLinksToAssemblies = new GraphBuildOptions().IgnoreLinksToAssemblies);
         var typeNode = graph.GetNode(AsmName.TestProject, "TestProject/TargetFrameworks");
         var methodNode = typeNode.Childs.Single(c => c.Symbol?.Name == "StdTypes");
 

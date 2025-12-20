@@ -27,7 +27,12 @@ internal static class LoggerExtensions
             return;
         }
 
-        // todo
+        logger.LogValue(options.IncludeLinksToSelfType);
+        logger.LogValue(options.IncludeLinksToPrimitveTypes);
+        logger.LogValue(options.DoNotIgnoreVisibleGeneratedCode);
+        logger.LogValue(options.DoNotMergeAssembliesWithDifferentVersions);
+        logger.LogValue(options.GenerateFullyQualifiedUid);
+        logger.LogValue(options.IgnoreLinksToAssemblies as IEnumerable<string>);
     }
 
     public static void Verbose(this ILogger logger, ExportOptions options)

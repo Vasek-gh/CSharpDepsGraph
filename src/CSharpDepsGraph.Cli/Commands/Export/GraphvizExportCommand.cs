@@ -24,7 +24,7 @@ public sealed class GraphvizExportCommand : IHandlerCommand
         {
             _logger.LogDebug("Mutation...");
 
-            var graph = CommandsUtils.GetFlatExportMutator(_options).Execute(graphContext.Graph);
+            var graph = CommandsUtils.GetFlatExportTransformer(_options).Execute(graphContext.Graph);
 
             _logger.LogDebug("Export...");
 

@@ -5,18 +5,9 @@ namespace CSharpDepsGraph.Building;
 /// </summary>
 public class GraphBuildOptions
 {
-    /// <summary>
-    /// Default configuration
-    /// </summary>
-    public static readonly GraphBuildOptions Default = new GraphBuildOptions();
-
     public bool IncludeLinksToSelfType { get; set; }
 
     public bool IncludeLinksToPrimitveTypes { get; set; }
-
-    public bool IncludeLinksToTypeQualifier { get; set; } // todo
-
-    public bool IncludeLinksToNamespaceQualifier { get; set; } // todo
 
     public bool DoNotIgnoreVisibleGeneratedCode { get; set; }
 

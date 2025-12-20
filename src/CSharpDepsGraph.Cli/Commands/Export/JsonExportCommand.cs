@@ -22,7 +22,7 @@ public sealed class JsonExportCommand : IHandlerCommand
         {
             _logger.LogDebug("Mutation...");
 
-            var graph = CommandsUtils.GetHierarchyExportMutator(_settings).Execute(graphContext.Graph);
+            var graph = CommandsUtils.GetHierarchyExportTransformer(_settings).Execute(graphContext.Graph);
 
             _logger.LogDebug("Export...");
 

@@ -16,18 +16,18 @@ public static class CommandsUtils
         return new FileStream(outputFileName, FileMode.Create);
     }
 
-    public static ITransformer GetFlatExportMutator(ExportOptions settings)
+    public static ITransformer GetFlatExportTransformer(ExportOptions settings)
     {
-        return new MutatorBuilder()
+        return new TransformerBuilder()
             .WithExternalHide(settings.HideExternal)
             .WithExportLevel(settings.ExportLevel, true)
             .WithSymbolFilters(settings.NodeFilters)
             .Build();
     }
 
-    public static ITransformer GetHierarchyExportMutator(ExportOptions settings)
+    public static ITransformer GetHierarchyExportTransformer(ExportOptions settings)
     {
-        return new MutatorBuilder()
+        return new TransformerBuilder()
             .WithExternalHide(settings.HideExternal)
             .WithExportLevel(settings.ExportLevel, false)
             .WithSymbolFilters(settings.NodeFilters)
