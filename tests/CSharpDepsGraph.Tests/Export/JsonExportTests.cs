@@ -145,6 +145,7 @@ public class JsonExportTests : BaseSyntaxTests
     }
 
     [DebuggerDisplay("{Caption}")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA1812")]
     private class JsonNode
     {
         public required string Id { get; set; }
@@ -155,6 +156,7 @@ public class JsonExportTests : BaseSyntaxTests
     }
 
     [DebuggerDisplay("{Source} -> {Target}")]
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA1812")]
     private class JsonLink
     {
         public required string Source { get; set; }

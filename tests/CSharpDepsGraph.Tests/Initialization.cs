@@ -1,4 +1,3 @@
-using Microsoft.Build.Locator;
 using NUnit.Framework;
 using System;
 
@@ -11,15 +10,10 @@ public static class Initialization
     public static void Init()
     {
         Environment.SetEnvironmentVariable(TestData.SkipBuildVar, "1");
-
-        MSBuildLocator.RegisterDefaults();
-
-        GraphFactory.Init();
     }
 
     [OneTimeTearDown]
     public static void Done()
     {
-        GraphFactory.Done();
     }
 }

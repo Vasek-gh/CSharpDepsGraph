@@ -5,7 +5,7 @@ using CSharpDepsGraph.Cli.Options;
 
 namespace CSharpDepsGraph.Cli.Commands;
 
-internal static class CommandsUtils
+public static class CommandsUtils
 {
     public static Stream CreateOutputStream(string? inputFileName, string? outputFileName, string defaultExtension)
     {
@@ -21,7 +21,7 @@ internal static class CommandsUtils
         return new MutatorBuilder()
             .WithExternalHide(settings.HideExternal)
             .WithExportLevel(settings.ExportLevel, true)
-            .WithSymbolFilters(settings.SymbolFilters)
+            .WithSymbolFilters(settings.NodeFilters)
             .Build();
     }
 
@@ -30,7 +30,7 @@ internal static class CommandsUtils
         return new MutatorBuilder()
             .WithExternalHide(settings.HideExternal)
             .WithExportLevel(settings.ExportLevel, false)
-            .WithSymbolFilters(settings.SymbolFilters)
+            .WithSymbolFilters(settings.NodeFilters)
             .Build();
     }
 

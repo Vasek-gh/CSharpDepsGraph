@@ -4,49 +4,42 @@ using CSharpDepsGraph.Transforming.Filtering;
 
 namespace CSharpDepsGraph.Cli.Commands;
 
-internal class MutatorBuilder
+public class MutatorBuilder
 {
-    private readonly List<IFilter> _filters;
+    private readonly List<INodeFilter> _filters;
 
     private readonly List<ITransformer> _mutators;
 
     public MutatorBuilder()
     {
-        _filters = new List<IFilter>();
+        _filters = new List<INodeFilter>();
         _mutators = new List<ITransformer>();
     }
 
     public ITransformer Build()
     {
         var mutators = new List<ITransformer>();
-        mutators.Add(new FlattenNamespacesMutator());
+        mutators.Add(new FlattenNamespacesTransformer());
         mutators.AddRange(_mutators);
-        mutators.Add(new FilterMutator(_filters));
+        mutators.Add(new FilterTransformer(_filters));
         //mutators.Add(new LinkValidator()); todo optional
 
-        return new CompositeMutator(mutators);
+        return new CompositeTransformer(mutators);
     }
 
     public MutatorBuilder WithExternalHide(bool enabled)
     {
         if (enabled)
         {
-            _mutators.Add(new ExternalHideMutator());
+            _mutators.Add(new ExternalHideTransformer());
         }
 
         return this;
     }
 
-    public MutatorBuilder WithFilter(IFilter filter)
+    public MutatorBuilder WithFilter(INodeFilter filter)
     {
         _filters.Add(filter);
-
-        return this;
-    }
-
-    public MutatorBuilder WithRegexFilter(RegexSymbolFilter filter)
-    {
-        _filters.Add(new RegexFilter(filter.FilterAction, filter.RegExPattern));
 
         return this;
     }
@@ -57,8 +50,8 @@ internal class MutatorBuilder
         {
             ITransformer mutator = nodeExportLevel switch
             {
-                NodeExportLevel.Default => new AssemblyOnlyMutator(),
-                NodeExportLevel.Assembly => new AssemblyOnlyMutator(),
+                NodeExportLevel.Default => new AssemblyOnlyTransformer(),
+                NodeExportLevel.Assembly => new AssemblyOnlyTransformer(),
                 NodeExportLevel.Namespace => new NamespaceOnlyTransformer(),
                 _ => throw new NotSupportedException()
             };
@@ -76,17 +69,17 @@ internal class MutatorBuilder
                 _ => Filters.Empty
             };
 
-            _mutators.Add(new FilterMutator(filter));
+            _mutators.Add(new FilterTransformer(filter));
         }
 
         return this;
     }
 
-    public MutatorBuilder WithSymbolFilters(IEnumerable<RegexSymbolFilter> symbolFilters)
+    public MutatorBuilder WithSymbolFilters(IEnumerable<NodeFilter> symbolFilters)
     {
         foreach (var filter in symbolFilters)
         {
-            _filters.Add(new RegexFilter(filter.FilterAction, filter.RegExPattern));
+            _filters.Add(new GlobFilter(filter.FilterAction, filter.Pattern));
         }
 
         return this;

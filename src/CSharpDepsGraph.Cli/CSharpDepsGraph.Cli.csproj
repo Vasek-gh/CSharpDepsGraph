@@ -12,6 +12,8 @@
         <Description>A tool for creating code dependency graphs, exporting and visualizing</Description>
 
         <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+
+        <NoWarn>CS1591</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
@@ -20,7 +22,6 @@
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="9.0.4" />
         <PackageReference Include="Microsoft.Extensions.Logging" Version="9.0.4" />
         <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.4" />
-        <PackageReference Include="Microsoft.Extensions.FileSystemGlobbing" Version="9.0.11" />
         <PackageReference Include="System.CommandLine" Version="2.0.1" />
     </ItemGroup>
 

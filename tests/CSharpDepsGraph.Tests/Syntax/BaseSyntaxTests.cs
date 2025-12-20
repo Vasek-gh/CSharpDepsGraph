@@ -13,11 +13,11 @@ namespace CSharpDepsGraph.Tests.Syntax;
     "Usage",
     "NUnit1032"
     )]
-public class BaseSyntaxTests
+public abstract class BaseSyntaxTests
 {
     private readonly TestLoggerFactory _loggerFactory;
 
-    public BaseSyntaxTests()
+    protected BaseSyntaxTests()
     {
         _loggerFactory = new TestLoggerFactory();
     }

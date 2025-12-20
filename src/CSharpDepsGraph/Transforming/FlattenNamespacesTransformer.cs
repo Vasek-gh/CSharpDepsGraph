@@ -3,9 +3,10 @@ using Microsoft.CodeAnalysis;
 namespace CSharpDepsGraph.Transforming;
 
 /// <summary>
-/// todo
+/// Converts a nested hierarchical structure of namespaces into a flat structure where all namespaces are
+/// located at the same level.
 /// </summary>
-public class FlattenNamespacesMutator : ITransformer
+public class FlattenNamespacesTransformer : ITransformer
 {
     /// <inheritdoc/>
     public IGraph Execute(IGraph graph)

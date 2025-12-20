@@ -11,12 +11,12 @@ public enum FilterAction
     Skip,
 
     /// <summary>
-    /// When a node dissolves, the node is hidden and its links are linked to its parent
+    /// The node will be deleted and all links leading to it or its children will be removed
     /// </summary>
     Hide,
 
     /// <summary>
-    /// When a node is hidden, it is deleted along with all its connections
+    /// The node will be removed and all links leading to it or its children will be redirected to the parent node
     /// </summary>
     Dissolve,
 }

@@ -6,7 +6,7 @@ using System.Linq;
 namespace CSharpDepsGraph.Tests.Transformation;
 
 [TestFixture]
-public class ExternalHideMutatorTests
+public class ExternalHideTransformerTests
 {
     private const string _nodeId1 = "Id1";
     private const string _nodeId2 = "Id2";
@@ -16,7 +16,7 @@ public class ExternalHideMutatorTests
     [Test]
     public void FullHide()
     {
-        var graph = new ExternalHideMutator(false)
+        var graph = new ExternalHideTransformer(false)
             .Execute(CreateGraph());
 
         var externalRoot = graph.Root.Childs.SingleOrDefault(n => n.Id == GraphConsts.ExternalRootNodeId);
@@ -32,7 +32,7 @@ public class ExternalHideMutatorTests
     [Test]
     public void HideOnlyChilds()
     {
-        var graph = new ExternalHideMutator(true)
+        var graph = new ExternalHideTransformer(true)
             .Execute(CreateGraph());
 
         var node = graph.Root.Childs.Single(n => n.Id == _nodeId1);

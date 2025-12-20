@@ -4,7 +4,7 @@ internal enum Verbosity
 {
     Quiet,
     Minimal,
-    Normal, // todo default ?
+    Normal,
     Detailed,
     Diagnostic,
 }

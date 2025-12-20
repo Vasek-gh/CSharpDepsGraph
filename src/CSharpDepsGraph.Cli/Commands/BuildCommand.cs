@@ -7,7 +7,7 @@ using CSharpDepsGraph.Cli.Options;
 
 namespace CSharpDepsGraph.Cli.Commands;
 
-internal sealed class BuildCommand : ICommand
+public sealed class BuildCommand : ICommand
 {
     private readonly ILogger _logger;
     private readonly ILoggerFactory _loggerFactory;

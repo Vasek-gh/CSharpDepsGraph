@@ -20,8 +20,8 @@ internal class GraphVizExportCommandTests : BaseExportCommandTests<ExportOptions
             Assert.That(e.OutputPath, Is.Null);
             Assert.That(e.HideExternal, Is.False);
             Assert.That(e.ExportLevel, Is.EqualTo(NodeExportLevel.Assembly));
-            Assert.That(e.SymbolFilters, Is.Not.Null);
-            Assert.That(e.SymbolFilters, Is.Empty);
+            Assert.That(e.NodeFilters, Is.Not.Null);
+            Assert.That(e.NodeFilters, Is.Empty);
         });
     }
 

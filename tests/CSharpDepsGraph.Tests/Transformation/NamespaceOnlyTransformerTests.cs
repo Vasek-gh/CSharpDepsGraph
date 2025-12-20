@@ -105,9 +105,9 @@ public class NamespaceOnlyTransformerTests
         var globalNamespaceSymbol = globalNamespaceNode.Symbol as INamespaceSymbol;
 
         Assert.That(namespaceNodeSymbol, Is.Not.Null);
-        Assert.That(namespaceNodeSymbol?.IsGlobalNamespace, Is.EqualTo(false));
+        Assert.That(namespaceNodeSymbol?.IsGlobalNamespace, Is.False);
         Assert.That(globalNamespaceSymbol, Is.Not.Null);
-        Assert.That(globalNamespaceSymbol?.IsGlobalNamespace, Is.EqualTo(true));
+        Assert.That(globalNamespaceSymbol?.IsGlobalNamespace, Is.True);
 
         var links = graph.Links.Where(l =>
             l.Source.Id == _namespaceName1

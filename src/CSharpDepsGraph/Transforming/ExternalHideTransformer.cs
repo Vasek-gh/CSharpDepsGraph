@@ -1,16 +1,16 @@
 namespace CSharpDepsGraph.Transforming;
 
 /// <summary>
-/// todo
+/// Removes all external nodes/assemblies
 /// </summary>
-public class ExternalHideMutator : ITransformer
+public class ExternalHideTransformer : ITransformer
 {
     private readonly bool _hideOnlyChilds;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ExternalHideMutator"/> class.
+    /// Initializes a new instance of the <see cref="ExternalHideTransformer"/> class.
     /// </summary>
-    public ExternalHideMutator(bool hideOnlyChilds = true)
+    public ExternalHideTransformer(bool hideOnlyChilds = true)
     {
         _hideOnlyChilds = hideOnlyChilds;
     }

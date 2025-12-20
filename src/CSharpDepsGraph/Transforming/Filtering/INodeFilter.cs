@@ -3,10 +3,10 @@ namespace CSharpDepsGraph.Transforming.Filtering;
 /// <summary>
 /// Filter interface for nodes
 /// </summary>
-public interface IFilter
+public interface INodeFilter
 {
     /// <summary>
     /// Executes filter on node
     /// </summary>
-    FilterAction Execute(INode parent, INode node);
+    FilterAction Execute(NodeContext context);
 }

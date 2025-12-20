@@ -14,11 +14,11 @@ namespace CSharpDepsGraph.Tests.Intergations;
     "Usage",
     "NUnit1032"
     )]
-public class BaseIntergationsTests
+public abstract class BaseIntergationsTests
 {
     private readonly TestLoggerFactory _loggerFactory;
 
-    public BaseIntergationsTests()
+    protected BaseIntergationsTests()
     {
         _loggerFactory = new TestLoggerFactory();
     }

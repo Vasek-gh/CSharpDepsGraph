@@ -9,8 +9,8 @@ internal class Program
     public static async Task<int> Main(string[] args)
     {
         Matcher matcher = new();
-        matcher.AddInclude("**/System/*");
-        var q = matcher.Match(".", "qwerty.foo/System/");
+        matcher.AddInclude("**/System");
+        var q = matcher.Match(".", "qwerty.foo/System");
 
         var result = await Run(args, new CommandFactory());
 

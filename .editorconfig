@@ -380,7 +380,6 @@ dotnet_naming_style.members_are_not_fields.capitalization = pascal_case
 dotnet_naming_symbols.members_are_not_fields.applicable_kinds = property, method, type_parameter
 dotnet_naming_symbols.members_are_not_fields.applicable_accessibilities = public, internal, private, protected, protected_internal, private_protected
 
-
 #
 # Code-style rules https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/
 #
@@ -435,3 +434,10 @@ dotnet_diagnostic.CA2225.severity = none
 
 # CA2254 Template should be a static expression
 dotnet_diagnostic.CA2254.severity = none
+
+#
+# Code-style rules https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/style-rules/
+#
+
+# NUnit4002: Use Specific constraint
+dotnet_diagnostic.NUnit4002.severity = none

@@ -35,7 +35,7 @@ internal class Filter : IFilter
         return false;
     }
 
-    private bool SymbolIsPrimitiveType(ISymbol symbol)
+    private static bool SymbolIsPrimitiveType(ISymbol symbol)
     {
         return Utils.IsPrimiteType(symbol)
             || (symbol.ContainingType is not null && Utils.IsPrimiteType(symbol.ContainingType));

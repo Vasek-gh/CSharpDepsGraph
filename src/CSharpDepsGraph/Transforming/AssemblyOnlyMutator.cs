@@ -3,16 +3,16 @@ using Microsoft.CodeAnalysis;
 namespace CSharpDepsGraph.Transforming;
 
 /// <summary>
-/// todo
+/// Leaves only assembly nodes, preserving the relationships between them
 /// </summary>
-public class AssemblyOnlyMutator : ITransformer
+public class AssemblyOnlyTransformer : ITransformer
 {
     private readonly Dictionary<string, INode> _newNodeIdMap;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="AssemblyOnlyMutator"/> class.
+    /// Initializes a new instance of the <see cref="AssemblyOnlyTransformer"/> class.
     /// </summary>
-    public AssemblyOnlyMutator()
+    public AssemblyOnlyTransformer()
     {
         _newNodeIdMap = new Dictionary<string, INode>();
     }

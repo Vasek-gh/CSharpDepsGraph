@@ -1,8 +1,10 @@
 using CSharpDepsGraph.Building;
+using Microsoft.Build.Locator;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.Extensions.Logging;
+using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,6 +13,7 @@ using System.Threading;
 
 namespace CSharpDepsGraph.Tests;
 
+[SetUpFixture]
 public static class GraphFactory
 {
     public static readonly string TestFileName = "AdbTestFile.cs";
@@ -20,8 +23,11 @@ public static class GraphFactory
     private static MetadataReference[] _metadataReferences;
     private static ProjectInfo _testProject;
 
+    [OneTimeSetUp]
     public static void Init()
     {
+        MSBuildLocator.RegisterDefaults();
+
         _workspace = new AdhocWorkspace();
         _metadataReferences = CreateMetadataReferences();
         _testProject = LoadTestProject(_metadataReferences);
@@ -36,6 +42,7 @@ public static class GraphFactory
         _baseSolution = _workspace.AddSolution(solutionInfo);
     }
 
+    [OneTimeTearDown]
     public static void Done()
     {
         _workspace.Dispose();

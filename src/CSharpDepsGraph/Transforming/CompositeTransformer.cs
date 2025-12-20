@@ -1,24 +1,24 @@
 namespace CSharpDepsGraph.Transforming;
 
 /// <summary>
-/// todo
+/// A composite transformer that combines several transformers into a series chain.
 /// </summary>
-public class CompositeMutator : ITransformer
+public class CompositeTransformer : ITransformer
 {
     private readonly IEnumerable<ITransformer> _mutators;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="CompositeMutator"/> class.
+    /// Initializes a new instance of the <see cref="CompositeTransformer"/> class.
     /// </summary>
-    public CompositeMutator(params ITransformer[] mutators)
+    public CompositeTransformer(params ITransformer[] mutators)
         : this(mutators as IEnumerable<ITransformer>)
     {
     }
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="CompositeMutator"/> class.
+    /// Initializes a new instance of the <see cref="CompositeTransformer"/> class.
     /// </summary>
-    public CompositeMutator(IEnumerable<ITransformer> mutators)
+    public CompositeTransformer(IEnumerable<ITransformer> mutators)
     {
         _mutators = mutators;
     }

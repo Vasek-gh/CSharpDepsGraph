@@ -2,10 +2,16 @@ using Microsoft.CodeAnalysis;
 
 namespace CSharpDepsGraph.Transforming.Filtering;
 
+/// <summary>
+/// A set of ready-made filters
+/// </summary>
 public static class Filters
 {
     public static DelegateFilter Empty { get; } = new DelegateFilter((node) => FilterAction.Skip);
 
+    /// <summary>
+    /// This filter can use to hide all private members
+    /// </summary>
     public static DelegateFilter HidePrivate { get; } = new DelegateFilter((node, parent) =>
     {
         var visible = node.Symbol == null
@@ -16,7 +22,7 @@ public static class Filters
         return visible ? FilterAction.Skip : FilterAction.Hide;
     });
 
-    public static DelegateFilter HideMembers { get; } = new DelegateFilter((node, parent) =>
+    public static DelegateFilter HideMembers { get; } = new DelegateFilter((node, parent) => // todo rename DissolveMembers
     {
         var visible = parent.Symbol is not ITypeSymbol
             || node.Symbol == null
@@ -34,8 +40,9 @@ public static class Filters
         return visible ? FilterAction.Skip : FilterAction.Dissolve;
     });
 
-    public static DelegateFilter HideTypes { get; } = new DelegateFilter((node) =>
+    public static DelegateFilter HideTypes { get; } = new DelegateFilter((node) => // todo rename DissolveTypes
     {
+        // todo ITypeSymbol
         var visible = node.Symbol == null
             || node.Symbol is IAssemblySymbol
             || node.Symbol is IModuleSymbol
@@ -46,6 +53,7 @@ public static class Filters
 
     public static DelegateFilter HideNamespaces { get; } = new DelegateFilter((node) => // todo rename DissolveNamespaces
     {
+        // todo INamespaceSymbol
         var visible = node.Symbol == null
             || node.Symbol is IAssemblySymbol
             || node.Symbol is IModuleSymbol;

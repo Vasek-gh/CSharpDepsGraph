@@ -157,7 +157,7 @@ internal abstract class BaseCliCommand : Command
             "v",
             "level",
             "Sets the verbosity level of the command.",
-            OptionsDefaults.Verbosity,
+            Verbosity.Normal,
             [
                 ( Verbosity.Quiet, "q", "q[uiet]" ),
                 ( Verbosity.Minimal, "m", "m[inimal]" ),

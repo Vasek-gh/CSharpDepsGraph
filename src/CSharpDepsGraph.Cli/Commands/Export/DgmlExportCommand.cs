@@ -4,7 +4,7 @@ using CSharpDepsGraph.Cli.Options;
 
 namespace CSharpDepsGraph.Cli.Commands.Export;
 
-internal sealed class DgmlExportCommand : IHandlerCommand
+public sealed class DgmlExportCommand : IHandlerCommand
 {
     private readonly ILogger _logger;
     private readonly ILoggerFactory _loggerFactory;
@@ -18,17 +18,17 @@ internal sealed class DgmlExportCommand : IHandlerCommand
         _options = options;
     }
 
-    public Task Execute(GraphContext ctx, CancellationToken cancellationToken)
+    public Task Execute(GraphContext graphContext, CancellationToken cancellationToken)
     {
         return CommandsUtils.ExecuteWithReport(_logger, async () =>
         {
             _logger.LogDebug("Mutation...");
 
-            var graph = CommandsUtils.GetHierarchyExportMutator(_options).Execute(ctx.Graph);
+            var graph = CommandsUtils.GetHierarchyExportMutator(_options).Execute(graphContext.Graph);
 
             _logger.LogDebug("Export...");
 
-            using var stream = CommandsUtils.CreateOutputStream(ctx.InputFile, _options.OutputPath, "dgml");
+            using var stream = CommandsUtils.CreateOutputStream(graphContext.InputFile, _options.OutputPath, "dgml");
 
             await new DgmlExport(_loggerFactory.CreateLogger<DgmlExport>()).Run(graph, stream, cancellationToken);
         });

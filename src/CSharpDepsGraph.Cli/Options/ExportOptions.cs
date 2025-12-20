@@ -8,5 +8,5 @@ public class ExportOptions
 
     public NodeExportLevel ExportLevel { get; set; } = NodeExportLevel.Default;
 
-    public IEnumerable<RegexSymbolFilter> SymbolFilters { get; set; } = [];
+    public IEnumerable<NodeFilter> NodeFilters { get; set; } = [];
 }

@@ -48,12 +48,11 @@ internal static class ExportOptionsFactory
         );
     });
 
-    public static Option<IEnumerable<RegexSymbolFilter>> SymbolFilters { get; } = OptionBuilder.Create(() =>
+    public static Option<IEnumerable<NodeFilter>> NodeFilters { get; } = OptionBuilder.Create(() =>
     {
-        // todo Regex is applied on the node path not id
         var description = @"
-            Defines one or more symbol filter.
-            Regex is applied on the node id.
+            Defines one or more node filter.
+            Glob pattern is applied on the node path.
             The filter action can be 'hide', 'dissolve' or 'skip'.
             When a node is hidden, it is deleted along with all its connections.
             When a node dissolves, the node is hidden and its links are linked to its parent.
@@ -61,14 +60,14 @@ internal static class ExportOptionsFactory
             All filters are applied to the node one by one. When the filter is triggered, this chain is interrupted.
             ";
 
-        return OptionBuilder.CreateListOption<RegexSymbolFilter>(
-            "symbol-filter",
-            "sf",
+        return OptionBuilder.CreateListOption<NodeFilter>(
+            "node-filter",
+            "nf",
             description,
-            "filter action,regex pattern",
+            "filter action,glob pattern",
             argResult =>
             {
-                var items = new List<RegexSymbolFilter>();
+                var items = new List<NodeFilter>();
 
                 foreach (var token in argResult.Tokens.Select(t => t.Value))
                 {
@@ -78,27 +77,27 @@ internal static class ExportOptionsFactory
                         return ([], MakeSymbolFilterError(token));
                     }
 
-                    var filterActionSubToken = token.Substring(0, commaIndex).Trim();
-                    var regExPatternSubToken = token.Substring(commaIndex + 1).Trim();
+                    var actionSubToken = token.Substring(0, commaIndex).Trim();
+                    var patternSubToken = token.Substring(commaIndex + 1).Trim();
 
-                    if (string.IsNullOrWhiteSpace(filterActionSubToken)
-                        || string.IsNullOrWhiteSpace(regExPatternSubToken)
-                        || !Enum.TryParse<FilterAction>(filterActionSubToken, true, out var filterAction)
+                    if (string.IsNullOrWhiteSpace(actionSubToken)
+                        || string.IsNullOrWhiteSpace(patternSubToken)
+                        || !Enum.TryParse<FilterAction>(actionSubToken, true, out var filterAction)
                         )
                     {
                         return ([], MakeSymbolFilterError(token));
                     }
 
-                    items.Add(new RegexSymbolFilter()
+                    items.Add(new NodeFilter()
                     {
                         FilterAction = filterAction,
-                        RegExPattern = regExPatternSubToken
+                        Pattern = patternSubToken
                     });
                 }
 
                 if (items.Count == 0)
                 {
-                    return ([], "Empty symbol-filter");
+                    return ([], "Empty node-filter");
                 }
 
                 return (items, null);
@@ -107,7 +106,7 @@ internal static class ExportOptionsFactory
 
         string MakeSymbolFilterError(string token)
         {
-            return $"Invalid symbol-filter format: {token}";
+            return $"Invalid node-filter format: {token}";
         }
     });
 

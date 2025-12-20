@@ -9,7 +9,6 @@ internal class SymbolComparer
     private static readonly Version _versionStub = new Version();
 
     private readonly GraphBuildOptions _options;
-    private readonly HashSet<string> _systemAssemblies;
 
     public SymbolComparer(
         GraphBuildOptions options

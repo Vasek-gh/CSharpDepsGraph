@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis;
 namespace CSharpDepsGraph.Transforming;
 
 /// <summary>
-/// todo
+/// Leaves only namespace nodes, preserving the relationships between them
 /// </summary>
 public class NamespaceOnlyTransformer : ITransformer
 {

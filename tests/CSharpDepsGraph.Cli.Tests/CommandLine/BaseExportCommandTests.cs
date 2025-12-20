@@ -6,7 +6,7 @@ using System.CommandLine.Parsing;
 
 namespace CSharpDepsGraph.Cli.Tests.CommandLine;
 
-internal class BaseExportCommandTests<TOptions> where TOptions : ExportOptions
+public abstract class BaseExportCommandTests<TOptions> where TOptions : ExportOptions
 {
     private readonly string _baseCommnad;
 
@@ -17,7 +17,7 @@ internal class BaseExportCommandTests<TOptions> where TOptions : ExportOptions
     }
 
     [Test]
-    public async Task Build_Defaults()
+    public async Task BuildDefaults()
     {
         await Check("dummy.sln", (b, e) =>
         {
@@ -130,68 +130,68 @@ internal class BaseExportCommandTests<TOptions> where TOptions : ExportOptions
     }
 
     [Test]
-    public async Task SymbolFilters()
+    public async Task NodeFilters()
     {
-        await Check("dummy.sln -sf hide,foo*", (b, e) =>
+        await Check("dummy.sln -nf hide,foo*", (b, e) =>
         {
-            Assert.That(e.SymbolFilters.Single().FilterAction, Is.EqualTo(FilterAction.Hide));
-            Assert.That(e.SymbolFilters.Single().RegExPattern, Is.EqualTo("foo*"));
+            Assert.That(e.NodeFilters.Single().FilterAction, Is.EqualTo(FilterAction.Hide));
+            Assert.That(e.NodeFilters.Single().Pattern, Is.EqualTo("foo*"));
         });
 
-        await Check("dummy.sln -sf hide,\"foo* bar\"", (b, e) =>
+        await Check("dummy.sln -nf hide,\"foo* bar\"", (b, e) =>
         {
-            Assert.That(e.SymbolFilters.Single().FilterAction, Is.EqualTo(FilterAction.Hide));
-            Assert.That(e.SymbolFilters.Single().RegExPattern, Is.EqualTo("foo* bar"));
+            Assert.That(e.NodeFilters.Single().FilterAction, Is.EqualTo(FilterAction.Hide));
+            Assert.That(e.NodeFilters.Single().Pattern, Is.EqualTo("foo* bar"));
         });
 
-        await Check("dummy.sln -sf hide,foo* -sf skip,bar*", (b, e) =>
+        await Check("dummy.sln -nf hide,foo* -nf skip,bar*", (b, e) =>
         {
-            Assert.That(e.SymbolFilters.Count(), Is.EqualTo(2));
-            Assert.That(e.SymbolFilters.First().FilterAction, Is.EqualTo(FilterAction.Hide));
-            Assert.That(e.SymbolFilters.First().RegExPattern, Is.EqualTo("foo*"));
-            Assert.That(e.SymbolFilters.Last().FilterAction, Is.EqualTo(FilterAction.Skip));
-            Assert.That(e.SymbolFilters.Last().RegExPattern, Is.EqualTo("bar*"));
+            Assert.That(e.NodeFilters.Count(), Is.EqualTo(2));
+            Assert.That(e.NodeFilters.First().FilterAction, Is.EqualTo(FilterAction.Hide));
+            Assert.That(e.NodeFilters.First().Pattern, Is.EqualTo("foo*"));
+            Assert.That(e.NodeFilters.Last().FilterAction, Is.EqualTo(FilterAction.Skip));
+            Assert.That(e.NodeFilters.Last().Pattern, Is.EqualTo("bar*"));
         });
 
-        await Check("dummy.sln --symbol-filter   hide,foo*   ", (b, e) =>
+        await Check("dummy.sln --node-filter   hide,foo*   ", (b, e) =>
         {
-            Assert.That(e.SymbolFilters.Single().FilterAction, Is.EqualTo(FilterAction.Hide));
-            Assert.That(e.SymbolFilters.Single().RegExPattern, Is.EqualTo("foo*"));
+            Assert.That(e.NodeFilters.Single().FilterAction, Is.EqualTo(FilterAction.Hide));
+            Assert.That(e.NodeFilters.Single().Pattern, Is.EqualTo("foo*"));
         });
 
-        await Check("dummy.sln --symbol-filter   dissolve,foo*   ", (b, e) =>
+        await Check("dummy.sln --node-filter   dissolve,foo*   ", (b, e) =>
         {
-            Assert.That(e.SymbolFilters.Single().FilterAction, Is.EqualTo(FilterAction.Dissolve));
-            Assert.That(e.SymbolFilters.Single().RegExPattern, Is.EqualTo("foo*"));
+            Assert.That(e.NodeFilters.Single().FilterAction, Is.EqualTo(FilterAction.Dissolve));
+            Assert.That(e.NodeFilters.Single().Pattern, Is.EqualTo("foo*"));
         });
 
-        await Check("dummy.sln --symbol-filter   skip,foo*   ", (b, e) =>
+        await Check("dummy.sln --node-filter   skip,foo*   ", (b, e) =>
         {
-            Assert.That(e.SymbolFilters.Single().FilterAction, Is.EqualTo(FilterAction.Skip));
-            Assert.That(e.SymbolFilters.Single().RegExPattern, Is.EqualTo("foo*"));
+            Assert.That(e.NodeFilters.Single().FilterAction, Is.EqualTo(FilterAction.Skip));
+            Assert.That(e.NodeFilters.Single().Pattern, Is.EqualTo("foo*"));
         });
 
-        await CheckError("dummy.sln -sf -he", (e) =>
+        await CheckError("dummy.sln -nf -he", (e) =>
         {
-            Assert.That(e, Does.Contain("symbol-filter"));
+            Assert.That(e, Does.Contain("node-filter"));
         });
 
-        await CheckError("dummy.sln -sf bar,foo*", (e) =>
+        await CheckError("dummy.sln -nf bar,foo*", (e) =>
         {
             Assert.That(e, Does.Contain("bar"));
-            Assert.That(e, Does.Contain("symbol-filter"));
+            Assert.That(e, Does.Contain("node-filter"));
         });
 
-        await CheckError("dummy.sln -sf skip,", (e) =>
+        await CheckError("dummy.sln -nf skip,", (e) =>
         {
             Assert.That(e, Does.Contain("skip"));
-            Assert.That(e, Does.Contain("symbol-filter"));
+            Assert.That(e, Does.Contain("node-filter"));
         });
 
-        await CheckError("dummy.sln -sf ,foo*", (e) =>
+        await CheckError("dummy.sln -nf ,foo*", (e) =>
         {
             Assert.That(e, Does.Contain("foo*"));
-            Assert.That(e, Does.Contain("symbol-filter"));
+            Assert.That(e, Does.Contain("node-filter"));
         });
     }
 

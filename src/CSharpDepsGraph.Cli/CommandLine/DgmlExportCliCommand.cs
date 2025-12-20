@@ -19,7 +19,7 @@ internal sealed class DgmlExportCliCommand : BaseCliCommand
             .AddOption(ExportOptionsFactory.OutputFileName, (o, v) => o.OutputPath = v?.FullName)
             .AddOption(ExportOptionsFactory.HideExternal, (o, v) => o.HideExternal = v)
             .AddOption(ExportOptionsFactory.ExportLevelFull, (o, v) => o.ExportLevel = v)
-            .AddOption(ExportOptionsFactory.SymbolFilters, (o, v) => o.SymbolFilters = v ?? []);
+            .AddOption(ExportOptionsFactory.NodeFilters, (o, v) => o.NodeFilters = v ?? []);
     }
 
     protected override void BeforeExecute(ILogger logger, ParseResult parseResult)

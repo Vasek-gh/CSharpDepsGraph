@@ -3,7 +3,7 @@ using CSharpDepsGraph.Export.Json;
 
 namespace CSharpDepsGraph.Cli.Commands.Export;
 
-internal sealed class JsonExportCommand : IHandlerCommand
+public sealed class JsonExportCommand : IHandlerCommand
 {
     private readonly ILogger _logger;
     private readonly ILoggerFactory _loggerFactory;
@@ -16,22 +16,22 @@ internal sealed class JsonExportCommand : IHandlerCommand
         _settings = settings;
     }
 
-    public Task Execute(GraphContext ctx, CancellationToken cancellationToken)
+    public Task Execute(GraphContext graphContext, CancellationToken cancellationToken)
     {
         return CommandsUtils.ExecuteWithReport(_logger, async () =>
         {
             _logger.LogDebug("Mutation...");
 
-            var graph = CommandsUtils.GetHierarchyExportMutator(_settings).Execute(ctx.Graph);
+            var graph = CommandsUtils.GetHierarchyExportMutator(_settings).Execute(graphContext.Graph);
 
             _logger.LogDebug("Export...");
 
-            using var stream = CommandsUtils.CreateOutputStream(ctx.InputFile, _settings.OutputPath, "json");
+            using var stream = CommandsUtils.CreateOutputStream(graphContext.InputFile, _settings.OutputPath, "json");
 
             var options = new CSharpDepsGraph.Export.Json.JsonExportOptions() // todo create cli options
             {
                 FormatOutput = _settings.Format,
-                BasePath = Path.GetDirectoryName(ctx.InputFile)
+                BasePath = Path.GetDirectoryName(graphContext.InputFile)
             };
 
             await new JsonExport(_loggerFactory.CreateLogger<JsonExport>(), options).Run(graph, stream, cancellationToken);

@@ -40,7 +40,7 @@ internal static class LoggerExtensions
         logger.LogValue(options.OutputPath);
         logger.LogValue(options.HideExternal);
         logger.LogValue(options.ExportLevel);
-        logger.LogValue(options.SymbolFilters);
+        logger.LogValue(options.NodeFilters);
     }
 
     public static void Verbose(this ILogger logger, JsonExportOptions options)

@@ -20,8 +20,8 @@ internal class JsonExportCommandTests : BaseExportCommandTests<JsonExportOptions
             Assert.That(e.OutputPath, Is.Null);
             Assert.That(e.HideExternal, Is.False);
             Assert.That(e.ExportLevel, Is.EqualTo(NodeExportLevel.All));
-            Assert.That(e.SymbolFilters, Is.Not.Null);
-            Assert.That(e.SymbolFilters, Is.Empty);
+            Assert.That(e.NodeFilters, Is.Not.Null);
+            Assert.That(e.NodeFilters, Is.Empty);
             Assert.That(e.Format, Is.False);
         });
     }
