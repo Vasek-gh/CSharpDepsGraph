@@ -102,7 +102,22 @@ public sealed class BuildCommand : ICommand
             cancellationToken: cancellationToken
             );
 
-        return solution.Projects;
+        var newSolution = solution;
+        foreach (var projectId in solution.ProjectIds)
+        {
+            var project = solution.GetProject(projectId);
+            if (project?.ParseOptions is null)
+            {
+                continue;
+            }
+
+            newSolution = newSolution.WithProjectParseOptions(
+                projectId,
+                project.ParseOptions.WithDocumentationMode(DocumentationMode.None)
+                );
+        }
+
+        return newSolution.Projects;
     }
 
     private async Task<IEnumerable<Microsoft.CodeAnalysis.Project>> OpenProject(
@@ -133,20 +148,15 @@ public sealed class BuildCommand : ICommand
             result.Add(prop.Key, prop.Value);
         }
 
-        result.Add("CustomBeforeMicrosoftCommonTargets", "D:/Src/inject.props"); // todo
-
-        result.Add("Configuration", "Debug");
-        result.Add("Platform", "Any CPU");
-
+        result.Add("AnalysisMode", "none");
         result.Add("GenerateDocumentationFile", "false");
-        result.Add("CopyLocalLockFileAssemblies", "false");
-
+        result.Add("EmitCompilerGeneratedFiles", "false");
+        result.Add("BuildingInsideVisualStudio", "false");
+        result.Add("DesignTimeBuild", "false");
         result.Add("SkipCompilerExecution", "true");
-        result.Add("ProvideCommandLineArgs", "true");
 
-        result.Add("DesignTimeBuild", "true");
-        result.Add("RunAnalyzers", "false");
-        result.Add("RunAnalyzersDuringBuild", "false");
+
+        result.Add("CustomBeforeMicrosoftCommonTargets", "D:/Src/inject.props"); // todo
 
         return result;
     }

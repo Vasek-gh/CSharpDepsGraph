@@ -14,9 +14,7 @@ internal class Program
 
         var result = await Run(args, new CommandFactory());
 
-        Console.WriteLine(GC.GetTotalMemory(false).ToString("N0")); // todo kill
-        Console.WriteLine("Wait"); // todo kill
-        Console.ReadKey();
+        Console.ReadKey(); // todo kill
 
         return result;
     }

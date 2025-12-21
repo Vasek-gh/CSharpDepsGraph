@@ -18,7 +18,7 @@ public class JsonExportOptions
     /// <summary>
     /// Specifies whether a table of locations will be created or whether they will be written directly to the node.
     /// </summary>
-    public bool DoNotCreateLocationTable { get; set; }
+    public bool InlinePaths { get; set; }
 
     /// <summary>
     /// Base path used to convert absolute file paths to relative paths

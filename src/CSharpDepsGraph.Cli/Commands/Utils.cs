@@ -36,14 +36,24 @@ public static class CommandsUtils
 
     public static async Task ExecuteWithReport(ILogger logger, Func<Task> action)
     {
+        if (!logger.IsEnabled(LogLevel.Debug))
+        {
+            await action();
+        }
+
         logger.LogDebug("Begin");
 
         var sw = new Stopwatch();
 
         sw.Start();
+        var totalMemoryStart = GC.GetTotalMemory(false);
+
         await action();
+
+        var totalMemoryEnd = GC.GetTotalMemory(false);
         sw.Stop();
 
         logger.LogDebug($"Completed in {TimeSpan.FromMilliseconds(sw.ElapsedMilliseconds).TotalSeconds} seconds");
+        logger.LogDebug($"Allocated memory: {totalMemoryEnd - totalMemoryStart:N0}");
     }
 }

@@ -62,9 +62,9 @@ public class TransformerBuilder
         {
             var filter = nodeExportLevel switch
             {
-                NodeExportLevel.Assembly => Filters.HideNamespaces,
-                NodeExportLevel.Namespace => Filters.HideTypes,
-                NodeExportLevel.Type => Filters.HideMembers,
+                NodeExportLevel.Assembly => Filters.DissolveNamespaces,
+                NodeExportLevel.Namespace => Filters.DissolveTypes,
+                NodeExportLevel.Type => Filters.DissolveMembers,
                 NodeExportLevel.PublicMember => Filters.HidePrivate,
                 _ => Filters.Empty
             };

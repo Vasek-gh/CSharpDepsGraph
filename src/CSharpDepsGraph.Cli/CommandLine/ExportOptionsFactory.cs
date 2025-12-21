@@ -120,5 +120,26 @@ internal static class ExportOptionsFactory
                 "When enabled json writes formatted output"
                 );
         });
+
+        public static Option<bool> ExcludeLocations { get; } = OptionBuilder.Create(() =>
+        {
+            return OptionBuilder.CreateOption<bool>(
+                "exclude-locations",
+                null,
+                "When enabled, export do not write locations"
+                );
+        });
+
+        public static Option<bool> InlinePaths { get; } = OptionBuilder.Create(() =>
+        {
+            return OptionBuilder.CreateOption<bool>(
+                "inline-paths",
+                null,
+                "When this option is enabled, the path to the file is written directly to the location itself"
+                );
+        });
+
+
+
     }
 }

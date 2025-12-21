@@ -74,7 +74,7 @@ public class JsonExport
         private bool CanExportPaths()
         {
             return !_options.ExcludeLocations
-                && !_options.DoNotCreateLocationTable
+                && !_options.InlinePaths
                 && _pathResolver.Paths.Count > 0;
         }
     }

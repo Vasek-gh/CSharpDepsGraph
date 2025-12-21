@@ -41,7 +41,7 @@ internal class PathResolver
 
     private string Handle(string path)
     {
-        if (_options.DoNotCreateLocationTable)
+        if (_options.InlinePaths)
         {
             return HandlePath(path);
         }

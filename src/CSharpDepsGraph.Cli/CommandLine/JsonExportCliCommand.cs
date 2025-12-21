@@ -20,7 +20,9 @@ internal sealed class JsonExportCliCommand : BaseCliCommand
             .AddOption(ExportOptionsFactory.HideExternal, (o, v) => o.HideExternal = v)
             .AddOption(ExportOptionsFactory.ExportLevelFull, (o, v) => o.ExportLevel = v)
             .AddOption(ExportOptionsFactory.NodeFilters, (o, v) => o.NodeFilters = v ?? [])
-            .AddOption(ExportOptionsFactory.Json.Format, (o, v) => o.Format = v);
+            .AddOption(ExportOptionsFactory.Json.Format, (o, v) => o.Format = v)
+            .AddOption(ExportOptionsFactory.Json.ExcludeLocations, (o, v) => o.ExcludeLocations = v)
+            .AddOption(ExportOptionsFactory.Json.InlinePaths, (o, v) => o.InlinePaths = v);
     }
 
     protected override void BeforeExecute(ILogger logger, ParseResult parseResult)

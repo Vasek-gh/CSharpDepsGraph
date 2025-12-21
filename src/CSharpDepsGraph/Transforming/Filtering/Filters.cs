@@ -7,6 +7,9 @@ namespace CSharpDepsGraph.Transforming.Filtering;
 /// </summary>
 public static class Filters
 {
+    /// <summary>
+    /// A stub filter instance. This filter does nothing
+    /// </summary>
     public static DelegateFilter Empty { get; } = new DelegateFilter((node) => FilterAction.Skip);
 
     /// <summary>
@@ -22,7 +25,10 @@ public static class Filters
         return visible ? FilterAction.Skip : FilterAction.Hide;
     });
 
-    public static DelegateFilter HideMembers { get; } = new DelegateFilter((node, parent) => // todo rename DissolveMembers
+    /// <summary>
+    /// This filter can use to dissolve all members
+    /// </summary>
+    public static DelegateFilter DissolveMembers { get; } = new DelegateFilter((node, parent) =>
     {
         var visible = parent.Symbol is not ITypeSymbol
             || node.Symbol == null
@@ -40,7 +46,10 @@ public static class Filters
         return visible ? FilterAction.Skip : FilterAction.Dissolve;
     });
 
-    public static DelegateFilter HideTypes { get; } = new DelegateFilter((node) => // todo rename DissolveTypes
+    /// <summary>
+    /// This filter can use to dissolve all types
+    /// </summary>
+    public static DelegateFilter DissolveTypes { get; } = new DelegateFilter((node) =>
     {
         // todo ITypeSymbol
         var visible = node.Symbol == null
@@ -51,7 +60,10 @@ public static class Filters
         return visible ? FilterAction.Skip : FilterAction.Dissolve;
     });
 
-    public static DelegateFilter HideNamespaces { get; } = new DelegateFilter((node) => // todo rename DissolveNamespaces
+    /// <summary>
+    /// This filter can use to dissolve all namespaces
+    /// </summary>
+    public static DelegateFilter DissolveNamespaces { get; } = new DelegateFilter((node) =>
     {
         // todo INamespaceSymbol
         var visible = node.Symbol == null

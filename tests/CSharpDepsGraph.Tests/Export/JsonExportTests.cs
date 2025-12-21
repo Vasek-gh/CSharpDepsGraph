@@ -41,7 +41,7 @@ public class JsonExportTests : BaseSyntaxTests
         Assert.That(IsIndexedPath(graph1Node.Locations?[0]));
         Assert.That(IsIndexedPath(graph1.Links[0].Location));
 
-        var graph2 = GetGraph(new JsonExportOptions() { BasePath = _testProjectPath, DoNotCreateLocationTable = true });
+        var graph2 = GetGraph(new JsonExportOptions() { BasePath = _testProjectPath, InlinePaths = true });
         var graph2Node = GetNode(graph2);
 
         Assert.That(graph2, Is.Not.Null);
@@ -129,7 +129,7 @@ public class JsonExportTests : BaseSyntaxTests
 
         using var stream = new MemoryStream();
 
-        new JsonExport(NullLogger<JsonExport>.Instance, exportOptions).Run(graph, stream, CancellationToken.None);
+        new JsonExport(NullLogger<JsonExport>.Instance, exportOptions).RunAsync(graph, stream, CancellationToken.None);
 
         stream.Position = 0;
         using var textReader = new StreamReader(stream);

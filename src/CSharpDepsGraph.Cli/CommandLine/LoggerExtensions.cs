@@ -57,6 +57,8 @@ internal static class LoggerExtensions
 
         logger.Verbose((ExportOptions)options);
         logger.LogValue(options.Format);
+        logger.LogValue(options.ExcludeLocations);
+        logger.LogValue(options.InlinePaths);
     }
 
     public static void LogValue(

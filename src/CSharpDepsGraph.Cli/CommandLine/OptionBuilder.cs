@@ -74,7 +74,7 @@ internal static class OptionBuilder
         var descriptionWithHint = description + $@" Allowed values are: {validValuesHint}.";
 
         var result = DoCreateOption(name, alias, descriptionWithHint, helpName, Parse);
-        result.DefaultValueFactory = _ => defaultValue;
+        result.DefaultValueFactory = _ => defaultValue; //todo lowercase in description
         result.Validators.Add(vsr =>
         {
             var (value, error) = Parse(vsr);
