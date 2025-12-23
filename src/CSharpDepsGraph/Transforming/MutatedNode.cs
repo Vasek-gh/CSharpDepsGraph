@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis;
 
 namespace CSharpDepsGraph.Transforming;
 
-[DebuggerDisplay("{Id}")]
+[DebuggerDisplay("{Uid}")]
 internal class MutatedNode : INode
 {
     public required string Uid { get; init; }

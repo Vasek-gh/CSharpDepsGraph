@@ -477,6 +477,18 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
         HandleNodes<AttributeArgumentSyntax>(node.ArgumentList?.Arguments);
     }
 
+    public override void VisitElementAccessExpression(ElementAccessExpressionSyntax node)
+    {
+        var symbol = GetSyntaxSymbol(node);
+        if (symbol is not IPropertySymbol propertySymbol || !propertySymbol.IsIndexer)
+        {
+            base.VisitElementAccessExpression(node);
+        }
+
+        HandleIdentifier(node, symbol);
+        HandleNodes<ArgumentSyntax>(node.ArgumentList?.Arguments);
+    }
+
     public override void VisitObjectCreationExpression(ObjectCreationExpressionSyntax node)
     {
         // For delegates or new T(), TryGetSyntaxSymbol can not find symbol for syntax. In these cases it is

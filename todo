@@ -1,20 +1,6 @@
 - Огромное количество не нужных сборок загружается в память
 
-- Проверить IPointerTypeSymbol при парсинге
 - Проверить C# 14 ExtensionDeclarationSyntax
-- Проверить
-    public void MyMethod() {
-        Func<int, int, int> mySumImplementation =
-            delegate (int a, int b) { return a+b; };
-
-        Console.WriteLine(mySumImplementation(1,1).ToString());
-    }
-
-    delegate void NotifyCallback(string str);
-    NotifyCallback del3 = delegate (string name)
-    {
-        Console.WriteLine($"Notification received for: {name}");
-    };
 
 - json: Добавить экспорт модификатор видимости и статик флаг
 - Когда экпорт идет не в json нужно схлопывать линги укоторых одинаковый источник/приемник

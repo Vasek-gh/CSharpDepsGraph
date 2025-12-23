@@ -550,9 +550,28 @@ public class Expression : BaseSyntaxTests
     }
 
     [Test]
-    [Ignore("todo unsafe context")]
     public void PointerParsed()
     {
+        var graph = Build(@"
+            using TestProject.Entities;
+            unsafe public class Test {
+                private int* _bar;
+                public void Foo(int* value) {
+                    _bar = value;
+                }
+            }
+        ");
+
+        var node = graph.GetNode("Test");
+
+        GraphAssert.HasExactLink(graph, "Test/_bar",
+            (AsmName.CoreLib, "System/int")
+        );
+
+        GraphAssert.HasExactLink(graph, "Test/Foo(int*)",
+            (AsmName.Test, "Test/_bar"),
+            (AsmName.CoreLib, "System/int")
+        );
     }
 
     [Test]
@@ -816,9 +835,58 @@ public class Expression : BaseSyntaxTests
     }
 
     [Test]
-    [Ignore("todo check index call link")]
-    public void IndexerLinked()
+    public void Indexer()
     {
+        var graph = Build(@"
+            class Bar {
+                public int this[string key] => 0;
+            }
+            class Test {
+                public int this[string key] => 0;
+                public void Foo() {
+                    var bar = new Bar();
 
+                    var v1 = bar[""qwerty""];
+                    var v2 = this[""qwerty""];
+                }
+            }
+        ");
+
+        GraphAssert.HasExactLink(graph, "Test/Foo()",
+            (AsmName.Test, "Bar"),
+            (AsmName.Test, "Bar/this[string]"),
+            (AsmName.Test, "Test/this[string]")
+        );
+    }
+
+    [Test]
+    public void DelegateInitialization()
+    {
+        var graph = Build(@"
+            using System;
+            public class Test {
+                private Func<int, int> _bar =
+                    delegate (int v) {
+                        return v;
+                    };
+
+                public void Foo() {
+                    _bar = delegate (int v) {
+                        return 0;
+                    };
+                }
+            }
+        ");
+
+        GraphAssert.HasExactLink(graph, "Test/_bar",
+            (AsmName.CoreLib, "System/int"),
+            (AsmName.CoreLib, "System/Func<T, TResult>")
+        );
+
+        GraphAssert.HasExactLink(graph, "Test/Foo()",
+            (AsmName.CoreLib, "System/int"),
+            (AsmName.Test, "Test/_bar")
+        );
     }
 }
+

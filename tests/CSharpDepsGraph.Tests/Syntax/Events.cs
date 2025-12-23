@@ -102,7 +102,7 @@ public class EventsDeclaration : BaseSyntaxTests
     }
 
     [Test]
-    [Ignore("todo check in lang version")]
+    [Ignore("todo check in new lang version")]
     public void PartialDefinition()
     {
         var graph = Build(@"

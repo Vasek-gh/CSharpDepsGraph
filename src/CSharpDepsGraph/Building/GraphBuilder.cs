@@ -195,6 +195,7 @@ public sealed class GraphBuilder
         sw.Stop();
 
         _metrics.ElapsedTime.Set(sw.Elapsed);
+        _metrics.AllocatedMemory.Set(totalMemoryEnd - totalMemoryStart);
         _metrics.EndScope();
 
         return result;
@@ -224,6 +225,7 @@ public sealed class GraphBuilder
         sw.Stop();
 
         _metrics.ElapsedTime.Set(sw.Elapsed);
+        _metrics.AllocatedMemory.Set(totalMemoryEnd - totalMemoryStart);
         _metrics.EndScope();
     }
 

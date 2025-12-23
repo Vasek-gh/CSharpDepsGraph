@@ -121,7 +121,10 @@ public static class GraphFactory
             documents: documents,
             projectReferences: projectReferences,
             metadataReferences: metadataReferences,
-            compilationOptions: new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary)
+            compilationOptions: new CSharpCompilationOptions(
+                outputKind: OutputKind.DynamicallyLinkedLibrary,
+                allowUnsafe: true
+                )
         );
     }
 

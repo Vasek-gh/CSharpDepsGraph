@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis;
 
 namespace CSharpDepsGraph.Building.Entities;
 
-[DebuggerDisplay("{Id}")]
+[DebuggerDisplay("{Uid}")]
 internal class Node : INode
 {
     public string Uid { get; }

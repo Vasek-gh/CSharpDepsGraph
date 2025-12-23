@@ -152,7 +152,7 @@ public class TypeDeclaration : BaseSyntaxTests
             }
         ";
 
-        var graph1 = Build(source);
+        var graph1 = Build(source, (o) => o.IncludeLinksToSelfType = false);
         var node1 = graph1.GetNode("Foo");
         var nodeLinks1 = graph1.GetOutgoingLinks(node1);
         Assert.That(nodeLinks1.Length, Is.EqualTo(1));
