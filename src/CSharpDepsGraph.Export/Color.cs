@@ -16,7 +16,7 @@ public struct Color
     /// <summary>
     /// Gets the default color used as a base reference (0xFF626567).
     /// </summary>
-    public static readonly Color Deafult = 0xFF626567;
+    public static readonly Color Default = 0xFF626567;
 
     /// <summary>
     /// Gets the color for group elements (0xFF17202A).

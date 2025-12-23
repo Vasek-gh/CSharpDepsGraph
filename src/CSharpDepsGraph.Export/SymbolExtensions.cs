@@ -15,6 +15,7 @@ public static class SymbolExtensions
         return symbol switch
         {
             _ when symbol is IAssemblySymbol => NodeType.Assembly,
+            _ when symbol is IModuleSymbol => NodeType.Module,
             _ when symbol is INamespaceSymbol => NodeType.Namespace,
             _ when symbol is INamedTypeSymbol typeSymbol && typeSymbol.IsRecord => NodeType.Record,
             _ when symbol is INamedTypeSymbol typeSymbol && typeSymbol.TypeKind == TypeKind.Enum => NodeType.Enum,

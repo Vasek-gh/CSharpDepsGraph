@@ -479,14 +479,14 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
 
     public override void VisitElementAccessExpression(ElementAccessExpressionSyntax node)
     {
-        var symbol = GetSyntaxSymbol(node);
-        if (symbol is not IPropertySymbol propertySymbol || !propertySymbol.IsIndexer)
+        var symbol = TryGetSyntaxSymbol(node);
+        if (symbol is IPropertySymbol propertySymbol && propertySymbol.IsIndexer)
         {
-            base.VisitElementAccessExpression(node);
+            HandleIdentifier(node, symbol);
+            HandleNodes<ArgumentSyntax>(node.ArgumentList?.Arguments);
         }
 
-        HandleIdentifier(node, symbol);
-        HandleNodes<ArgumentSyntax>(node.ArgumentList?.Arguments);
+        base.VisitElementAccessExpression(node);
     }
 
     public override void VisitObjectCreationExpression(ObjectCreationExpressionSyntax node)

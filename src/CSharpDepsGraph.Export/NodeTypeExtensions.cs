@@ -23,7 +23,7 @@ public static class NodeTypeExtensions
             NodeType.Field => Color.Field,
             NodeType.Property => Color.Property,
             NodeType.Method => Color.Method,
-            _ => Color.Deafult
+            _ => Color.Default
         };
     }
 }

@@ -95,7 +95,6 @@ public class TypeDeclaration : BaseSyntaxTests
     public void EnumParsed()
     {
         var graph = Build(@"
-            using TestProject.Entities;
             public enum Test : byte {
                 A = 1,
                 B = 2,

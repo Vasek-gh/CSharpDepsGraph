@@ -21,6 +21,11 @@ public enum NodeType
     Assembly,
 
     /// <summary>
+    /// Net module
+    /// </summary>
+    Module,
+
+    /// <summary>
     /// Namespace declaration
     /// </summary>
     Namespace,
