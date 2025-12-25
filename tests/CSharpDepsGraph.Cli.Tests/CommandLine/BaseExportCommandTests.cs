@@ -22,7 +22,6 @@ public abstract class BaseExportCommandTests<TOptions> where TOptions : ExportOp
     {
         await Check("dummy.sln", (b, e) =>
         {
-            Assert.That(b.Configuration, Is.Null);
             Assert.That(b.Properties, Is.Empty);
             Assert.That(b.GraphOptions, Is.Not.Null);
             Assert.That(b.GraphOptions.IncludeLinksToSelfType, Is.False);
@@ -52,13 +51,6 @@ public abstract class BaseExportCommandTests<TOptions> where TOptions : ExportOp
         {
             Assert.That(e, Does.Contain("file not found").IgnoreCase);
         });
-    }
-
-    [Test]
-    public async Task Configuration()
-    {
-        await Check("dummy.sln -c Foo", (b, e) => Assert.That(b.Configuration, Is.EqualTo("Foo")));
-        await Check("dummy.sln --configuration Foo", (b, e) => Assert.That(b.Configuration, Is.EqualTo("Foo")));
     }
 
     [Test]

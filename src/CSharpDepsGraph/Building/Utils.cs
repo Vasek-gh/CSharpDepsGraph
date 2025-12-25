@@ -57,16 +57,6 @@ internal static class Utils
         return link;
     }
 
-    public static string GetSyntaxLocation(SyntaxNode syntax)
-    {
-        var span = syntax.SyntaxTree.GetLineSpan(syntax.Span);
-        var line = span.StartLinePosition.Line + 1;
-        var column = span.StartLinePosition.Character + 1;
-        var path = span.Path;
-
-        return $"{path}:{line}:{column}";
-    }
-
     public static bool IsInMetadata(IAssemblySymbol assemblySymbol)
     {
         return assemblySymbol.Locations.Length == 1 && assemblySymbol.Locations[0].IsInMetadata;

@@ -23,7 +23,6 @@ internal abstract class BaseCliCommand : Command
             .AddOption(VerbosityOption, (o, v) => o.Verbosity = v);
 
         _buildOptionsHost = new OptionsHost<BuildOptions>(this)
-            .AddOption(ConfigurationOption, (o, v) => o.Configuration = v)
             .AddOption(PropertiesOption, (o, v) => o.Properties = v ?? [])
             .AddArgument(FileNameArgument, (o, v) => o.FileName = v?.FullName ?? "todo optional");
 
@@ -166,15 +165,6 @@ internal abstract class BaseCliCommand : Command
                 ( Verbosity.Diagnostic, "diag", "diag[nostic]" )
             ]
         );
-    });
-
-    private static Option<string?> ConfigurationOption { get; } = OptionBuilder.Create(() =>
-    {
-        return OptionBuilder.CreateOption<string?>(
-            "configuration",
-            "c",
-            "Defines the build configuration."
-            );
     });
 
     private static Option<IEnumerable<KeyValuePair<string, string>>> PropertiesOption { get; } = OptionBuilder.Create(() =>

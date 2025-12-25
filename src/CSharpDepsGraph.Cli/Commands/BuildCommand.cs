@@ -138,10 +138,6 @@ public sealed class BuildCommand : ICommand
     private Dictionary<string, string> CreateProps()
     {
         var result = new Dictionary<string, string>();
-        if (_options.Configuration != null)
-        {
-            result.Add("Configuration", _options.Configuration);
-        }
 
         foreach (var prop in _options.Properties ?? [])
         {
@@ -154,7 +150,6 @@ public sealed class BuildCommand : ICommand
         result.Add("BuildingInsideVisualStudio", "false");
         result.Add("DesignTimeBuild", "false");
         result.Add("SkipCompilerExecution", "true");
-
 
         result.Add("CustomBeforeMicrosoftCommonTargets", "D:/Src/inject.props"); // todo
 

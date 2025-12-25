@@ -61,7 +61,7 @@ public sealed class GraphBuilder
                 await HandleProjectVariants(projectVariants, cancellationToken);
             }
 
-            BuildLinks();
+            await BuildLinks();
 
             return new Graph()
             {
@@ -71,10 +71,10 @@ public sealed class GraphBuilder
         });
     }
 
-    private void BuildLinks()
+    private Task BuildLinks()
     {
         var logger = CreateLogger(nameof(LinkBuilder));
-        var _ = DoWithMeasurement(logger, () =>
+        return DoWithMeasurement(logger, () =>
         {
             new LinkBuilder(logger, _graphData, _generatedCodeDetector).Run();
             return Task.CompletedTask;

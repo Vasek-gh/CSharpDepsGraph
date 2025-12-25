@@ -693,8 +693,8 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
         {
             _logger.LogWarning($"""
                 Detect symbol outside parent. Symbol will be skipped.
-                Symbol id: {symbol}.
-                Location: {Utils.GetSyntaxLocation(syntax)}.
+                Symbol: {symbol}.
+                Location: {GetSyntaxLocation(syntax)}.
             """
             );
 
@@ -745,5 +745,15 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
         }
 
         return null;
+    }
+
+    private static string GetSyntaxLocation(SyntaxNode syntax)
+    {
+        var span = syntax.SyntaxTree.GetLineSpan(syntax.Span);
+        var line = span.StartLinePosition.Line + 1;
+        var column = span.StartLinePosition.Character + 1;
+        var path = span.Path;
+
+        return $"{path}:{line}:{column}";
     }
 }

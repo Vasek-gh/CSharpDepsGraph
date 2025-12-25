@@ -97,7 +97,7 @@ internal class GeneratedCodeDetector
         return Path.GetDirectoryName(asmAttrsDoc?.FilePath);
     }
 
-    // Base on Roslyn.Utilities.GeneratedCodeUtilities
+    // Based on Roslyn.Utilities.GeneratedCodeUtilities
     private static bool IsGeneratedDocument(
         SyntaxTree tree,
         CancellationToken cancellationToken

@@ -4,9 +4,7 @@ namespace CSharpDepsGraph.Cli.Options;
 
 public class BuildOptions
 {
-    public string FileName { get; set; } = ""; // todo optional / FileName -> FilePath
-
-    public string? Configuration { get; set; } // todo kill
+    public string FileName { get; set; } = "";
 
     public IEnumerable<KeyValuePair<string, string>> Properties { get; set; } = [];
 
@@ -36,7 +34,6 @@ public class BuildOptions
         return new BuildOptions()
         {
             FileName = FileName,
-            Configuration = string.IsNullOrWhiteSpace(Configuration) ? null : Configuration,
             Properties = Properties,
             GraphOptions = GraphOptions
         };

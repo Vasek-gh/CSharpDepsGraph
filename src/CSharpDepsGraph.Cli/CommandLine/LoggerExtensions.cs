@@ -16,7 +16,6 @@ internal static class LoggerExtensions
         }
 
         logger.LogValue(options.FileName);
-        logger.LogValue(options.Configuration);
         logger.LogValue(options.Properties);
     }
 
