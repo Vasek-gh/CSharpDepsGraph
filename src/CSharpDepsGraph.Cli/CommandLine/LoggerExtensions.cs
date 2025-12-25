@@ -41,7 +41,7 @@ internal static class LoggerExtensions
             return;
         }
 
-        logger.LogValue(options.OutputPath);
+        logger.LogValue(options.OutputFileName);
         logger.LogValue(options.HideExternal);
         logger.LogValue(options.ExportLevel);
         logger.LogValue(options.NodeFilters);

@@ -17,7 +17,7 @@ internal class JsonExportCommandTests : BaseExportCommandTests<JsonExportOptions
     {
         await Check("dummy.sln", (b, e) =>
         {
-            Assert.That(e.OutputPath, Is.Null);
+            Assert.That(e.OutputFileName, Is.Null);
             Assert.That(e.HideExternal, Is.False);
             Assert.That(e.ExportLevel, Is.EqualTo(NodeExportLevel.All));
             Assert.That(e.NodeFilters, Is.Not.Null);

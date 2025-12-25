@@ -3,7 +3,7 @@ using System.Diagnostics;
 
 namespace CSharpDepsGraph.Building.Entities;
 
-[DebuggerDisplay("{Source.Id} -> {Target.Id}")]
+[DebuggerDisplay("{Source.Uid} -> {Target.Uid}")]
 internal class Link : ILink, ILinkSyntaxLink
 {
     public required INode Source { get; init; }

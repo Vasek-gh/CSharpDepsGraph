@@ -79,6 +79,7 @@ public class MethodDeclaration : BaseSyntaxTests
     public void NodeHaveAllOverloads()
     {
         var graph = Build(@"
+            using System;
             using System.Collections.Generic;
             public class Test {
                 public void TestMethod() {}
@@ -91,6 +92,8 @@ public class MethodDeclaration : BaseSyntaxTests
                 public void TestMethod<T1, T2>(T1 arg1, T2 arg2) {}
                 public void TestMethod(IEnumerable<int> arg) {}
                 public void TestMethod(IEnumerable<byte> arg) {}
+                public void TestMethod(Action<byte> arg) {}
+                public void TestMethod(Func<byte> arg) {}
             }
         ");
 
@@ -104,8 +107,8 @@ public class MethodDeclaration : BaseSyntaxTests
         GraphAssert.HasSymbol(graph, "Test/TestMethod<T1, T2>(T1, T2)");
         GraphAssert.HasSymbol(graph, "Test/TestMethod(IEnumerable<int>)");
         GraphAssert.HasSymbol(graph, "Test/TestMethod(IEnumerable<byte>)");
-
-        // todo check Action and Func
+        GraphAssert.HasSymbol(graph, "Test/TestMethod(Action<byte>)");
+        GraphAssert.HasSymbol(graph, "Test/TestMethod(Func<byte>)");
     }
 
     [Test]

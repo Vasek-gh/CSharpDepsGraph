@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -6,13 +7,15 @@ namespace CSharpDepsGraph.Export.Json;
 
 internal class PathResolver
 {
+    private readonly ILogger _logger;
     private readonly Dictionary<string, int> _pathMap;
     private readonly JsonExportOptions _options;
 
     public List<string> Paths { get; }
 
-    public PathResolver(JsonExportOptions options)
+    public PathResolver(ILogger logger, JsonExportOptions options)
     {
+        _logger = logger;
         _options = options;
 
         _pathMap = new();
@@ -33,7 +36,7 @@ internal class PathResolver
     {
         if (syntaxLink.LocationKind == LocationKind.External)
         {
-            // todo warning
+            _logger.LogWarning($"Unexpected location kind: {syntaxLink.Syntax.SyntaxTree.FilePath}");
         }
 
         return Handle(syntaxLink.Syntax.SyntaxTree.FilePath);

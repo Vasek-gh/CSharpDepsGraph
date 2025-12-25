@@ -2,7 +2,7 @@ namespace CSharpDepsGraph.Cli.Options;
 
 public class ExportOptions
 {
-    public string? OutputPath { get; set; } // todo rename path -> filename
+    public string? OutputFileName { get; set; }
 
     public bool HideExternal { get; set; }
 

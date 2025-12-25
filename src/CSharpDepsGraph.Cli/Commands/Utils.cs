@@ -7,13 +7,16 @@ namespace CSharpDepsGraph.Cli.Commands;
 
 public static class CommandsUtils
 {
-    public static Stream CreateOutputStream(string? inputFileName, string? outputFileName, string defaultExtension)
+    public static Stream CreateOutputStream(string inputFileName, string? outputFileName, string defaultExtension)
     {
-        outputFileName = inputFileName == null
-            ? outputFileName ??= $"{nameof(CSharpDepsGraph)}.{defaultExtension}"
-            : $"{Path.GetFileNameWithoutExtension(inputFileName)}.{defaultExtension}";
+        var fullPath = Path.GetFullPath(outputFileName ?? GetDefaultOutputFileName(inputFileName, defaultExtension));
 
-        return new FileStream(outputFileName, FileMode.Create);
+        return new FileStream(fullPath, FileMode.Create);
+    }
+
+    private static string GetDefaultOutputFileName(string inputFileName, string defaultExtension)
+    {
+        return $"{Path.GetFileNameWithoutExtension(inputFileName)}.{defaultExtension}";
     }
 
     public static ITransformer GetFlatExportTransformer(ExportOptions settings)

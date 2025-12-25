@@ -16,7 +16,7 @@ internal sealed class GraphvizExportCliCommand : BaseCliCommand
         _commandFactory = commandFactory;
 
         _optionsHost = new OptionsHost<ExportOptions>(this)
-            .AddOption(ExportOptionsFactory.OutputFileName, (o, v) => o.OutputPath = v?.FullName)
+            .AddOption(ExportOptionsFactory.OutputFileName, (o, v) => o.OutputFileName = v?.FullName)
             .AddOption(ExportOptionsFactory.HideExternal, (o, v) => o.HideExternal = v)
             .AddOption(ExportOptionsFactory.ExportLevelOneLevel, (o, v) => o.ExportLevel = v)
             .AddOption(ExportOptionsFactory.NodeFilters, (o, v) => o.NodeFilters = v ?? []);

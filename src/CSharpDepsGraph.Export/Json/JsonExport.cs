@@ -27,7 +27,7 @@ public class JsonExport
         _logger = logger;
         _exportOptions = exportOptions;
 
-        _pathResolver = new(exportOptions);
+        _pathResolver = new(logger, exportOptions);
 
         _jsonOptions = new JsonSerializerOptions()
         {

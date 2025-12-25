@@ -28,7 +28,7 @@ public sealed class DgmlExportCommand : IHandlerCommand
 
             _logger.LogDebug("Export...");
 
-            using var stream = CommandsUtils.CreateOutputStream(graphContext.InputFile, _options.OutputPath, "dgml");
+            using var stream = CommandsUtils.CreateOutputStream(graphContext.InputFile, _options.OutputFileName, "dgml");
 
             await new DgmlExport(_loggerFactory.CreateLogger<DgmlExport>()).RunAsync(graph, stream, cancellationToken);
         });

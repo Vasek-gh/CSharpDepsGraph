@@ -211,6 +211,23 @@ public class AttributeDeclaration : BaseSyntaxTests
     }
 
     [Test]
+    public void EnumMemberAttribute()
+    {
+        var graph = Build(@"
+            using System;
+            public class FooAttribute : Attribute {}
+            public enum Test {
+                [Foo]
+                Bar
+            }
+        ");
+
+        GraphAssert.HasExactLink(graph, "Test/Bar",
+            (AsmName.Test, "FooAttribute")
+        );
+    }
+
+    [Test]
     public void ImplicitlyAttributeConstructor()
     {
         var graph = Build(@"

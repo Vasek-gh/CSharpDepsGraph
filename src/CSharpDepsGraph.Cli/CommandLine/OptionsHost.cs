@@ -35,6 +35,17 @@ internal sealed class OptionsHost<T> where T : class, new()
         return this;
     }
 
+    public OptionsHost<T> AddRequiredArgument<TValue>(Argument<TValue> argument, Action<T, TValue> valueSetter)
+    {
+        _command.Arguments.Add(argument);
+        _setters.Add((o, parseResult) =>
+        {
+            valueSetter(o, parseResult.GetRequiredValue(argument));
+        });
+
+        return this;
+    }
+
     public T GetValue(ParseResult parseResult)
     {
         var result = new T();

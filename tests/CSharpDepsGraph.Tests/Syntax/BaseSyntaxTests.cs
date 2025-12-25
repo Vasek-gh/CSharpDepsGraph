@@ -39,8 +39,8 @@ public abstract class BaseSyntaxTests
         var options = new GraphBuildOptions()
         {
             IncludeLinksToSelfType = true,
-            GenerateFullyQualifiedUid = true,
             IncludeLinksToPrimitveTypes = true,
+            GenerateFullyQualifiedUid = true,
             IgnoreLinksToAssemblies = [],
         };
 

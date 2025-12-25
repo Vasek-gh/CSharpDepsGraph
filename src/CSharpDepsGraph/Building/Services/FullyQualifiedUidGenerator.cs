@@ -43,7 +43,6 @@ internal class FullyQualifiedUidGenerator : ISymbolUidGenerator
 
         Append(symbol.Name);
 
-        // todo check in a unit test that a version is not created for the assembly from source
         if (Utils.IsInMetadata(symbol) && _options.DoNotMergeAssembliesWithDifferentVersions)
         {
             var version = symbol.Identity.Version;

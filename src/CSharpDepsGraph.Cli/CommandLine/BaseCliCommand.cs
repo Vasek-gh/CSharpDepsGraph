@@ -24,7 +24,7 @@ internal abstract class BaseCliCommand : Command
 
         _buildOptionsHost = new OptionsHost<BuildOptions>(this)
             .AddOption(PropertiesOption, (o, v) => o.Properties = v ?? [])
-            .AddArgument(FileNameArgument, (o, v) => o.FileName = v?.FullName ?? "todo optional");
+            .AddRequiredArgument(FileNameArgument, (o, v) => o.FileName = v.FullName);
 
         _graphBuildOptionsHost = new OptionsHost<GraphBuildOptions>(this);
         // todo

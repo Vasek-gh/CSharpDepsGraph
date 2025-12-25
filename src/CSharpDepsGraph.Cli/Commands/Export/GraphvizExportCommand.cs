@@ -28,7 +28,7 @@ public sealed class GraphvizExportCommand : IHandlerCommand
 
             _logger.LogDebug("Export...");
 
-            using var stream = CommandsUtils.CreateOutputStream(graphContext.InputFile, _options.OutputPath, "dot");
+            using var stream = CommandsUtils.CreateOutputStream(graphContext.InputFile, _options.OutputFileName, "dot");
 
             await new GraphvizExport(_loggerFactory.CreateLogger<GraphvizExport>()).RunAsync(graph, stream, cancellationToken);
         });

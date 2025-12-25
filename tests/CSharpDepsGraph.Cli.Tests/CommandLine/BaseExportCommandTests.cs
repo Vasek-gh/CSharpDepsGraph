@@ -97,25 +97,25 @@ public abstract class BaseExportCommandTests<TOptions> where TOptions : ExportOp
     }
 
     [Test]
-    public async Task OutputPath()
+    public async Task OutputFileName()
     {
         var currentDir = Directory.GetCurrentDirectory();
 
-        await Check("dummy.sln -o foo", (b, e) =>
-            Assert.That(e.OutputPath, Is.EqualTo(Path.Combine(currentDir, "foo")))
+        await Check("dummy.sln -o foo.txt", (b, e) =>
+            Assert.That(e.OutputFileName, Is.EqualTo(Path.Combine(currentDir, "foo.txt")))
             );
-        await Check("dummy.sln -o \"foo bar\"", (b, e) =>
-            Assert.That(e.OutputPath, Is.EqualTo(Path.Combine(currentDir, "foo bar")))
+        await Check("dummy.sln -o \"foo bar.txt\"", (b, e) =>
+            Assert.That(e.OutputFileName, Is.EqualTo(Path.Combine(currentDir, "foo bar.txt")))
         );
-        await Check("dummy.sln --output foo", (b, e) =>
-            Assert.That(e.OutputPath, Is.EqualTo(Path.Combine(currentDir, "foo")))
+        await Check("dummy.sln --output foo.txt", (b, e) =>
+            Assert.That(e.OutputFileName, Is.EqualTo(Path.Combine(currentDir, "foo.txt")))
             );
-        await Check("dummy.sln --output \"foo bar\"", (b, e) =>
-            Assert.That(e.OutputPath, Is.EqualTo(Path.Combine(currentDir, "foo bar")))
+        await Check("dummy.sln --output \"foo bar.txt\"", (b, e) =>
+            Assert.That(e.OutputFileName, Is.EqualTo(Path.Combine(currentDir, "foo bar.txt")))
         );
 
-        await Check("dummy.sln --output C:/foo/bar", (b, e) =>
-            Assert.That(e.OutputPath, Is.EqualTo(Path.Combine(currentDir, Path.Combine("C:", "foo", "bar"))))
+        await Check("dummy.sln --output C:/foo/bar.txt", (b, e) =>
+            Assert.That(e.OutputFileName, Is.EqualTo(Path.Combine(currentDir, Path.Combine("C:", "foo", "bar.txt"))))
         );
     }
 
@@ -217,11 +217,14 @@ public abstract class BaseExportCommandTests<TOptions> where TOptions : ExportOp
 
         var args = GetArgs(_baseCommnad + " " + commandArguments);
 
+        var originalStdOut = Console.Out;
         var originalStdErrOut = Console.Error;
         try
         {
-            using var customWriter = new StringWriter();
-            Console.SetError(customWriter);
+            using var outWriter = new StringWriter();
+            using var errWriter = new StringWriter();
+            Console.SetOut(outWriter);
+            Console.SetError(errWriter);
 
             var result = await Program.Run(args, commandFactory);
             if (result == 0)
@@ -229,10 +232,11 @@ public abstract class BaseExportCommandTests<TOptions> where TOptions : ExportOp
                 return null;
             }
 
-            return customWriter.ToString();
+            return errWriter.ToString();
         }
         finally
         {
+            Console.SetOut(originalStdOut);
             Console.SetError(originalStdErrOut);
         }
     }

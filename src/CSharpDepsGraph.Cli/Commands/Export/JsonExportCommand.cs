@@ -26,7 +26,7 @@ public sealed class JsonExportCommand : IHandlerCommand
 
             _logger.LogDebug("Export...");
 
-            using var stream = CommandsUtils.CreateOutputStream(graphContext.InputFile, _options.OutputPath, "json");
+            using var stream = CommandsUtils.CreateOutputStream(graphContext.InputFile, _options.OutputFileName, "json");
 
             var options = new CSharpDepsGraph.Export.Json.JsonExportOptions()
             {

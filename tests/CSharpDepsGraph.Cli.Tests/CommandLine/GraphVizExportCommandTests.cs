@@ -17,7 +17,7 @@ internal class GraphVizExportCommandTests : BaseExportCommandTests<ExportOptions
     {
         await Check("dummy.sln", (b, e) =>
         {
-            Assert.That(e.OutputPath, Is.Null);
+            Assert.That(e.OutputFileName, Is.Null);
             Assert.That(e.HideExternal, Is.False);
             Assert.That(e.ExportLevel, Is.EqualTo(NodeExportLevel.Assembly));
             Assert.That(e.NodeFilters, Is.Not.Null);
