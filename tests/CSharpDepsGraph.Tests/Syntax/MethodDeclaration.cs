@@ -81,10 +81,12 @@ public class MethodDeclaration : BaseSyntaxTests
         var graph = Build(@"
             using System;
             using System.Collections.Generic;
-            public class Test {
+            unsafe public class Test {
                 public void TestMethod() {}
                 public void TestMethod(int arg1) {}
                 public void TestMethod(int? arg1) {}
+                public void TestMethod(int[] arg1) {}
+                public void TestMethod(int* arg1) {}
                 public void TestMethod(string arg1) {}
                 public void TestMethod(int arg1, string arg) {}
                 public void TestMethod<T1>(T1 arg1) {}
@@ -100,6 +102,8 @@ public class MethodDeclaration : BaseSyntaxTests
         GraphAssert.HasSymbol(graph, "Test/TestMethod()");
         GraphAssert.HasSymbol(graph, "Test/TestMethod(int)");
         GraphAssert.HasSymbol(graph, "Test/TestMethod(int?)");
+        GraphAssert.HasSymbol(graph, "Test/TestMethod(int[])");
+        GraphAssert.HasSymbol(graph, "Test/TestMethod(int*)");
         GraphAssert.HasSymbol(graph, "Test/TestMethod(string)");
         GraphAssert.HasSymbol(graph, "Test/TestMethod(int, string)");
         GraphAssert.HasSymbol(graph, "Test/TestMethod<T1>(T1)");

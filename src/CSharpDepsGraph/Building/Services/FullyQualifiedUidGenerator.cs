@@ -193,8 +193,6 @@ internal class FullyQualifiedUidGenerator : ISymbolUidGenerator
         }
     }
 
-
-
     private void AppendMethod(IMethodSymbol symbol)
     {
         Append(symbol.ContainingSymbol, false);
@@ -287,11 +285,6 @@ internal class FullyQualifiedUidGenerator : ISymbolUidGenerator
             var parameter = parameters[i];
 
             Append(ToParameterPrefix(parameter.RefKind));
-            if (parameter.IsParams)
-            {
-                Append("params "); // todo kill???
-            }
-
             AppendType(parameter.Type, true);
         }
 

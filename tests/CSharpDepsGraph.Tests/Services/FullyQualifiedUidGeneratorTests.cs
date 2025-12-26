@@ -80,4 +80,114 @@ public class FullyQualifiedUidGeneratorTests : BaseSyntaxTests
 
         Assert.That(graph.GetNode("Foo/Bar(int)").Uid, Is.EqualTo("Test/Foo.Bar(int)"));
     }
+
+    [Test]
+    public void MethodInternalArgument()
+    {
+        var graph = Build(@"
+            using System;
+            namespace FooSpace {
+                class BarClass{}
+            }
+            class Foo{
+                void Bar(FooSpace.BarClass a) {}
+            }
+
+        ");
+
+        Assert.That(graph.GetNode("Foo/Bar(BarClass)").Uid, Is.EqualTo("Test/Foo.Bar(FooSpace.BarClass)"));
+    }
+
+    [Test]
+    public void MethodExternalArgument()
+    {
+        var graph = Build(@"
+            using System;
+            class Foo{
+                void Bar(TimeSpan a) {}
+            }
+        ");
+
+        Assert.That(graph.GetNode("Foo/Bar(TimeSpan)").Uid, Is.EqualTo("Test/Foo.Bar(System.TimeSpan)"));
+    }
+
+    [Test]
+    public void MethodGenericArgument()
+    {
+        var graph = Build(@"
+            using System;
+            class Foo{
+                void Bar<T>(T a) {}
+            }
+        ");
+
+        Assert.That(graph.GetNode("Foo/Bar<T>(T)").Uid, Is.EqualTo("Test/Foo.Bar<T>(T)"));
+    }
+
+    [Test]
+    public void MethodPointerArgument()
+    {
+        var graph = Build(@"
+            using System;
+            unsafe class Foo{
+                void Bar(int* a) {}
+            }
+        ");
+
+        Assert.That(graph.GetNode("Foo/Bar(int*)").Uid, Is.EqualTo("Test/Foo.Bar(int*)"));
+    }
+
+    [Test]
+    public void MethodArrayArgument()
+    {
+        var graph = Build(@"
+            using System;
+            unsafe class Foo{
+                void Bar(int[] a) {}
+            }
+        ");
+
+        Assert.That(graph.GetNode("Foo/Bar(int[])").Uid, Is.EqualTo("Test/Foo.Bar(int[])"));
+    }
+
+    [Test]
+    public void MethodNullableArgument()
+    {
+        var graph = Build(@"
+            using System;
+            unsafe class Foo{
+                void Bar(int? a) {}
+                void Bar(Foo? a) {}
+            }
+        ");
+
+        Assert.That(graph.GetNode("Foo/Bar(int?)").Uid, Is.EqualTo("Test/Foo.Bar(int?)"));
+        Assert.That(graph.GetNode("Foo/Bar(Foo?)").Uid, Is.EqualTo("Test/Foo.Bar(Foo?)"));
+    }
+
+    [Test]
+    public void MethodParamsArgument()
+    {
+        var graph = Build(@"
+            using System;
+            unsafe class Foo{
+                void Bar(params int[] a) {}
+            }
+        ");
+
+        Assert.That(graph.GetNode("Foo/Bar(params int[])").Uid, Is.EqualTo("Test/Foo.Bar(int[])"));
+    }
+
+    [Test]
+    public void Indexer()
+    {
+        var graph = Build(@"
+            using System;
+            unsafe class Foo{
+                public int this[int key] => 0;
+            }
+        ");
+
+        Assert.That(graph.GetNode("Foo/this[int]").Uid, Is.EqualTo("Test/Foo.this[int]"));
+    }
 }
