@@ -7,7 +7,20 @@ internal static class GraphAssert
 {
     public static void HasSymbol(IGraph graph, string fullQualifiedName)
     {
-        graph.GetNode(AsmName.Test, fullQualifiedName);
+        HasSymbol(graph, (AsmName.Test, fullQualifiedName));
+    }
+
+    public static void HasSymbol(IGraph graph, params (string assemblyName, string fullQualifiedName)[] paths)
+    {
+        foreach (var item in paths)
+        {
+            graph.GetNode(item.assemblyName, item.fullQualifiedName);
+        }
+    }
+
+    public static void HasNotSymbol(IGraph graph, string fullQualifiedName)
+    {
+        HasNotSymbol(graph, (AsmName.Test, fullQualifiedName));
     }
 
     public static void HasNotSymbol(IGraph graph, params (string assemblyName, string fullQualifiedName)[] paths)

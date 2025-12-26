@@ -2,7 +2,7 @@ using System.Diagnostics;
 
 namespace CSharpDepsGraph.Transforming;
 
-[DebuggerDisplay("{Source.Id} -> {Target.Id}")]
+[DebuggerDisplay("{Source.Uid} -> {Target.Uid}")]
 internal class MutatedLink : ILink
 {
     public required INode Source { get; init; }

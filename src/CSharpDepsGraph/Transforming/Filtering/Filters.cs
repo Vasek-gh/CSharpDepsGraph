@@ -15,12 +15,9 @@ public static class Filters
     /// <summary>
     /// This filter can use to hide all private members
     /// </summary>
-    public static DelegateFilter HidePrivate { get; } = new DelegateFilter((node, parent) =>
+    public static DelegateFilter HidePrivate { get; } = new DelegateFilter((parent, node) =>
     {
-        var visible = node.Symbol == null
-            || parent.Symbol is not ITypeSymbol
-            || node.Symbol.IsTopLevelStatement()
-            || node.Symbol.DeclaredAccessibility != Accessibility.Private;
+        var visible = node.Symbol?.DeclaredAccessibility != Accessibility.Private;
 
         return visible ? FilterAction.Skip : FilterAction.Hide;
     });
@@ -28,20 +25,10 @@ public static class Filters
     /// <summary>
     /// This filter can use to dissolve all members
     /// </summary>
-    public static DelegateFilter DissolveMembers { get; } = new DelegateFilter((node, parent) =>
+    public static DelegateFilter DissolveMembers { get; } = new DelegateFilter((parent, node) =>
     {
         var visible = parent.Symbol is not ITypeSymbol
-            || node.Symbol == null
-            || (
-                node.Symbol is ITypeSymbol typeSymbol
-                && (
-                    typeSymbol.TypeKind == TypeKind.Structure
-                    || typeSymbol.TypeKind == TypeKind.Class
-                    || typeSymbol.TypeKind == TypeKind.Interface
-                    || typeSymbol.TypeKind == TypeKind.Delegate
-                    || typeSymbol.TypeKind == TypeKind.Enum
-                )
-            );
+            || node.Symbol is ITypeSymbol typeSymbol;
 
         return visible ? FilterAction.Skip : FilterAction.Dissolve;
     });
@@ -51,11 +38,7 @@ public static class Filters
     /// </summary>
     public static DelegateFilter DissolveTypes { get; } = new DelegateFilter((node) =>
     {
-        // todo ITypeSymbol
-        var visible = node.Symbol == null
-            || node.Symbol is IAssemblySymbol
-            || node.Symbol is IModuleSymbol
-            || node.Symbol is INamespaceSymbol;
+        var visible = node.Symbol is not ITypeSymbol;
 
         return visible ? FilterAction.Skip : FilterAction.Dissolve;
     });
@@ -65,10 +48,7 @@ public static class Filters
     /// </summary>
     public static DelegateFilter DissolveNamespaces { get; } = new DelegateFilter((node) =>
     {
-        // todo INamespaceSymbol
-        var visible = node.Symbol == null
-            || node.Symbol is IAssemblySymbol
-            || node.Symbol is IModuleSymbol;
+        var visible = node.Symbol is not INamespaceSymbol;
 
         return visible ? FilterAction.Skip : FilterAction.Dissolve;
     });
