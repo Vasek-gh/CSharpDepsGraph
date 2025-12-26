@@ -43,7 +43,7 @@ internal class FullyQualifiedUidGenerator : ISymbolUidGenerator
 
         Append(symbol.Name);
 
-        if (Utils.IsInMetadata(symbol) && _options.DoNotMergeAssembliesWithDifferentVersions)
+        if (Utils.IsInMetadata(symbol) && _options.SplitAssembliesVersions)
         {
             var version = symbol.Identity.Version;
             if (!_versionCache.TryGetValue(version, out var versionString))

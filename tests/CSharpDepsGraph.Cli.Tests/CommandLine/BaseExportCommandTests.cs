@@ -24,10 +24,10 @@ public abstract class BaseExportCommandTests<TOptions> where TOptions : ExportOp
         {
             Assert.That(b.Properties, Is.Empty);
             Assert.That(b.GraphOptions, Is.Not.Null);
-            Assert.That(b.GraphOptions.IncludeLinksToSelfType, Is.False);
-            Assert.That(b.GraphOptions.IncludeLinksToPrimitveTypes, Is.False);
-            Assert.That(b.GraphOptions.DoNotIgnoreVisibleGeneratedCode, Is.False);
-            Assert.That(b.GraphOptions.DoNotMergeAssembliesWithDifferentVersions, Is.False);
+            Assert.That(b.GraphOptions.IncludeLinksToSelf, Is.False);
+            Assert.That(b.GraphOptions.IncludeLinksToPrimitiveTypes, Is.False);
+            Assert.That(b.GraphOptions.ParseVisibleGeneratedCode, Is.False);
+            Assert.That(b.GraphOptions.SplitAssembliesVersions, Is.False);
             Assert.That(b.GraphOptions.GenerateFullyQualifiedUid, Is.False);
             Assert.That(b.GraphOptions.IgnoreLinksToAssemblies, Is.EquivalentTo(new GraphBuildOptions().IgnoreLinksToAssemblies));
         });

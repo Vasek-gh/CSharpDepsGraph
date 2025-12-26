@@ -95,7 +95,7 @@ internal class SymbolComparer
 
         Version GetAssemblyVersion(IAssemblySymbol assemblySymbol)
         {
-            return _options.DoNotMergeAssembliesWithDifferentVersions
+            return _options.SplitAssembliesVersions
                 ? assemblySymbol.Identity.Version
                 : _versionStub;
         }

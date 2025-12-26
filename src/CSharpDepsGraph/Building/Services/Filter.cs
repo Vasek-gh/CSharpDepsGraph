@@ -12,17 +12,17 @@ internal class Filter : IFilter
     {
         _options = options;
         _symbolComparer = symbolComparer;
-        _ignoreLinksToAssemblies = options.IgnoreLinksToAssemblies ?? [];
+        _ignoreLinksToAssemblies = options.IgnoreLinksToAssemblies.ToHashSet();
     }
 
     public bool FilterLinkTarget(ISymbol source, ISymbol target)
     {
-        if (!_options.IncludeLinksToPrimitveTypes && SymbolIsPrimitiveType(target))
+        if (!_options.IncludeLinksToPrimitiveTypes && SymbolIsPrimitiveType(target))
         {
             return true;
         }
 
-        if (!_options.IncludeLinksToSelfType && LinkToSelf(source, target))
+        if (!_options.IncludeLinksToSelf && LinkToSelf(source, target))
         {
             return true;
         }

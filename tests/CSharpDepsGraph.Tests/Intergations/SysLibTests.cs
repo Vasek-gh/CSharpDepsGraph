@@ -59,7 +59,7 @@ public class SysLibTests : BaseIntergationsTests
     [Test]
     public void PrimitiveTypesIgnored()
     {
-        var graph = GetGraph(o => o.IncludeLinksToPrimitveTypes = false);
+        var graph = GetGraph(o => o.IncludeLinksToPrimitiveTypes = false);
         var typeNode = graph.GetNode(AsmName.TestProject, "TestProject/TargetFrameworks");
         var methodNode = typeNode.Childs.Single(c => c.Symbol?.Name == "Primitive");
 
@@ -79,14 +79,14 @@ public class SysLibTests : BaseIntergationsTests
     [Test]
     public void MergeAssemblyVersion()
     {
-        var graph1 = GetGraph(o => o.DoNotMergeAssembliesWithDifferentVersions = false);
+        var graph1 = GetGraph(o => o.SplitAssembliesVersions = false);
 
         GraphAssert.HasExactLink(graph1, (AsmName.TestProject, "TestProject/Constants/IntConst1"),
             (AsmName.Netstandard, "System/int"),
             (AsmName.Runtime60, "System/int")
         );
 
-        var graph2 = GetGraph(o => o.DoNotMergeAssembliesWithDifferentVersions = true);
+        var graph2 = GetGraph(o => o.SplitAssembliesVersions = true);
 
         GraphAssert.HasExactLink(graph2, (AsmName.TestProject, "TestProject/Constants/IntConst1"),
             (AsmName.Netstandard, "System/int"),

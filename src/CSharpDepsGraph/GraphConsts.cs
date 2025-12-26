@@ -1,5 +1,8 @@
 namespace CSharpDepsGraph;
 
+/// <summary>
+/// Various constants used to construct the graph
+/// </summary>
 public static class GraphConsts
 {
     /// <summary>
