@@ -120,7 +120,7 @@ public sealed class GraphBuilder
             var compilation = await GetCompilation(project, logger, cancellationToken);
             foreach (var syntaxTree in compilation.SyntaxTrees)
             {
-                var generatedFileKind = _generatedCodeDetector.GetGeneratedFileKindAsync(syntaxTree, cancellationToken);
+                var generatedFileKind = _generatedCodeDetector.GetFileKind(syntaxTree, cancellationToken);
                 if (generatedFileKind == GeneratedFileKind.Hiden)
                 {
                     continue;

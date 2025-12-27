@@ -40,7 +40,7 @@ internal class GeneratedCodeDetector
         }
     }
 
-    public GeneratedFileKind GetGeneratedFileKindAsync(SyntaxTree syntaxTree, CancellationToken cancellationToken)
+    public GeneratedFileKind GetFileKind(SyntaxTree syntaxTree, CancellationToken cancellationToken)
     {
         if (_resultCache.TryGetValue(syntaxTree.FilePath, out var result))
         {

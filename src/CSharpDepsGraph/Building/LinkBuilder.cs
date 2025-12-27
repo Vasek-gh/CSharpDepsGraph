@@ -126,7 +126,7 @@ internal class LinkBuilder
             {
                 ForEachSyntaxReference(symbol, (sr) =>
                 {
-                    var generatedFileKind = _generatedCodeDetector.GetGeneratedFileKindAsync(sr.SyntaxTree, CancellationToken.None);
+                    var generatedFileKind = _generatedCodeDetector.GetFileKind(sr.SyntaxTree, CancellationToken.None);
                     if (generatedFileKind == GeneratedFileKind.None)
                     {
                         var location = sr.SyntaxTree.GetLocation(sr.Span);
