@@ -6,23 +6,23 @@ internal class Filter : IFilter
 {
     private readonly GraphBuildOptions _options;
     private readonly SymbolComparer _symbolComparer;
-    private readonly HashSet<string> _ignoreLinksToAssemblies;
+    private readonly HashSet<string> _assemblyFilter;
 
     public Filter(GraphBuildOptions options, SymbolComparer symbolComparer)
     {
         _options = options;
         _symbolComparer = symbolComparer;
-        _ignoreLinksToAssemblies = options.IgnoreLinksToAssemblies.ToHashSet();
+        _assemblyFilter = options.AssemblyFilter.ToHashSet();
     }
 
     public bool FilterLinkTarget(ISymbol source, ISymbol target)
     {
-        if (!_options.IncludeLinksToPrimitiveTypes && SymbolIsPrimitiveType(target))
+        if (!_options.CreateLinksToPrimitiveTypes && SymbolIsPrimitiveType(target))
         {
             return true;
         }
 
-        if (!_options.IncludeLinksToSelf && LinkToSelf(source, target))
+        if (!_options.CreateLinksToSelf && LinkToSelf(source, target))
         {
             return true;
         }
@@ -64,6 +64,6 @@ internal class Filter : IFilter
             return false;
         }
 
-        return _ignoreLinksToAssemblies.Contains(assembly.Name);
+        return _assemblyFilter.Contains(assembly.Name);
     }
 }

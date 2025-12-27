@@ -17,7 +17,7 @@ internal class SymbolUidGenerator : ISymbolUidGenerator
 
     public static ISymbolUidGenerator Create(GraphBuildOptions options)
     {
-        return options.GenerateFullyQualifiedUid
+        return options.FullyQualifiedUid
             ? new FullyQualifiedUidGenerator(options)
             : new SymbolUidGenerator();
     }

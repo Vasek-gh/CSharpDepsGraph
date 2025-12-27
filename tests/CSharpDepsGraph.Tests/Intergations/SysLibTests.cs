@@ -59,7 +59,7 @@ public class SysLibTests : BaseIntergationsTests
     [Test]
     public void PrimitiveTypesIgnored()
     {
-        var graph = GetGraph(o => o.IncludeLinksToPrimitiveTypes = false);
+        var graph = GetGraph(o => o.CreateLinksToPrimitiveTypes = false);
         var typeNode = graph.GetNode(AsmName.TestProject, "TestProject/TargetFrameworks");
         var methodNode = typeNode.Childs.Single(c => c.Symbol?.Name == "Primitive");
 
@@ -69,7 +69,7 @@ public class SysLibTests : BaseIntergationsTests
     [Test]
     public void DefaultAssemblyFilter()
     {
-        var graph = GetGraph(o => o.IgnoreLinksToAssemblies = new GraphBuildOptions().IgnoreLinksToAssemblies);
+        var graph = GetGraph(o => o.AssemblyFilter = new GraphBuildOptions().AssemblyFilter);
         var typeNode = graph.GetNode(AsmName.TestProject, "TestProject/TargetFrameworks");
         var methodNode = typeNode.Childs.Single(c => c.Symbol?.Name == "StdTypes");
 

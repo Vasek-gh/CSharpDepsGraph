@@ -26,12 +26,12 @@ internal static class LoggerExtensions
             return;
         }
 
-        logger.LogValue(options.IncludeLinksToSelf);
-        logger.LogValue(options.IncludeLinksToPrimitiveTypes);
-        logger.LogValue(options.ParseVisibleGeneratedCode);
+        logger.LogValue(options.CreateLinksToSelf);
+        logger.LogValue(options.CreateLinksToPrimitiveTypes);
+        logger.LogValue(options.ParseGeneratedCode);
         logger.LogValue(options.SplitAssembliesVersions);
-        logger.LogValue(options.GenerateFullyQualifiedUid);
-        logger.LogValue(options.IgnoreLinksToAssemblies);
+        logger.LogValue(options.FullyQualifiedUid);
+        logger.LogValue(options.AssemblyFilter);
     }
 
     public static void Verbose(this ILogger logger, ExportOptions options)

@@ -6,32 +6,32 @@ namespace CSharpDepsGraph.Building;
 public class GraphBuildOptions
 {
     /// <summary>
+    /// Uses fully qualified symbol names for node identifiers
+    /// </summary>
+    public bool FullyQualifiedUid { get; set; }
+
+    /// <summary>
+    /// Parse the generated code what not located in intermediate output path
+    /// </summary>
+    public bool ParseGeneratedCode { get; set; }
+
+    /// <summary>
     /// Include references to symbols from your own type
     /// </summary>
-    public bool IncludeLinksToSelf { get; set; }
+    public bool CreateLinksToSelf { get; set; }
 
     /// <summary>
     /// Include links to symbols of primitive types
     /// </summary>
-    public bool IncludeLinksToPrimitiveTypes { get; set; }
+    public bool CreateLinksToPrimitiveTypes { get; set; }
 
     /// <summary>
-    /// Parse the visible generated code
-    /// </summary>
-    public bool ParseVisibleGeneratedCode { get; set; }
-
-    /// <summary>
-    /// Сreates separate nodes for each version of an external assembly
+    /// Сreates separate nodes for each version of an assembly
     /// </summary>
     public bool SplitAssembliesVersions { get; set; }
 
     /// <summary>
-    /// Uses fully qualified symbol names for node identifiers
+    /// Link to all symbols from the listed assemblies will be ignored
     /// </summary>
-    public bool GenerateFullyQualifiedUid { get; set; }
-
-    /// <summary>
-    /// Remove links to all symbols from the specified assemblies
-    /// </summary>
-    public IEnumerable<string> IgnoreLinksToAssemblies { get; set; } = Utils.CoreLibs;
+    public IEnumerable<string> AssemblyFilter { get; set; } = Utils.CoreLibs;
 }

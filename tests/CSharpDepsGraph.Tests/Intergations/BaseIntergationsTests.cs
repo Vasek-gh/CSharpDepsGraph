@@ -39,9 +39,9 @@ public abstract class BaseIntergationsTests
     {
         var options = new GraphBuildOptions()
         {
-            IncludeLinksToPrimitiveTypes = true,
-            GenerateFullyQualifiedUid = true,
-            IgnoreLinksToAssemblies = [],
+            CreateLinksToPrimitiveTypes = true,
+            FullyQualifiedUid = true,
+            AssemblyFilter = [],
             SplitAssembliesVersions = true,
         };
 

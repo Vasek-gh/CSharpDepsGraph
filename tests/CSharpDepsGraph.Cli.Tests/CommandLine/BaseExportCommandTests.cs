@@ -20,16 +20,17 @@ public abstract class BaseExportCommandTests<TOptions> where TOptions : ExportOp
     [Test]
     public async Task BuildDefaults()
     {
+        var defaultOptions = new GraphBuildOptions();
         await Check("dummy.sln", (b, e) =>
         {
             Assert.That(b.Properties, Is.Empty);
             Assert.That(b.GraphOptions, Is.Not.Null);
-            Assert.That(b.GraphOptions.IncludeLinksToSelf, Is.False);
-            Assert.That(b.GraphOptions.IncludeLinksToPrimitiveTypes, Is.False);
-            Assert.That(b.GraphOptions.ParseVisibleGeneratedCode, Is.False);
-            Assert.That(b.GraphOptions.SplitAssembliesVersions, Is.False);
-            Assert.That(b.GraphOptions.GenerateFullyQualifiedUid, Is.False);
-            Assert.That(b.GraphOptions.IgnoreLinksToAssemblies, Is.EquivalentTo(new GraphBuildOptions().IgnoreLinksToAssemblies));
+            Assert.That(b.GraphOptions.CreateLinksToSelf, Is.EqualTo(defaultOptions.CreateLinksToSelf));
+            Assert.That(b.GraphOptions.CreateLinksToPrimitiveTypes, Is.EqualTo(defaultOptions.CreateLinksToPrimitiveTypes));
+            Assert.That(b.GraphOptions.ParseGeneratedCode, Is.EqualTo(defaultOptions.ParseGeneratedCode));
+            Assert.That(b.GraphOptions.SplitAssembliesVersions, Is.EqualTo(defaultOptions.SplitAssembliesVersions));
+            Assert.That(b.GraphOptions.FullyQualifiedUid, Is.EqualTo(defaultOptions.FullyQualifiedUid));
+            Assert.That(b.GraphOptions.AssemblyFilter, Is.EquivalentTo(defaultOptions.AssemblyFilter));
         });
     }
 

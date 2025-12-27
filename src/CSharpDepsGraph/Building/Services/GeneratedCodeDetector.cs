@@ -69,7 +69,7 @@ internal class GeneratedCodeDetector
         if (isGenerated)
         {
             var inObjDir = _objPaths.Any(op => path.StartsWith(op, StringComparison.Ordinal));
-            result = inObjDir || !_options.ParseVisibleGeneratedCode
+            result = inObjDir || !_options.ParseGeneratedCode
                 ? GeneratedFileKind.Hiden
                 : GeneratedFileKind.Visible;
         }

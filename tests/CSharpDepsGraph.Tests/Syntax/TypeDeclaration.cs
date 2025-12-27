@@ -149,7 +149,7 @@ public class TypeDeclaration : BaseSyntaxTests
             }
         ";
 
-        var graph1 = Build(source, (o) => o.IncludeLinksToSelf = false);
+        var graph1 = Build(source, (o) => o.CreateLinksToSelf = false);
         var node1 = graph1.GetNode("Foo");
         var nodeLinks1 = graph1.GetOutgoingLinks(node1);
         Assert.That(nodeLinks1.Length, Is.EqualTo(1));
@@ -157,7 +157,7 @@ public class TypeDeclaration : BaseSyntaxTests
         Assert.That(graph1.GetOutgoingLinks(node1.GetNode("Prop")), Is.Empty);
         Assert.That(graph1.GetOutgoingLinks(node1.GetNode("Method(Foo)")), Is.Empty);
 
-        var graph2 = Build(source, o => o.IncludeLinksToSelf = true);
+        var graph2 = Build(source, o => o.CreateLinksToSelf = true);
         var node2 = graph1.GetNode("Foo");
 
         GraphAssert.HasLink(graph2, "Foo",
