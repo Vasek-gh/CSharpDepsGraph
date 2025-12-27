@@ -1,6 +1,12 @@
-﻿using TestProject.Cli;
+﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
+using System.CommandLine;
+using TestProject.Cli;
 using TestProject.Entities;
 using TestProject.Generated;
+
+ILogger logger = NullLogger.Instance;
+RootCommand rootCommand = new RootCommand();
 
 var car = new Car();
 new Foo().PublicMethod();

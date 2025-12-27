@@ -22,8 +22,8 @@ public class TargetFrameworks
 
     }
 
-    public void StdTypes(OperationCanceledException e)
+    public void StdTypes(int a1, OperationCanceledException e)
     {
-
+        Console.ReadKey();
     }
 }

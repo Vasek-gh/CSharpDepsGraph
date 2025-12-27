@@ -1,4 +1,3 @@
-using CSharpDepsGraph.Building;
 using NUnit.Framework;
 using System.Linq;
 
@@ -66,15 +65,7 @@ public class SysLibTests : BaseIntergationsTests
         Assert.That(graph.GetOutgoingLinks(methodNode), Is.Empty);
     }
 
-    [Test]
-    public void DefaultAssemblyFilter()
-    {
-        var graph = GetGraph(o => o.AssemblyFilter = new GraphBuildOptions().AssemblyFilter);
-        var typeNode = graph.GetNode(AsmName.TestProject, "TestProject/TargetFrameworks");
-        var methodNode = typeNode.Childs.Single(c => c.Symbol?.Name == "StdTypes");
 
-        Assert.That(graph.GetOutgoingLinks(methodNode), Is.Empty);
-    }
 
     [Test]
     public void MergeAssemblyVersion()

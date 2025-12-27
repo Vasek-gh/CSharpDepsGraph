@@ -9,7 +9,7 @@ public static class GraphExtensions
         return graph.GetNode(AsmName.Test, symbolPath);
     }
 
-    public static INode GetNode(this IGraph graph, string assemblyName, string symbolPath)
+    public static INode GetNode(this IGraph graph, string assemblyName, string? symbolPath)
     {
         return graph.Root.GetNode(MakeFullPath(assemblyName, symbolPath));
     }

@@ -60,6 +60,12 @@ internal class AssemblyFilter
             }
         }
 
+        if (result.Any(i => i == "*"))
+        {
+            result.Clear();
+            result.Add("*");
+        }
+
         return result;
     }
 }
