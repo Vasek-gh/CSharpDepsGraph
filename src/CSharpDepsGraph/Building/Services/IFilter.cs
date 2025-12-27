@@ -4,5 +4,5 @@ namespace CSharpDepsGraph.Building.Services;
 
 internal interface IFilter
 {
-    bool FilterLinkTarget(ISymbol source, ISymbol target);
+    bool CanCreateLink(ISymbol source, ISymbol target);
 }

@@ -578,18 +578,20 @@ public class Expression : BaseSyntaxTests
     public void DynamicParsed()
     {
         var graph = Build(@"
-            using TestProject.Entities;
+            class Foo {
+                public void Bar() {}
+            }
             public class Test {
-                public void Foo() {
-                    dynamic v = new Vehicle();
+                public void Method() {
+                    dynamic v = new Foo();
                     v.Bar();
-                    v.TurnOn();
+                    v.BarBar();
                 }
             }
         ");
 
-        GraphAssert.HasExactLink(graph, "Test/Foo()",
-            (AsmName.TestProject, "TestProject/Entities/Vehicle")
+        GraphAssert.HasExactLink(graph, "Test/Method()",
+            (AsmName.Test, "Foo")
         );
     }
 

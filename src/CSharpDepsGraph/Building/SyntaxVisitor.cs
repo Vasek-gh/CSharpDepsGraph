@@ -625,6 +625,12 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
 
     private static bool IsIdentifierSymbolShouldBeSkipped(SyntaxNode node, ISymbol symbol)
     {
+        // Skip keyword var
+        if (node is TypeSyntax typeSyntax && typeSyntax.IsVar)
+        {
+            return true;
+        }
+
         // At this point, all implicitly declared symbols must be redirected to real symbols
         if (symbol.IsImplicitlyDeclared)
         {
@@ -676,12 +682,6 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
             return true;
         }
 
-        // Skip keyword var
-        if (node is TypeSyntax typeSyntax && typeSyntax.IsVar)
-        {
-            return true;
-        }
-
         return false;
     }
 
@@ -702,7 +702,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
         }
 
         var node = _nodeStack.Peek();
-        if (node.Symbol is not null && _filter.FilterLinkTarget(node.Symbol, symbol))
+        if (node.Symbol is not null && !_filter.CanCreateLink(node.Symbol, symbol))
         {
             return;
         }

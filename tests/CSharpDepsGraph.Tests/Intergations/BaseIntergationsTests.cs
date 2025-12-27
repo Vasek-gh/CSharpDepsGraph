@@ -39,10 +39,11 @@ public abstract class BaseIntergationsTests
     {
         var options = new GraphBuildOptions()
         {
-            CreateLinksToPrimitiveTypes = true,
             FullyQualifiedUid = true,
-            AssemblyFilter = [],
+            CreateLinksToSelf = true,
+            CreateLinksToPrimitiveTypes = true,
             SplitAssembliesVersions = true,
+            AssemblyFilter = [],
         };
 
         configure?.Invoke(options);

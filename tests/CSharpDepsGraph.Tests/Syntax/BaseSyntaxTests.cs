@@ -38,9 +38,9 @@ public abstract class BaseSyntaxTests
     {
         var options = new GraphBuildOptions()
         {
+            FullyQualifiedUid = true,
             CreateLinksToSelf = true,
             CreateLinksToPrimitiveTypes = true,
-            FullyQualifiedUid = true,
             AssemblyFilter = [],
         };
 
