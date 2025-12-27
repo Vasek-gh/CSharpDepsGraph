@@ -7,6 +7,18 @@ namespace CSharpDepsGraph.Tests.Intergations;
 public class SysLibTests : BaseIntergationsTests
 {
     [Test]
+    public void CheckDefaultUnitTestConfig()
+    {
+        var graph = GetGraph();
+        var typeNode = graph.GetNode(AsmName.TestProject, "TestProject/TargetFrameworks");
+        var methodNode1 = typeNode.Childs.Single(c => c.Symbol?.Name == "Primitive");
+        var methodNode2 = typeNode.Childs.Single(c => c.Symbol?.Name == "StdTypes");
+
+        Assert.That(graph.GetOutgoingLinks(methodNode1), Is.Not.Empty);
+        Assert.That(graph.GetOutgoingLinks(methodNode2), Is.Not.Empty);
+    }
+
+    [Test]
     public void AllSysLibsLinked()
     {
         var graph = GetGraph();
@@ -42,18 +54,6 @@ public class SysLibTests : BaseIntergationsTests
             (AsmName.Runtime80, "System/int"),
             (AsmName.Runtime80, "System/nint")
         );
-    }
-
-    [Test]
-    public void CheckDefaultUnitTestConfig()
-    {
-        var graph = GetGraph();
-        var typeNode = graph.GetNode(AsmName.TestProject, "TestProject/TargetFrameworks");
-        var methodNode1 = typeNode.Childs.Single(c => c.Symbol?.Name == "Primitive");
-        var methodNode2 = typeNode.Childs.Single(c => c.Symbol?.Name == "StdTypes");
-
-        Assert.That(graph.GetOutgoingLinks(methodNode1), Is.Not.Empty);
-        Assert.That(graph.GetOutgoingLinks(methodNode2), Is.Not.Empty);
     }
 
     [Test]
