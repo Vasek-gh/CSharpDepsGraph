@@ -20,7 +20,7 @@ internal class MutatedNode : INode
         {
             Uid = node.Uid,
             Symbol = node.Symbol,
-            Childs = childs.ToArray(),
+            Childs = childs,
             SyntaxLinks = node.SyntaxLinks
         };
     }

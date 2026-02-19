@@ -15,14 +15,6 @@ public static class NodeExtensions
     }
 
     /// <summary>
-    /// Determines if the node is root for external nodes
-    /// </summary>
-    public static bool IsExternalsRoot(this INode node)
-    {
-        return node.Uid == GraphConsts.ExternalRootNodeId;
-    }
-
-    /// <summary>
     /// Collecting child nodes based on a predicate
     /// </summary>
     public static IEnumerable<INode> CollectChildNodes(this INode node, Func<INode, bool>? predicate = null)

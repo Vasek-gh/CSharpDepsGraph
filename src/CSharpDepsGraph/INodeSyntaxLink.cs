@@ -8,7 +8,7 @@ namespace CSharpDepsGraph;
 public interface INodeSyntaxLink
 {
     /// <summary>
-    /// Symbol location. For symbols from source it path to file. For external symbols it assembly name
+    /// Symbol location. For symbols from source it path to file. For external symbols it assembly name // todo assembly/project
     /// </summary>
     string Location { get; }
 

@@ -13,9 +13,6 @@ internal class BuildingData
     private readonly ISymbolUidGenerator _symbolUidGenerator;
 
     public Node Root { get; }
-
-    public Node External { get; }
-
     public List<Link> Links { get; }
 
     public BuildingData(Metrics metrics, SymbolComparer symbolComparer, ISymbolUidGenerator symbolIdGenerator)
@@ -24,11 +21,7 @@ internal class BuildingData
         _symbolComparer = symbolComparer;
         _symbolUidGenerator = symbolIdGenerator;
 
-        External = new Node(GraphConsts.ExternalRootNodeId, null);
-
         Root = new Node(GraphConsts.RootNodeId, null);
-        Root.ChildList = AddNodeListItem(Root.ChildList, External);
-
         Links = new();
     }
 

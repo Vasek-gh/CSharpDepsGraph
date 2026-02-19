@@ -1,5 +1,7 @@
 namespace CSharpDepsGraph.Transforming;
 
+// todo c учетом что теперь нету из коробки корневого для внешних нужно проверять на признак внешнего через Utils.IsInMetadata
+// еще остается вопрос что если проект не был передан в graphbuilder
 /// <summary>
 /// Removes all external nodes/assemblies
 /// </summary>
@@ -18,14 +20,17 @@ public class ExternalHideTransformer : ITransformer
     /// <inheritdoc/>
     public IGraph Execute(IGraph graph)
     {
-        var externalRootNode = graph.Root.Childs.Single(n => n.IsExternalsRoot());
+        return graph;
+
+        // todo
+        /*var externalRootNode = graph.Root.Childs.Single(n => n.IsExternalsRoot());
         var externalsNodes = externalRootNode.CollectChildNodes().ToDictionary(n => n.Uid);
 
         return new MutatedGraph()
         {
             Root = MutateRoot(graph.Root, externalRootNode),
             Links = MutateLinks(graph.Links, externalRootNode, externalsNodes)
-        };
+        };*/
     }
 
     private INode MutateRoot(INode root, INode externalRootNode)

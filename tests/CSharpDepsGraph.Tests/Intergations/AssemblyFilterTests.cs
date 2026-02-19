@@ -11,10 +11,10 @@ public class AssemblyFilterTests : BaseIntergationsTests
         var graph = GetGraph(o => o.AssemblyFilter = new GraphBuildOptions().AssemblyFilter);
 
         GraphAssert.HasExactLink(graph, (AsmName.TestProject, "TestProject/TargetFrameworks/StdTypes(int, OperationCanceledException)"),
-            ("External/System.Console_6.0.0.0", "System/Console"),
-            ("External/System.Console_6.0.0.0", "System/Console/ReadKey()"),
-            ("External/System.Console_8.0.0.0", "System/Console"),
-            ("External/System.Console_8.0.0.0", "System/Console/ReadKey()")
+            ("System.Console_6.0.0.0", "System/Console"),
+            ("System.Console_6.0.0.0", "System/Console/ReadKey()"),
+            ("System.Console_8.0.0.0", "System/Console"),
+            ("System.Console_8.0.0.0", "System/Console/ReadKey()")
         );
     }
 
@@ -31,10 +31,10 @@ public class AssemblyFilterTests : BaseIntergationsTests
     {
         var graph = GetGraph(o => o.AssemblyFilter = ["<std-lib>"]);
 
-        GraphAssert.HasNotSymbol(graph, ("External/System.Runtime_8.0.0.0", null));
-        GraphAssert.HasSymbol(graph, ("External/System.CommandLine_2.0.1.0", null));
-        GraphAssert.HasSymbol(graph, ("External/Microsoft.CodeAnalysis_4.7.0.0", null));
-        GraphAssert.HasSymbol(graph, ("External/Microsoft.Extensions.Logging.Abstractions_9.0.0.0", null));
+        GraphAssert.HasNotSymbol(graph, ("System.Runtime_8.0.0.0", null));
+        GraphAssert.HasSymbol(graph, ("System.CommandLine_2.0.1.0", null));
+        GraphAssert.HasSymbol(graph, ("Microsoft.CodeAnalysis_4.7.0.0", null));
+        GraphAssert.HasSymbol(graph, ("Microsoft.Extensions.Logging.Abstractions_9.0.0.0", null));
     }
 
     [Test]
@@ -42,10 +42,10 @@ public class AssemblyFilterTests : BaseIntergationsTests
     {
         var graph = GetGraph(o => o.AssemblyFilter = ["<sys>"]);
 
-        GraphAssert.HasNotSymbol(graph, ("External/System.Runtime_8.0.0.0", null));
-        GraphAssert.HasNotSymbol(graph, ("External/System.CommandLine_2.0.1.0", null));
-        GraphAssert.HasSymbol(graph, ("External/Microsoft.CodeAnalysis_4.7.0.0", null));
-        GraphAssert.HasSymbol(graph, ("External/Microsoft.Extensions.Logging.Abstractions_9.0.0.0", null));
+        GraphAssert.HasNotSymbol(graph, ("System.Runtime_8.0.0.0", null));
+        GraphAssert.HasNotSymbol(graph, ("System.CommandLine_2.0.1.0", null));
+        GraphAssert.HasSymbol(graph, ("Microsoft.CodeAnalysis_4.7.0.0", null));
+        GraphAssert.HasSymbol(graph, ("Microsoft.Extensions.Logging.Abstractions_9.0.0.0", null));
     }
 
     [Test]
@@ -53,10 +53,10 @@ public class AssemblyFilterTests : BaseIntergationsTests
     {
         var graph = GetGraph(o => o.AssemblyFilter = ["<ms>"]);
 
-        GraphAssert.HasSymbol(graph, ("External/System.Runtime_8.0.0.0", null));
-        GraphAssert.HasSymbol(graph, ("External/System.CommandLine_2.0.1.0", null));
-        GraphAssert.HasNotSymbol(graph, ("External/Microsoft.CodeAnalysis_4.7.0.0", null));
-        GraphAssert.HasNotSymbol(graph, ("External/Microsoft.Extensions.Logging.Abstractions_9.0.0.0", null));
+        GraphAssert.HasSymbol(graph, ("System.Runtime_8.0.0.0", null));
+        GraphAssert.HasSymbol(graph, ("System.CommandLine_2.0.1.0", null));
+        GraphAssert.HasNotSymbol(graph, ("Microsoft.CodeAnalysis_4.7.0.0", null));
+        GraphAssert.HasNotSymbol(graph, ("Microsoft.Extensions.Logging.Abstractions_9.0.0.0", null));
     }
 
     [Test]
@@ -64,10 +64,10 @@ public class AssemblyFilterTests : BaseIntergationsTests
     {
         var graph = GetGraph(o => o.AssemblyFilter = ["<ms-extensons>"]);
 
-        GraphAssert.HasSymbol(graph, ("External/System.Runtime_8.0.0.0", null));
-        GraphAssert.HasSymbol(graph, ("External/System.CommandLine_2.0.1.0", null));
-        GraphAssert.HasSymbol(graph, ("External/Microsoft.CodeAnalysis_4.7.0.0", null));
-        GraphAssert.HasNotSymbol(graph, ("External/Microsoft.Extensions.Logging.Abstractions_9.0.0.0", null));
+        GraphAssert.HasSymbol(graph, ("System.Runtime_8.0.0.0", null));
+        GraphAssert.HasSymbol(graph, ("System.CommandLine_2.0.1.0", null));
+        GraphAssert.HasSymbol(graph, ("Microsoft.CodeAnalysis_4.7.0.0", null));
+        GraphAssert.HasNotSymbol(graph, ("Microsoft.Extensions.Logging.Abstractions_9.0.0.0", null));
     }
 
     [Test]
@@ -75,10 +75,10 @@ public class AssemblyFilterTests : BaseIntergationsTests
     {
         var graph = GetGraph(o => o.AssemblyFilter = ["System.Command*", "*.CodeAnalysis"]);
 
-        GraphAssert.HasSymbol(graph, ("External/System.Runtime_8.0.0.0", null));
-        GraphAssert.HasNotSymbol(graph, ("External/System.CommandLine_2.0.1.0", null));
-        GraphAssert.HasNotSymbol(graph, ("External/Microsoft.CodeAnalysis_4.7.0.0", null));
-        GraphAssert.HasSymbol(graph, ("External/Microsoft.Extensions.Logging.Abstractions_9.0.0.0", null));
+        GraphAssert.HasSymbol(graph, ("System.Runtime_8.0.0.0", null));
+        GraphAssert.HasNotSymbol(graph, ("System.CommandLine_2.0.1.0", null));
+        GraphAssert.HasNotSymbol(graph, ("Microsoft.CodeAnalysis_4.7.0.0", null));
+        GraphAssert.HasSymbol(graph, ("Microsoft.Extensions.Logging.Abstractions_9.0.0.0", null));
     }
 
     [Test]

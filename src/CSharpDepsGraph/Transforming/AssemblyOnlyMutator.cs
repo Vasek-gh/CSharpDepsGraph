@@ -22,14 +22,6 @@ public class AssemblyOnlyTransformer : ITransformer
     {
         var rootNodes = GetAssemblies(graph.Root);
 
-        var externalNode = graph.Root.Childs.SingleOrDefault(c => c.IsExternalsRoot());
-        if (externalNode != null)
-        {
-            rootNodes = rootNodes.Concat(new[] {
-                MutatedNode.Copy(externalNode, GetAssemblies(externalNode))
-            });
-        }
-
         return new MutatedGraph()
         {
             Root = MutatedNode.Copy(graph.Root, rootNodes),

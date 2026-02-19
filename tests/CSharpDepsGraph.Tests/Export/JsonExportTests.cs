@@ -117,7 +117,10 @@ public class JsonExportTests : BaseSyntaxTests
 
     private static JsonNode GetNode(JsonGraph graph)
     {
-        var result = graph.Root.Childs?[1].Childs?[0].Childs?.SingleOrDefault(n => n.Caption == "Constants");
+        var result = graph.Root.Childs?.SingleOrDefault(n => n.Caption == "TestProject.dll")
+            ?.Childs?.SingleOrDefault(n => n.Caption == "TestProject")
+            ?.Childs?.SingleOrDefault(n => n.Caption == "Constants");
+
         Assert.That(result, Is.Not.Null);
 
         return result;

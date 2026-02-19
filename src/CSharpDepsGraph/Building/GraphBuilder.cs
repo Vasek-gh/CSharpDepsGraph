@@ -201,32 +201,13 @@ public sealed class GraphBuilder
         return result;
     }
 
-    private async Task DoWithMeasurement(ILogger logger, Func<Task> action)
+    private Task DoWithMeasurement(ILogger logger, Func<Task> action)
     {
-        logger.LogInformation("Begin handle...");
-
-        if (!_logger.IsEnabled(LogLevel.Debug))
+        return DoWithMeasurement<object?>(logger, async () =>
         {
             await action();
-            return;
-        }
-
-        _metrics.BeginScope(logger);
-
-        var sw = new Stopwatch();
-        sw.Start();
-
-        var totalMemoryStart = GC.GetTotalMemory(false);
-
-        await action();
-
-        var totalMemoryEnd = GC.GetTotalMemory(false);
-
-        sw.Stop();
-
-        _metrics.ElapsedTime.Set(sw.Elapsed);
-        _metrics.AllocatedMemory.Set(totalMemoryEnd - totalMemoryStart);
-        _metrics.EndScope();
+            return null;
+        });
     }
 
     private void HandleErrors(ILogger logger, Project project, Compilation compilation)

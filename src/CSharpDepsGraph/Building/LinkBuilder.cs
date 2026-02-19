@@ -35,7 +35,7 @@ internal class LinkBuilder
 
     private void HandleNode(Node node)
     {
-        //_logger.LogTrace($"HandleNode: {node.Id}");
+        //_logger.LogTrace($"HandleNode: {node.Id}"); todo
 
         foreach (var linkedSymbol in node.LinkedSymbolsList)
         {
@@ -49,21 +49,19 @@ internal class LinkBuilder
 
     private Node? CreateNode(ISymbol symbol)
     {
-        var symbols = new Stack<ISymbol>(10);
-        var externalRoot = _graphData.External;
-
-        BuildSymbolChain(symbols, symbol);
+        var symbols = BuildSymbolChain(symbol);
         var result = AppendSymbolChain(symbols, symbol);
 
         return result;
     }
 
-    private static void BuildSymbolChain(Stack<ISymbol> symbols, ISymbol symbol)
+    private static Stack<ISymbol> BuildSymbolChain(ISymbol symbol)
     {
-        symbols.Clear();
+        var result = new Stack<ISymbol>(10);
+
         while (symbol is not null)
         {
-            symbols.Push(symbol);
+            result.Push(symbol);
 
             if (symbol.Kind == SymbolKind.Assembly)
             {
@@ -82,6 +80,8 @@ internal class LinkBuilder
                 symbol = symbol.ContainingAssembly;
             }
         }
+
+        return result;
     }
 
     private Node? AppendSymbolChain(Stack<ISymbol> symbols, ISymbol originalSymbol)
@@ -98,13 +98,8 @@ internal class LinkBuilder
             return null;
         }
 
+        var result = _graphData.Root;
         var isInMetadata = Utils.IsInMetadata(assemblySymbol);
-
-        var parentNode = isInMetadata
-            ? _graphData.External
-            : _graphData.Root;
-
-        var result = parentNode;
 
         while (symbols.Count > 0)
         {
@@ -195,11 +190,6 @@ internal class LinkBuilder
 
     private static void VisitNodes(Node node, Action<Node> action)
     {
-        if (node.IsExternalsRoot())
-        {
-            return;
-        }
-
         var childCount = node.ChildList.Count;
         for (var i = 0; i < childCount; i++)
         {

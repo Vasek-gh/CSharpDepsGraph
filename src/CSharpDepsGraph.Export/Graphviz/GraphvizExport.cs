@@ -40,10 +40,7 @@ public class GraphvizExport
         var dotGraph = new DotGraph().WithIdentifier(nameof(CSharpDepsGraph));
         dotGraph.Directed = true;
 
-        AddNodes(dotGraph, graph.Root.Childs.Where(n => !n.IsExternalsRoot()));
-        AddNodes(dotGraph, graph.Root.Childs.SingleOrDefault(n => n.IsExternalsRoot())?.Childs
-            ?? Array.Empty<INode>()
-            );
+        AddNodes(dotGraph, graph.Root.Childs);
 
         var edges = new HashSet<string>();
         foreach (var link in graph.Links)
