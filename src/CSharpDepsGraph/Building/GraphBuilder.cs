@@ -19,7 +19,6 @@ public sealed class GraphBuilder
     private readonly BuildingData _graphData;
     private readonly CultureInfo _cultureInfo;
     private readonly ILoggerFactory _loggerFactory;
-    private readonly SymbolComparer _symbolComparer;
     private readonly GeneratedCodeDetector _generatedCodeDetector;
 
     /// <summary>
@@ -36,14 +35,15 @@ public sealed class GraphBuilder
 
         _logger = CreateLogger();
         _metrics = new();
-        _symbolComparer = new(options);
         _generatedCodeDetector = new(options);
 
-        _filter = new Filter(options, _symbolComparer);
+        var symbolComparer = new SymbolComparer(options);
+
+        _filter = new Filter(options, symbolComparer);
 
         _graphData = new(
             _metrics,
-            _symbolComparer,
+            symbolComparer,
             SymbolUidGenerator.Create(options)
             );
     }

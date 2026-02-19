@@ -33,5 +33,5 @@ public class GraphBuildOptions
     /// <summary>
     /// Link to all symbols from the listed assemblies will be ignored
     /// </summary>
-    public IEnumerable<string> AssemblyFilter { get; set; } = Utils.CoreLibs;
+    public IEnumerable<string> AssemblyFilter { get; set; } = [];
 }

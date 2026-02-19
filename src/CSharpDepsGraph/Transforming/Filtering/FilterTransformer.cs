@@ -29,6 +29,11 @@ public class FilterTransformer : ITransformer
     /// <inheritdoc/>
     public IGraph Execute(IGraph graph)
     {
+        if (!_filters.Any())
+        {
+            return graph;
+        }
+
         var rootContext = new NodeContext()
         {
             Node = graph.Root,

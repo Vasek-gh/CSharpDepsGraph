@@ -193,8 +193,6 @@ internal class LinkBuilder
         }
     }
 
-
-
     private static void VisitNodes(Node node, Action<Node> action)
     {
         if (node.IsExternalsRoot())

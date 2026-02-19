@@ -159,7 +159,6 @@ public sealed class BuildCommand : ICommand
     private class Progress : IProgress<ProjectLoadProgress>
     {
         private readonly ILogger _logger;
-        public Dictionary<string, List<ProjectLoadProgress>> LoadedProjects = new();
 
         public Progress(ILogger logger)
         {
@@ -168,7 +167,7 @@ public sealed class BuildCommand : ICommand
 
         public void Report(ProjectLoadProgress value)
         {
-            //_logger.LogTrace($"{value.Operation}: {value.FilePath}");
+            _logger.LogProjectLoadProgress(value.Operation, value.FilePath);
         }
     }
 }

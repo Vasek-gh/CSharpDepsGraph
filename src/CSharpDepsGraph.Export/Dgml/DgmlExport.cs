@@ -80,7 +80,7 @@ public class DgmlExport
 
     private void AddNode(INode node, List<XElement> msaglNodes, Dictionary<string, XElement> msaglLinks)
     {
-        _logger.LogTrace($"Add node: {node.Uid}...");
+        _logger.LogWriteNode(node.Uid);
 
         var attrs = new List<XAttribute>() {
             new XAttribute("Id", GetNodeId(node)),
@@ -104,7 +104,7 @@ public class DgmlExport
 
     private void AddEdge(ILink link, Dictionary<string, XElement> msaglLinks)
     {
-        _logger.LogTrace($"Add edge: {link.Source.Uid} -> {link.Target.Uid}");
+        _logger.LogWriteLink(link.Source.Uid, link.Target.Uid);
 
         if (link.Source.Uid == link.Target.Uid)
         {

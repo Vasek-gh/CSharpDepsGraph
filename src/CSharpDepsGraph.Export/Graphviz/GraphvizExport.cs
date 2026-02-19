@@ -68,7 +68,7 @@ public class GraphvizExport
 
     private DotElement AddNode(INode node)
     {
-        _logger.LogTrace($"Create node: {node.Uid}...");
+        _logger.LogWriteNode(node.Uid);
 
         var nodeColor = GetNodeColor(node);
 
@@ -89,7 +89,7 @@ public class GraphvizExport
 
     private void AddEdge(DotBaseGraph dotGraph, ILink link, HashSet<string> edges)
     {
-        _logger.LogTrace($"Write link: {link.Source.Uid} -> {link.Target.Uid}");
+        _logger.LogWriteLink(link.Source.Uid, link.Target.Uid);
 
         var srcNodeDotElement = GetDotElement(link.Source);
         var dstNodeDotElement = GetDotElement(link.Target);
