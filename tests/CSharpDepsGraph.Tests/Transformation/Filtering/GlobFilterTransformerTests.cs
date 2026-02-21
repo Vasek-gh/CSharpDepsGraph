@@ -5,6 +5,7 @@ using CSharpDepsGraph.Tests.Syntax;
 
 namespace CSharpDepsGraph.Tests.Transformation.Filtering;
 
+// todo надо проверить после фильтрации не получаются ссылки на корень при удалении сборок
 [TestFixture]
 public class GlobFilterTransformerTests : BaseSyntaxTests
 {

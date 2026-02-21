@@ -27,7 +27,7 @@ internal class AssemblyFilter
 
     public bool IsAllowed(IAssemblySymbol assemblySymbol)
     {
-        if (!Utils.IsInMetadata(assemblySymbol))
+        if (!assemblySymbol.IsFromMetadata())
         {
             return true;
         }

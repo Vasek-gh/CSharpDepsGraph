@@ -1,25 +1,10 @@
 using Microsoft.CodeAnalysis;
-using Moq;
 using NSubstitute;
 
 namespace CSharpDepsGraph.Tests.Transformation;
 
 internal static class Mocks
 {
-    public static IGraph CreateGraph(IEnumerable<INode> nodes, IEnumerable<ILink> links)
-    {
-        var rootMock = new Mock<INode>();
-        rootMock.Setup(m => m.Uid).Returns(GraphConsts.RootNodeId);
-        rootMock.Setup(m => m.Childs).Returns(nodes);
-        rootMock.Setup(m => m.SyntaxLinks).Returns([]);
-
-        var graphMock = new Mock<IGraph>();
-        graphMock.Setup(m => m.Root).Returns(rootMock.Object);
-        graphMock.Setup(m => m.Links).Returns(links);
-
-        return graphMock.Object;
-    }
-
     public static ILink CreateLink(INode source, INode target)
     {
         var syntaxLinkMock = Substitute.For<ILinkSyntaxLink>();

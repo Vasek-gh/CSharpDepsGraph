@@ -99,7 +99,7 @@ internal class LinkBuilder
         }
 
         var result = _graphData.Root;
-        var isInMetadata = Utils.IsInMetadata(assemblySymbol);
+        var isFromMetadata = assemblySymbol.IsFromMetadata();
 
         while (symbols.Count > 0)
         {
@@ -110,7 +110,7 @@ internal class LinkBuilder
                 continue;
             }
 
-            if (isInMetadata)
+            if (isFromMetadata)
             {
                 if (symbol.Kind == SymbolKind.Assembly)
                 {

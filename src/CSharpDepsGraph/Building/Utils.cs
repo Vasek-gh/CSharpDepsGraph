@@ -57,11 +57,6 @@ internal static class Utils
         return link;
     }
 
-    public static bool IsInMetadata(IAssemblySymbol assemblySymbol)
-    {
-        return assemblySymbol.Locations.Length == 1 && assemblySymbol.Locations[0].IsInMetadata;
-    }
-
     public static bool IsPrimiteType(ISymbol symbol)
     {
         return symbol is ITypeSymbol typeSymbol && IsPrimiteType(typeSymbol);

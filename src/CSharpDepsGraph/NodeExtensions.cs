@@ -15,6 +15,14 @@ public static class NodeExtensions
     }
 
     /// <summary>
+    /// Determines if node created for metadata symbol
+    /// </summary>
+    public static bool IsFromMetadata(this INode node)
+    {
+        return node.Symbol != null && node.Symbol.IsFromMetadata();
+    }
+
+    /// <summary>
     /// Collecting child nodes based on a predicate
     /// </summary>
     public static IEnumerable<INode> CollectChildNodes(this INode node, Func<INode, bool>? predicate = null)

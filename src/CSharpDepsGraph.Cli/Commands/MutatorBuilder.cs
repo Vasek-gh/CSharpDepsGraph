@@ -31,7 +31,7 @@ public class TransformerBuilder
     {
         if (enabled)
         {
-            _transformers.Add(new ExternalHideTransformer());
+            _transformers.Add(new MetadataHideTransformer());
         }
 
         return this;

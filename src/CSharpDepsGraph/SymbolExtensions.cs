@@ -22,4 +22,12 @@ public static class SymbolExtensions
     {
         return symbol != null && symbol.Kind == SymbolKind.Method && symbol.Name == "<Main>$";
     }
+
+    /// <summary>
+    /// Determines if the symbol located in metadata
+    /// </summary>
+    public static bool IsFromMetadata(this ISymbol symbol)
+    {
+        return symbol.Locations.Length == 1 && symbol.Locations[0].IsInMetadata;
+    }
 }

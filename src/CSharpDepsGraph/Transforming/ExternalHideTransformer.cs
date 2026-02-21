@@ -3,79 +3,37 @@ namespace CSharpDepsGraph.Transforming;
 // todo c учетом что теперь нету из коробки корневого для внешних нужно проверять на признак внешнего через Utils.IsInMetadata
 // еще остается вопрос что если проект не был передан в graphbuilder
 /// <summary>
-/// Removes all external nodes/assemblies
+/// Removes from the root all nodes that point to symbols from the metadata
 /// </summary>
-public class ExternalHideTransformer : ITransformer
+public class MetadataHideTransformer : ITransformer
 {
-    private readonly bool _hideOnlyChilds;
-
     /// <summary>
-    /// Initializes a new instance of the <see cref="ExternalHideTransformer"/> class.
+    /// Initializes a new instance of the <see cref="MetadataHideTransformer"/> class.
     /// </summary>
-    public ExternalHideTransformer(bool hideOnlyChilds = true)
+    public MetadataHideTransformer()
     {
-        _hideOnlyChilds = hideOnlyChilds;
     }
 
     /// <inheritdoc/>
     public IGraph Execute(IGraph graph)
     {
-        return graph;
-
-        // todo
-        /*var externalRootNode = graph.Root.Childs.Single(n => n.IsExternalsRoot());
-        var externalsNodes = externalRootNode.CollectChildNodes().ToDictionary(n => n.Uid);
-
         return new MutatedGraph()
         {
-            Root = MutateRoot(graph.Root, externalRootNode),
-            Links = MutateLinks(graph.Links, externalRootNode, externalsNodes)
-        };*/
+            Root = MutateRoot(graph.Root),
+            Links = MutateLinks(graph.Links)
+        };
     }
 
-    private INode MutateRoot(INode root, INode externalRootNode)
+    private INode MutateRoot(INode root)
     {
-        var childs = root.Childs.Where(c => c.Uid != externalRootNode.Uid);
-        if (_hideOnlyChilds)
-        {
-            childs = childs.Append(MutatedNode.Copy(externalRootNode, Array.Empty<INode>()));
-        }
-
         return MutatedNode.Copy(
             root,
-            childs
+            root.Childs.Where(c => !c.IsFromMetadata())
         );
     }
 
-    private IEnumerable<ILink> MutateLinks(IEnumerable<ILink> links, INode externalRootNode, Dictionary<string, INode> externalsNodes)
+    private IEnumerable<ILink> MutateLinks(IEnumerable<ILink> links)
     {
-        var result = new List<ILink>();
-        foreach (var link in links)
-        {
-            var externalIsSource = externalsNodes.ContainsKey(link.Source.Uid);
-            var externalIsTarget = externalsNodes.ContainsKey(link.Target.Uid);
-
-            if (!externalIsSource && !externalIsTarget)
-            {
-                result.Add(link);
-                continue;
-            }
-
-            if (!_hideOnlyChilds)
-            {
-                continue;
-            }
-
-            if (externalIsSource)
-            {
-                result.Add(MutatedLink.Copy(link, externalRootNode, link.Target));
-            }
-            else
-            {
-                result.Add(MutatedLink.Copy(link, link.Source, externalRootNode));
-            }
-        }
-
-        return result;
+        return links.Where(l => !l.Source.IsFromMetadata() && !l.Target.IsFromMetadata());
     }
 }
