@@ -1,12 +1,6 @@
-using System.Collections.Generic;
-using System.Linq;
 using System.Xml.Linq;
 using Microsoft.CodeAnalysis;
-using System.IO;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using System;
 using System.Globalization;
 
 namespace CSharpDepsGraph.Export.Dgml;

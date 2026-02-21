@@ -1,5 +1,3 @@
-using System.Collections.Generic;
-
 namespace CSharpDepsGraph.Tests.Transformation;
 
 internal class GraphMock : IGraph

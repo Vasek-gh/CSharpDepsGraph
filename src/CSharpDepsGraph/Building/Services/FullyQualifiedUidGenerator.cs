@@ -43,6 +43,7 @@ internal class FullyQualifiedUidGenerator : ISymbolUidGenerator
 
         Append(symbol.Name);
 
+        // todo тут ошибка версия не добавляется когда _options.SplitAssembliesVersions = false
         if (Utils.IsInMetadata(symbol) && _options.SplitAssembliesVersions)
         {
             var version = symbol.Identity.Version;

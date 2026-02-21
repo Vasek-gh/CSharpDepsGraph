@@ -3,12 +3,8 @@ using CSharpDepsGraph.Tests.Syntax;
 using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
 using NUnit.Framework.Internal;
-using System;
 using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using System.Text.Json;
-using System.Threading;
 
 namespace CSharpDepsGraph.Tests.Export;
 

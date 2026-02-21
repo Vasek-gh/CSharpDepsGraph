@@ -1,7 +1,6 @@
 using Microsoft.CodeAnalysis;
 using NUnit.Framework;
 using CSharpDepsGraph.Transforming.Filtering;
-using System.Linq;
 using CSharpDepsGraph.Tests.Syntax;
 
 namespace CSharpDepsGraph.Tests.Transformation.Filtering;

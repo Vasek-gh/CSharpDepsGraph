@@ -1,8 +1,6 @@
 using Microsoft.CodeAnalysis;
 using NUnit.Framework;
 using CSharpDepsGraph.Transforming;
-using System.Linq;
-using System;
 
 namespace CSharpDepsGraph.Tests.Transformation;
 

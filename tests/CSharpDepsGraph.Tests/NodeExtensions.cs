@@ -1,6 +1,5 @@
 using Microsoft.CodeAnalysis;
 using NUnit.Framework;
-using System.Linq;
 
 namespace CSharpDepsGraph.Tests;
 
@@ -25,7 +24,7 @@ public static class NodeExtensions
     {
         var currentNode = node;
 
-        var symbolNames = path.Split("/", System.StringSplitOptions.RemoveEmptyEntries);
+        var symbolNames = path.Split("/", StringSplitOptions.RemoveEmptyEntries);
         foreach (var name in symbolNames.Take(symbolNames.Length - 1))
         {
             var child = currentNode.Childs.SingleOrDefault(n => CompareNode(n, name));

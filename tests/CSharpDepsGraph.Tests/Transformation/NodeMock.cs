@@ -1,6 +1,4 @@
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using CSharpDepsGraph.Building;
 using Microsoft.CodeAnalysis;
 

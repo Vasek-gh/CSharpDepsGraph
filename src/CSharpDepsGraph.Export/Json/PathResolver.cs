@@ -1,7 +1,4 @@
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.IO;
 
 namespace CSharpDepsGraph.Export.Json;
 

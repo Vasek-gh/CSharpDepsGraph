@@ -1,5 +1,3 @@
-using System;
-
 namespace CSharpDepsGraph.Export;
 
 /// <summary>
@@ -73,9 +71,6 @@ public struct Color
     /// </summary>
     public static readonly Color Method = 0xFFCD8B62;
 
-    private string? _alphaFirstStr;
-    private string? _alphaLastStr;
-
     /// <summary>
     /// Gets the alpha component value (0-255).
     /// </summary>
@@ -99,12 +94,12 @@ public struct Color
     /// <summary>
     /// Gets the color string in #AARRGGBB hexadecimal format.
     /// </summary>
-    public string AlphaFirstStr => _alphaFirstStr ??= $"#{A:X2}{R:X2}{G:X2}{B:X2}";
+    public string AlphaFirstStr => field ??= $"#{A:X2}{R:X2}{G:X2}{B:X2}";
 
     /// <summary>
     /// Gets the color string in #RRGGBBAA hexadecimal format.
     /// </summary>
-    public string AlphaLastStr => _alphaLastStr ??= $"#{R:X2}{G:X2}{B:X2}{A:X2}";
+    public string AlphaLastStr => field ??= $"#{R:X2}{G:X2}{B:X2}{A:X2}";
 
     /// <summary>
     /// Initializes a new Color structure from a 32-bit ARGB value.

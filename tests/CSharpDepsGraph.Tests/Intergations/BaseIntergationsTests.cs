@@ -1,7 +1,5 @@
 using CSharpDepsGraph.Building;
 using NUnit.Framework;
-using System;
-using System.Threading;
 
 namespace CSharpDepsGraph.Tests.Intergations;
 

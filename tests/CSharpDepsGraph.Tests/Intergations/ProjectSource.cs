@@ -1,9 +1,7 @@
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.MSBuild;
 using NUnit.Framework;
-using System;
 using System.Diagnostics;
-using System.Threading.Tasks;
 
 namespace CSharpDepsGraph.Tests.Intergations;
 

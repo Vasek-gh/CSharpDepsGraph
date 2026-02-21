@@ -1,6 +1,5 @@
 using CSharpDepsGraph.Building;
 using NUnit.Framework;
-using System;
 
 namespace CSharpDepsGraph.Tests.Syntax;
 
