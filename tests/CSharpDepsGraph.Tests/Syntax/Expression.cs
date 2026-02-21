@@ -226,8 +226,8 @@ public class Expression : BaseSyntaxTests
             (AsmName.CoreLib, "System/Action"),
             (AsmName.CoreLib, "System/Func<TResult>"),
             (AsmName.CoreLib, "System/int"),
-            ("System.Console_8.0.0.0", "System/Console/WriteLine(string?)"),
-            ("System.Console_8.0.0.0", "System/Console")
+            (AsmName.SystemConsole, "System/Console/WriteLine(string?)"),
+            (AsmName.SystemConsole, "System/Console")
         );
     }
 
