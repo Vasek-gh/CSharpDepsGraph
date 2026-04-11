@@ -15,7 +15,6 @@ public enum LocationKind
     /// </summary>
     Generated,
 
-    // todo похоже что надо разделить это на два. для метадаты и проектов
     /// <summary>
     /// The symbol was taken from the external project or library
     /// </summary>

@@ -1,7 +1,5 @@
 namespace CSharpDepsGraph.Transforming;
 
-// todo c учетом что теперь нету из коробки корневого для внешних нужно проверять на признак внешнего через Utils.IsInMetadata
-// еще остается вопрос что если проект не был передан в graphbuilder
 /// <summary>
 /// Removes from the root all nodes that point to symbols from the metadata
 /// </summary>
@@ -24,7 +22,7 @@ public class MetadataHideTransformer : ITransformer
         };
     }
 
-    private INode MutateRoot(INode root)
+    private static INode MutateRoot(INode root)
     {
         return MutatedNode.Copy(
             root,
@@ -32,7 +30,7 @@ public class MetadataHideTransformer : ITransformer
         );
     }
 
-    private IEnumerable<ILink> MutateLinks(IEnumerable<ILink> links)
+    private static IEnumerable<ILink> MutateLinks(IEnumerable<ILink> links)
     {
         return links.Where(l => !l.Source.IsFromMetadata() && !l.Target.IsFromMetadata());
     }

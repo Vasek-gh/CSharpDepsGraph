@@ -26,7 +26,7 @@ public class GraphBuildOptions
     public bool CreateLinksToPrimitiveTypes { get; set; }
 
     /// <summary>
-    /// Сreates separate nodes for each version of an assembly
+    /// Creates separate nodes for each version of an assembly
     /// </summary>
     public bool SplitAssembliesVersions { get; set; }
 

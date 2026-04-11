@@ -1,8 +1,8 @@
 using NUnit.Framework;
 
-namespace CSharpDepsGraph.Tests.Intergations;
+namespace CSharpDepsGraph.Tests.Integrations;
 
-public class GeneratedCodeTests : BaseIntergationsTests
+public class GeneratedCodeTests : BaseIntegrationsTests
 {
     [Test]
     public void AssemblyInfoIgnored()
@@ -47,7 +47,7 @@ public class GeneratedCodeTests : BaseIntergationsTests
     }
 
     [Test]
-    public void EmitedSourceGenerators()
+    public void EmittedSourceGenerators()
     {
         var graph1 = GetGraph();
         var node1 = graph1.GetNode(AsmName.TestProjectCli, "TestProject/Generated/Foo");
@@ -84,8 +84,6 @@ public class GeneratedCodeTests : BaseIntergationsTests
 
         Assert.That(IsGenerated(graph.GetNode(AsmName.TestProject, "TestProject/Generated/GeneratedClass")));
         Assert.That(IsGenerated(graph.GetNode(AsmName.TestProject, "TestProject/Generated/GeneratedClass/GeneratedMethod()")));
-
-        // todo check ParseVisibleGeneratedCode = true
     }
 
     public static bool IsGenerated(INode node)

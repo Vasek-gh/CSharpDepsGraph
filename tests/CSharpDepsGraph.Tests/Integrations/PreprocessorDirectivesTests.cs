@@ -1,13 +1,13 @@
 using NUnit.Framework;
 
-namespace CSharpDepsGraph.Tests.Intergations;
+namespace CSharpDepsGraph.Tests.Integrations;
 
-public class PreprocessorDirectivesTests : BaseIntergationsTests
+public class PreprocessorDirectivesTests : BaseIntegrationsTests
 {
     private static readonly char[] _pathSeparators = ['\\', '/'];
 
     [Test]
-    public void TypeOptinalBody()
+    public void TypeOptionalBody()
     {
         var graph = GetGraph();
 
@@ -44,7 +44,7 @@ public class PreprocessorDirectivesTests : BaseIntergationsTests
     }
 
     [Test]
-    public void TypeOptinalDeclaration()
+    public void TypeOptionalDeclaration()
     {
         var graph = GetGraph();
 
@@ -93,12 +93,12 @@ public class PreprocessorDirectivesTests : BaseIntergationsTests
         params (INode node, string location)[] targetLocations
         )
     {
-        var methdodNode = graph.GetNode(
+        var methodNode = graph.GetNode(
             AsmName.TestProject,
             $"TestProject/{methodName}"
             );
 
-        var links = graph.GetOutgoingLinks(methdodNode).ToArray();
+        var links = graph.GetOutgoingLinks(methodNode).ToArray();
 
         Assert.That(links.Length, Is.EqualTo(targetLocations.Length));
         foreach (var targetLocation in targetLocations)

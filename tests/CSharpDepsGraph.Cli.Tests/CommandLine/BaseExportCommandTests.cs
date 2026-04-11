@@ -9,11 +9,11 @@ namespace CSharpDepsGraph.Cli.Tests.CommandLine;
 
 public abstract class BaseExportCommandTests<TOptions> where TOptions : ExportOptions
 {
-    private readonly string _baseCommnad;
+    private readonly string _baseCommand;
 
-    protected BaseExportCommandTests(string baseCommnad)
+    protected BaseExportCommandTests(string baseCommand)
     {
-        _baseCommnad = baseCommnad;
+        _baseCommand = baseCommand;
 
     }
 
@@ -216,7 +216,7 @@ public abstract class BaseExportCommandTests<TOptions> where TOptions : ExportOp
     {
         CreateDummySln();
 
-        var args = GetArgs(_baseCommnad + " " + commandArguments);
+        var args = GetArgs(_baseCommand + " " + commandArguments);
 
         var originalStdOut = Console.Out;
         var originalStdErrOut = Console.Error;

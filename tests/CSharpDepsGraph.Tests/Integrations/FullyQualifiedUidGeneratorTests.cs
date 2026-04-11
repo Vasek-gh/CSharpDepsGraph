@@ -1,8 +1,8 @@
 using NUnit.Framework;
 
-namespace CSharpDepsGraph.Tests.Intergations;
+namespace CSharpDepsGraph.Tests.Integrations;
 
-public class FullyQualifiedUidGeneratorTests : BaseIntergationsTests
+public class FullyQualifiedUidGeneratorTests : BaseIntegrationsTests
 {
     [Test]
     public void LocalAssembly()

@@ -15,4 +15,5 @@ TestResults/
 *.nettrace
 *.speedscope.json
 
+*.lscache
 !*.lock.json

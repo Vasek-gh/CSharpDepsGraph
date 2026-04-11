@@ -1,22 +1,13 @@
 ﻿using CSharpDepsGraph.Cli.CommandLine;
-using Microsoft.Extensions.FileSystemGlobbing;
 using System.CommandLine;
 
 namespace CSharpDepsGraph.Cli;
 
 internal class Program
 {
-    public static async Task<int> Main(string[] args)
+    public static Task<int> Main(string[] args)
     {
-        Matcher matcher = new();
-        matcher.AddInclude("**/System");
-        var q = matcher.Match(".", "qwerty.foo/System");
-
-        var result = await Run(args, new CommandFactory());
-
-        Console.ReadKey(); // todo kill
-
-        return result;
+        return Run(args, new CommandFactory());
     }
 
     public static async Task<int> Run(string[] args, ICommandFactory commandFactory)

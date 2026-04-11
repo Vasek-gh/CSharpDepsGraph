@@ -1,8 +1,8 @@
 using NUnit.Framework;
 
-namespace CSharpDepsGraph.Tests.Intergations;
+namespace CSharpDepsGraph.Tests.Integrations;
 
-public class SysLibTests : BaseIntergationsTests
+public class SysLibTests : BaseIntegrationsTests
 {
     [Test]
     public void CheckDefaultUnitTestConfig()
@@ -63,8 +63,6 @@ public class SysLibTests : BaseIntergationsTests
 
         Assert.That(graph.GetOutgoingLinks(methodNode), Is.Empty);
     }
-
-
 
     [Test]
     public void MergeAssemblyVersion()

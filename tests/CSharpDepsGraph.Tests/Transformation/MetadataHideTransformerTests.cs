@@ -5,7 +5,7 @@ using CSharpDepsGraph.Tests.Syntax;
 namespace CSharpDepsGraph.Tests.Transformation;
 
 [TestFixture]
-public class ExternalHideTransformerTests : BaseSyntaxTests
+public class MetadataHideTransformerTests : BaseSyntaxTests
 {
     [Test]
     public void Trivial()

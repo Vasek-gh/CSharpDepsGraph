@@ -3,7 +3,7 @@ using Microsoft.CodeAnalysis.MSBuild;
 using NUnit.Framework;
 using System.Diagnostics;
 
-namespace CSharpDepsGraph.Tests.Intergations;
+namespace CSharpDepsGraph.Tests.Integrations;
 
 [SetUpFixture]
 public static class ProjectSource

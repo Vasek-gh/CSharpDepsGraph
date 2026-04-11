@@ -5,7 +5,8 @@ using CSharpDepsGraph.Tests.Syntax;
 
 namespace CSharpDepsGraph.Tests.Transformation.Filtering;
 
-// todo надо проверить после фильтрации не получаются ссылки на корень при удалении сборок
+// todo check what after filter done no one link pointing to root
+// todo check what happen with links, when link what pointed to deleted node
 [TestFixture]
 public class GlobFilterTransformerTests : BaseSyntaxTests
 {

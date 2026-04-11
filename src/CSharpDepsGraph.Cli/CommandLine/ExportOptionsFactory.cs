@@ -6,7 +6,7 @@ namespace CSharpDepsGraph.Cli.CommandLine;
 
 internal static class ExportOptionsFactory
 {
-    // надо пересмотреть эту опцию с учетом что у внешних теперь нет рута
+    // todo надо пересмотреть эту опцию с учетом что у внешних теперь нет рута
     public static Option<bool> HideExternal { get; } = OptionBuilder.Create(() =>
     {
         return OptionBuilder.CreateOption<bool>(

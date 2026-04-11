@@ -1,6 +1,6 @@
 namespace CSharpDepsGraph.Transforming.Filtering;
 
-// todo надо проверить что происходит с линками котрые присоедены к дечерней ноде которая удаляется
+
 /// <summary>
 /// This transformer can be used to filter graph nodes
 /// </summary>

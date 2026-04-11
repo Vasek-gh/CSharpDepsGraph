@@ -5,13 +5,13 @@ namespace CSharpDepsGraph.Building.Services;
 
 internal class AssemblyFilter
 {
-    private static readonly Dictionary<string, string[]> _predifinedFilters = new(StringComparer.OrdinalIgnoreCase)
+    private static readonly Dictionary<string, string[]> _predefinedFilters = new(StringComparer.OrdinalIgnoreCase)
     {
         { "all", ["*"] },
         { "std-lib", Utils.CoreLibs.ToArray() },
         { "sys", ["System*"] },
         { "ms", ["Microsoft*"] },
-        { "ms-extensons", ["Microsoft.Extensions*"] },
+        { "ms-extensions", ["Microsoft.Extensions*"] },
     };
 
     private readonly Matcher _matcher;
@@ -54,7 +54,7 @@ internal class AssemblyFilter
             }
 
             var specialItem = item.Substring(1, item.Length - 2);
-            if (_predifinedFilters.TryGetValue(specialItem, out var specialItems))
+            if (_predefinedFilters.TryGetValue(specialItem, out var specialItems))
             {
                 result.AddRange(specialItems);
             }

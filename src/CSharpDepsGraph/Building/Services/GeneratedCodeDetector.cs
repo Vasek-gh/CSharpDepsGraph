@@ -81,7 +81,7 @@ internal class GeneratedCodeDetector
 
     private static string? DetectObjPath(Project project)
     {
-        /* todo get BaseIntermediateOutputPath
+        /* todo We can't just get BaseIntermediateOutputPath. To make it visible, need to inject it via CustomBeforeMicrosoftCommonTargets.
         var globalOptions = project.AnalyzerOptions.AnalyzerConfigOptionsProvider.GlobalOptions;
         var opts = globalOptions.Keys
             .Select(k =>

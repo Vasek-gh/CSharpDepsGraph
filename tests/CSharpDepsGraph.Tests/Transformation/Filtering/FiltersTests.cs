@@ -4,6 +4,7 @@ using NUnit.Framework;
 
 namespace CSharpDepsGraph.Tests.Transformation.Filtering;
 
+
 public class FiltersTests : BaseSyntaxTests
 {
     [Test]

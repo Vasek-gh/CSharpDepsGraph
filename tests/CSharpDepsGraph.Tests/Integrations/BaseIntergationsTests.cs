@@ -1,7 +1,7 @@
 using CSharpDepsGraph.Building;
 using NUnit.Framework;
 
-namespace CSharpDepsGraph.Tests.Intergations;
+namespace CSharpDepsGraph.Tests.Integrations;
 
 [System.Diagnostics.CodeAnalysis.SuppressMessage(
     "Usage",
@@ -12,11 +12,11 @@ namespace CSharpDepsGraph.Tests.Intergations;
     "Usage",
     "NUnit1032"
     )]
-public abstract class BaseIntergationsTests
+public abstract class BaseIntegrationsTests
 {
     private readonly TestLoggerFactory _loggerFactory;
 
-    protected BaseIntergationsTests()
+    protected BaseIntegrationsTests()
     {
         _loggerFactory = new TestLoggerFactory();
     }

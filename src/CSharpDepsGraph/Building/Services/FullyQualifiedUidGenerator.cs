@@ -43,7 +43,7 @@ internal class FullyQualifiedUidGenerator : ISymbolUidGenerator
 
         Append(symbol.Name);
 
-        // todo тут ошибка версия не добавляется когда _options.SplitAssembliesVersions = false
+        // todo It looks like there's a bug and the version isn't added when SplitAssembliesVersions is enabled.
         if (symbol.IsFromMetadata() && _options.SplitAssembliesVersions)
         {
             var version = symbol.Identity.Version;

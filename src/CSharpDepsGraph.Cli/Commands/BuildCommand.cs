@@ -151,7 +151,17 @@ public sealed class BuildCommand : ICommand
         result.Add("DesignTimeBuild", "false");
         result.Add("SkipCompilerExecution", "true");
 
-        result.Add("CustomBeforeMicrosoftCommonTargets", "D:/Src/inject.props"); // todo
+        // todo:
+        // <Project>
+        //   <ItemGroup>
+        //     <CompilerVisibleProperty Include="BaseIntermediateOutputPath" />
+        //     <CompilerVisibleProperty Include="EmitCompilerGeneratedFiles" />
+        //     <CompilerVisibleProperty Include="CompilerGeneratedFilesOutputPath" />
+        //     <CompilerVisibleProperty Include="MSBuildProjectDirectory" />
+        //   </ItemGroup>
+        // </Project>
+        // We can make properties visible to Roslyn using CustomBeforeMicrosoftCommonTargets
+        // result.Add("CustomBeforeMicrosoftCommonTargets", "inject.props");
 
         return result;
     }
