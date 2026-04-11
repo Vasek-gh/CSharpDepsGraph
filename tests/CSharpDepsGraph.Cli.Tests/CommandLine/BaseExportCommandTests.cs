@@ -14,7 +14,6 @@ public abstract class BaseExportCommandTests<TOptions> where TOptions : ExportOp
     protected BaseExportCommandTests(string baseCommand)
     {
         _baseCommand = baseCommand;
-
     }
 
     [Test]
@@ -123,26 +122,25 @@ public abstract class BaseExportCommandTests<TOptions> where TOptions : ExportOp
     [Test]
     public async Task HideExternal()
     {
-        await Check("dummy.sln -he", (b, e) => Assert.That(e.HideExternal, Is.True));
         await Check("dummy.sln --hide-external", (b, e) => Assert.That(e.HideExternal, Is.True));
     }
 
     [Test]
     public async Task NodeFilters()
     {
-        await Check("dummy.sln -nf hide,foo*", (b, e) =>
+        await Check("dummy.sln --node-filter hide,foo*", (b, e) =>
         {
             Assert.That(e.NodeFilters.Single().FilterAction, Is.EqualTo(FilterAction.Hide));
             Assert.That(e.NodeFilters.Single().Pattern, Is.EqualTo("foo*"));
         });
 
-        await Check("dummy.sln -nf hide,\"foo* bar\"", (b, e) =>
+        await Check("dummy.sln --node-filter hide,\"foo* bar\"", (b, e) =>
         {
             Assert.That(e.NodeFilters.Single().FilterAction, Is.EqualTo(FilterAction.Hide));
             Assert.That(e.NodeFilters.Single().Pattern, Is.EqualTo("foo* bar"));
         });
 
-        await Check("dummy.sln -nf hide,foo* -nf skip,bar*", (b, e) =>
+        await Check("dummy.sln --node-filter hide,foo* -nf skip,bar*", (b, e) =>
         {
             Assert.That(e.NodeFilters.Count(), Is.EqualTo(2));
             Assert.That(e.NodeFilters.First().FilterAction, Is.EqualTo(FilterAction.Hide));
@@ -169,28 +167,52 @@ public abstract class BaseExportCommandTests<TOptions> where TOptions : ExportOp
             Assert.That(e.NodeFilters.Single().Pattern, Is.EqualTo("foo*"));
         });
 
-        await CheckError("dummy.sln -nf -he", (e) =>
+        await CheckError("dummy.sln --node-filter -he", (e) =>
         {
             Assert.That(e, Does.Contain("node-filter"));
         });
 
-        await CheckError("dummy.sln -nf bar,foo*", (e) =>
+        await CheckError("dummy.sln --node-filter bar,foo*", (e) =>
         {
             Assert.That(e, Does.Contain("bar"));
             Assert.That(e, Does.Contain("node-filter"));
         });
 
-        await CheckError("dummy.sln -nf skip,", (e) =>
+        await CheckError("dummy.sln --node-filter skip,", (e) =>
         {
             Assert.That(e, Does.Contain("skip"));
             Assert.That(e, Does.Contain("node-filter"));
         });
 
-        await CheckError("dummy.sln -nf ,foo*", (e) =>
+        await CheckError("dummy.sln --node-filter ,foo*", (e) =>
         {
             Assert.That(e, Does.Contain("foo*"));
             Assert.That(e, Does.Contain("node-filter"));
         });
+    }
+
+    [Test]
+    public async Task ParseGeneratedCode()
+    {
+        await Check("dummy.sln --parse-generated", (b, e) => Assert.That(b.GraphOptions.ParseGeneratedCode, Is.True));
+    }
+
+    [Test]
+    public async Task CreateLinksToSelf()
+    {
+        await Check("dummy.sln --links-to-self", (b, e) => Assert.That(b.GraphOptions.CreateLinksToSelf, Is.True));
+    }
+
+    [Test]
+    public async Task CreateLinksToPrimitiveTypes()
+    {
+        await Check("dummy.sln --links-to-primitives", (b, e) => Assert.That(b.GraphOptions.CreateLinksToPrimitiveTypes, Is.True));
+    }
+
+    [Test]
+    public async Task SplitAssembliesVersions()
+    {
+        await Check("dummy.sln --split-asm-versions", (b, e) => Assert.That(b.GraphOptions.SplitAssembliesVersions, Is.True));
     }
 
     protected virtual Task Check(string commandLine, Action<BuildOptions, TOptions> validator)

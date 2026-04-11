@@ -26,8 +26,11 @@ internal abstract class BaseCliCommand : Command
             .AddOption(PropertiesOption, (o, v) => o.Properties = v ?? [])
             .AddRequiredArgument(FileNameArgument, (o, v) => o.FileName = v.FullName);
 
-        _graphBuildOptionsHost = new OptionsHost<GraphBuildOptions>(this);
-        // todo
+        _graphBuildOptionsHost = new OptionsHost<GraphBuildOptions>(this)
+            .AddOption(ParseGeneratedCodeOption, (o, v) => o.ParseGeneratedCode = v)
+            .AddOption(CreateLinksToSelfOption, (o, v) => o.CreateLinksToSelf = v)
+            .AddOption(CreateLinksToPrimitiveTypesOption, (o, v) => o.CreateLinksToPrimitiveTypes = v)
+            .AddOption(SplitAssembliesVersionsOption, (o, v) => o.SplitAssembliesVersions = v);
     }
 
     private async Task Execute(ParseResult parseResult, CancellationToken cancellationToken)
@@ -131,11 +134,11 @@ internal abstract class BaseCliCommand : Command
 
     private static Argument<FileInfo> FileNameArgument { get; } = OptionBuilder.Create(() =>
     {
-        var description = @"sln or csproj file";
+        var description = @"sln or slnx file";
 
         var fileNameArgument = new Argument<FileInfo>("filename");
         fileNameArgument.Description = description;
-        fileNameArgument.HelpName = "solution|project";
+        fileNameArgument.HelpName = "solution";
         fileNameArgument.Validators.Add(result =>
         {
             var fileName = result.GetRequiredValue(fileNameArgument).FullName;
@@ -202,5 +205,41 @@ internal abstract class BaseCliCommand : Command
                 return (items, null);
             }
         );
+    });
+
+    private static Option<bool> ParseGeneratedCodeOption { get; } = OptionBuilder.Create(() =>
+    {
+        return OptionBuilder.CreateOption<bool>(
+            "parse-generated",
+            null,
+            "Parse the generated code not located in intermediate output path"
+            );
+    });
+
+    private static Option<bool> CreateLinksToSelfOption { get; } = OptionBuilder.Create(() =>
+    {
+        return OptionBuilder.CreateOption<bool>(
+            "links-to-self",
+            null,
+            "Include references to symbols from your own type"
+            );
+    });
+
+    private static Option<bool> CreateLinksToPrimitiveTypesOption { get; } = OptionBuilder.Create(() =>
+    {
+        return OptionBuilder.CreateOption<bool>(
+            "links-to-primitives",
+            null,
+            "Include links to symbols of primitive types"
+            );
+    });
+
+    private static Option<bool> SplitAssembliesVersionsOption { get; } = OptionBuilder.Create(() =>
+    {
+        return OptionBuilder.CreateOption<bool>(
+            "split-asm-versions",
+            null,
+            "Create separate nodes for each version of an assembly"
+            );
     });
 }

@@ -6,12 +6,11 @@ namespace CSharpDepsGraph.Cli.CommandLine;
 
 internal static class ExportOptionsFactory
 {
-    // todo надо пересмотреть эту опцию с учетом что у внешних теперь нет рута
     public static Option<bool> HideExternal { get; } = OptionBuilder.Create(() =>
     {
         return OptionBuilder.CreateOption<bool>(
             "hide-external",
-            "he",
+            null,
             "When enabled all external nodes with root hides"
             );
     });
@@ -29,7 +28,7 @@ internal static class ExportOptionsFactory
     {
         return OptionBuilder.CreateEnumOption<NodeExportLevel>(
             "export-level",
-            "el",
+            null,
             "level",
             "Defines the level below which all nodes are excluded.",
             NodeExportLevel.All,
@@ -41,7 +40,7 @@ internal static class ExportOptionsFactory
     {
         return OptionBuilder.CreateEnumOption<NodeExportLevel>(
             "export-level",
-            "el",
+            null,
             "level",
             "Defines the level of nodes to export.",
             NodeExportLevel.Assembly,
@@ -63,7 +62,7 @@ internal static class ExportOptionsFactory
 
         return OptionBuilder.CreateListOption<NodeFilter>(
             "node-filter",
-            "nf",
+            null,
             description,
             "filter action,glob pattern",
             argResult =>

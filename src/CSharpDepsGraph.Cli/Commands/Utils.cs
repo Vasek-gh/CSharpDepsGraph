@@ -22,7 +22,7 @@ public static class CommandsUtils
     public static ITransformer GetFlatExportTransformer(ExportOptions settings)
     {
         return new TransformerBuilder()
-            .WithExternalHide(settings.HideExternal)
+            .WithMetaDataHide(settings.HideExternal)
             .WithExportLevel(settings.ExportLevel, true)
             .WithSymbolFilters(settings.NodeFilters)
             .Build();
@@ -31,7 +31,7 @@ public static class CommandsUtils
     public static ITransformer GetHierarchyExportTransformer(ExportOptions settings)
     {
         return new TransformerBuilder()
-            .WithExternalHide(settings.HideExternal)
+            .WithMetaDataHide(settings.HideExternal)
             .WithExportLevel(settings.ExportLevel, false)
             .WithSymbolFilters(settings.NodeFilters)
             .Build();
@@ -42,6 +42,7 @@ public static class CommandsUtils
         if (!logger.IsEnabled(LogLevel.Debug))
         {
             await action();
+            return;
         }
 
         logger.LogDebug("Begin");

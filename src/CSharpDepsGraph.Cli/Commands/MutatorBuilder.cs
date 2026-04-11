@@ -27,7 +27,7 @@ public class TransformerBuilder
         return new CompositeTransformer(transformers);
     }
 
-    public TransformerBuilder WithExternalHide(bool enabled)
+    public TransformerBuilder WithMetaDataHide(bool enabled)
     {
         if (enabled)
         {

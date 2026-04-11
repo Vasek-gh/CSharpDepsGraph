@@ -80,7 +80,7 @@ public sealed class BuildCommand : ICommand
         var fileExtension = Path.GetExtension(filePath);
         var projects = fileExtension switch
         {
-            ".sln" => await OpenSolution(workspace, cancellationToken),
+            ".sln" or ".slnx" => await OpenSolution(workspace, cancellationToken),
             ".csproj" => await OpenProject(workspace, cancellationToken),
             _ => throw new Exception($"Unsupported extension: {fileExtension}")
         };
@@ -120,11 +120,13 @@ public sealed class BuildCommand : ICommand
         return newSolution.Projects;
     }
 
-    private async Task<IEnumerable<Microsoft.CodeAnalysis.Project>> OpenProject(
+    private static Task<IEnumerable<Microsoft.CodeAnalysis.Project>> OpenProject(
         MSBuildWorkspace workspace,
         CancellationToken cancellationToken
         )
     {
+        throw new Exception($"Unsupported extension: csproj");
+        /* todo
         _logger.LogInformation("Open project...");
 
         var project = await workspace.OpenProjectAsync(
@@ -133,6 +135,7 @@ public sealed class BuildCommand : ICommand
             );
 
         return new[] { project };
+        */
     }
 
     private Dictionary<string, string> CreateProps()

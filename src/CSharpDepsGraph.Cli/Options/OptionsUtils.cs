@@ -6,7 +6,7 @@ internal static class OptionsUtils
     {
         var extension = Path.GetExtension(fileName);
 
-        if (extension != ".sln" && extension != ".csproj")
+        if (extension != ".sln" && extension != ".slnx")
         {
             return $"Unsupported file type: {fileName}";
         }
