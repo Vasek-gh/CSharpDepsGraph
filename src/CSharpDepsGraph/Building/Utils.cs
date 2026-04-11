@@ -57,12 +57,12 @@ internal static class Utils
         return link;
     }
 
-    public static bool IsPrimiteType(ISymbol symbol)
+    public static bool IsPrimitiveType(ISymbol symbol)
     {
-        return symbol is ITypeSymbol typeSymbol && IsPrimiteType(typeSymbol);
+        return symbol is ITypeSymbol typeSymbol && IsPrimitiveType(typeSymbol);
     }
 
-    public static bool IsPrimiteType(ITypeSymbol typeSymbol)
+    public static bool IsPrimitiveType(ITypeSymbol typeSymbol)
     {
         return PrimitiveTypes.Contains(typeSymbol.SpecialType);
     }

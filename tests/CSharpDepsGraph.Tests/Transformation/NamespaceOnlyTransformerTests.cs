@@ -120,7 +120,7 @@ public class NamespaceOnlyTransformerTests
     }
 
     [Test]
-    public void OneNameAcrosNodesIsMerged()
+    public void OneNameAcrossNodesIsMerged()
     {
         var graphMock = new GraphMock();
 

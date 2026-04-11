@@ -784,7 +784,7 @@ public class Expression : BaseSyntaxTests
     }
 
     [Test]
-    public void CallExctensionGeneric()
+    public void CallExtensionGeneric()
     {
         var graph = Build(@"
             using TestProject.Entities;

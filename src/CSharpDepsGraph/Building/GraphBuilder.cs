@@ -121,7 +121,7 @@ public sealed class GraphBuilder
             foreach (var syntaxTree in compilation.SyntaxTrees)
             {
                 var generatedFileKind = _generatedCodeDetector.GetFileKind(syntaxTree, cancellationToken);
-                if (generatedFileKind == GeneratedFileKind.Hiden)
+                if (generatedFileKind == GeneratedFileKind.Hidden)
                 {
                     continue;
                 }

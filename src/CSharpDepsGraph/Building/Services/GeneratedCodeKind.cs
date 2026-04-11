@@ -4,5 +4,5 @@ internal enum GeneratedFileKind
 {
     None,
     Visible,
-    Hiden
+    Hidden
 }

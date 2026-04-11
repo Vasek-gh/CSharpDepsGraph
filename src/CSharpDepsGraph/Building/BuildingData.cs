@@ -100,7 +100,7 @@ internal class BuildingData
         _metrics.LinkedSymbolCount.Inc();
         _linkedSymbolCount++;
 
-        if (linkedSymbol.Symbol is ITypeSymbol typeSymbol && Utils.IsPrimiteType(typeSymbol))
+        if (linkedSymbol.Symbol is ITypeSymbol typeSymbol && Utils.IsPrimitiveType(typeSymbol))
         {
             _metrics.LinkedSymbolPrimitiveTypeCount.Inc();
         }

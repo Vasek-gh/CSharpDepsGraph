@@ -236,7 +236,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
                 !x.IsImplicitlyDeclared
                 && x.DeclaringSyntaxReferences.SingleOrDefault()?.GetSyntax() is RecordDeclarationSyntax
                 )
-                ?? throw new Exception($"Primary contructor not found for: {record}");
+                ?? throw new Exception($"Primary constructor not found for: {record}");
 
             HandleDeclaration(syntaxNode, primaryConstructor, () =>
             {

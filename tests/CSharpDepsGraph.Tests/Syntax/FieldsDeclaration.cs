@@ -36,7 +36,7 @@ public class FieldsDeclaration : BaseSyntaxTests
     }
 
     [Test]
-    public void MiltipleFieldsInOneDeclaration()
+    public void MultipleFieldsInOneDeclaration()
     {
         var graph = Build(@"
             using TestProject.Entities;

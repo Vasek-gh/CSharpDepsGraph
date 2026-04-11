@@ -32,8 +32,8 @@ internal class Filter : IFilter
 
     private static bool SymbolIsPrimitiveType(ISymbol symbol)
     {
-        return Utils.IsPrimiteType(symbol)
-            || (symbol.ContainingType is not null && Utils.IsPrimiteType(symbol.ContainingType));
+        return Utils.IsPrimitiveType(symbol)
+            || (symbol.ContainingType is not null && Utils.IsPrimitiveType(symbol.ContainingType));
     }
 
     private bool LinkToSelf(ISymbol source, ISymbol target)

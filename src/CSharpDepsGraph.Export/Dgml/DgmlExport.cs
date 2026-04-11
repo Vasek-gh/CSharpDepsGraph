@@ -49,22 +49,22 @@ public class DgmlExport
     public Task RunAsync(IGraph graph, Stream stream, CancellationToken cancellationToken = default)
     {
         var msaglNodes = new List<XElement>();
-        var msgalLinks = new Dictionary<string, XElement>();
+        var msaglLinks = new Dictionary<string, XElement>();
 
         foreach (var node in graph.Root.Childs)
         {
-            AddNode(node, msaglNodes, msgalLinks);
+            AddNode(node, msaglNodes, msaglLinks);
         }
 
         foreach (var link in graph.Links)
         {
-            AddEdge(link, msgalLinks);
+            AddEdge(link, msaglLinks);
         }
 
         var xDoc = new XDocument(
             new XElement(_ns + "DirectedGraph",
                 new XElement(_ns + "Nodes", msaglNodes),
-                new XElement(_ns + "Links", msgalLinks.Values),
+                new XElement(_ns + "Links", msaglLinks.Values),
                 CreateCategories()
             )
         );

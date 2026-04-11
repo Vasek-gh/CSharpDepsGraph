@@ -177,7 +177,7 @@ internal class SymbolComparer
             return false;
         }
 
-        if (ComparePrimiteTypes(a, b))
+        if (ComparePrimitiveTypes(a, b))
         {
             return true;
         }
@@ -362,10 +362,10 @@ internal class SymbolComparer
         return parameterMode || Compare(a.ContainingSymbol, b.ContainingSymbol, false, parameterMode);
     }
 
-    public static bool ComparePrimiteTypes(ITypeSymbol aTypeSymbol, ITypeSymbol bTypeSymbol)
+    public static bool ComparePrimitiveTypes(ITypeSymbol aTypeSymbol, ITypeSymbol bTypeSymbol)
     {
-        var aIsPrimitive = Utils.IsPrimiteType(aTypeSymbol);
-        var bIsPrimitive = Utils.IsPrimiteType(bTypeSymbol);
+        var aIsPrimitive = Utils.IsPrimitiveType(aTypeSymbol);
+        var bIsPrimitive = Utils.IsPrimitiveType(bTypeSymbol);
 
         if (aIsPrimitive != bIsPrimitive)
         {

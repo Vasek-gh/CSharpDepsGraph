@@ -212,7 +212,7 @@ public abstract class BaseExportCommandTests<TOptions> where TOptions : ExportOp
         validator(result);
     }
 
-    public async Task<string?> Run(string commandArguments, ICommandFactory commandFactory)
+    protected async Task<string?> Run(string commandArguments, ICommandFactory commandFactory)
     {
         CreateDummySln();
 
