@@ -158,11 +158,13 @@ internal abstract class BaseCliCommand : Command
             "Sets the verbosity level of the command.",
             Verbosity.Normal,
             [
+                // cSpell:disable
                 ( Verbosity.Quiet, "q", "q[uiet]" ),
                 ( Verbosity.Minimal, "m", "m[inimal]" ),
                 ( Verbosity.Normal, "n", "n[ormal]" ),
                 ( Verbosity.Detailed, "d", "d[etailed]" ),
                 ( Verbosity.Diagnostic, "diag", "diag[nostic]" )
+                // cSpell:enable
             ]
         );
     });
