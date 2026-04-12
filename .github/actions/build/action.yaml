@@ -18,8 +18,8 @@ runs:
 
     - name: Build
       shell: bash
-      run: dotnet build -c Release /p:EnforceCodeStyleInBuild=true
+      run: dotnet build CSharpDepsGraph.slnx -c Release /p:EnforceCodeStyleInBuild=true
 
     - name: Tests
       shell: bash
-      run: dotnet test -c Release --no-restore --no-build
+      run: dotnet test CSharpDepsGraph.slnx -c Release --no-restore --no-build
