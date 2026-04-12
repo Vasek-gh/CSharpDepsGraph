@@ -14,7 +14,7 @@ runs:
 
     - name: Build test data
       shell: bash
-      run: dotnet build tests/CSharpDepsGraph.Tests/TestData/TestProject.sln
+      run: dotnet build tests/CSharpDepsGraph.Tests/TestData/TestProject.sln -p:WarningLevel=0
 
     - name: Build
       shell: bash
