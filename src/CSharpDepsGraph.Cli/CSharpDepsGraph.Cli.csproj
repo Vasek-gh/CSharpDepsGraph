@@ -2,15 +2,14 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>net10.0</TargetFramework>
 
         <PackAsTool>true</PackAsTool>
         <ToolCommandName>csdg</ToolCommandName>
+        <RollForward>Major</RollForward>
 
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <Description>A tool for creating code dependency graphs, exporting and visualizing</Description>
 
-        <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
         <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
 
         <NoWarn>CS1591</NoWarn>
@@ -37,8 +36,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleTo">
-            <_Parameter1>$(MSBuildProjectName).Tests</_Parameter1>
-        </AssemblyAttribute>
+        <InternalsVisibleTo Include="$(MSBuildProjectName).Tests" />
     </ItemGroup>
 </Project>
