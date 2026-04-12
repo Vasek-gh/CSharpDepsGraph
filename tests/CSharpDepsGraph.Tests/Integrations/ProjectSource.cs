@@ -14,7 +14,7 @@ public static class ProjectSource
     [OneTimeSetUp]
     public static async Task Init()
     {
-        await BuildSolution(TestData.TestProjectSolution);
+        //await BuildSolution(TestData.TestProjectSolution);
 
         Workspace = MSBuildWorkspace.Create();
         Solution = await Workspace.OpenSolutionAsync(TestData.TestProjectSolution);
