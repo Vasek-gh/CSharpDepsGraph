@@ -5,7 +5,7 @@
         <TargetFramework>net10.0</TargetFramework>
 
         <PackAsTool>true</PackAsTool>
-        <ToolCommandName>srcmap</ToolCommandName>
+        <ToolCommandName>csdg</ToolCommandName>
 
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <Description>A tool for creating code dependency graphs, exporting and visualizing</Description>

@@ -28,37 +28,34 @@ internal class GraphVizExportCommandTests : BaseExportCommandTests<ExportOptions
     [Test]
     public async Task ExportLevel()
     {
-        await Check("dummy.sln -el assembly", (b, e) => Assert.That(e.ExportLevel, Is.EqualTo(NodeExportLevel.Assembly)));
-        await Check("dummy.sln -el namespace", (b, e) => Assert.That(e.ExportLevel, Is.EqualTo(NodeExportLevel.Namespace)));
-
         await Check("dummy.sln --export-level assembly", (b, e) => Assert.That(e.ExportLevel, Is.EqualTo(NodeExportLevel.Assembly)));
         await Check("dummy.sln --export-level namespace", (b, e) => Assert.That(e.ExportLevel, Is.EqualTo(NodeExportLevel.Namespace)));
 
-        await CheckError("dummy.sln -el foo", (e) =>
+        await CheckError("dummy.sln --export-level foo", (e) =>
         {
             Assert.That(e, Does.Contain("foo"));
             Assert.That(e, Does.Contain("export-level"));
         });
 
-        await CheckError("dummy.sln -el default", (e) =>
+        await CheckError("dummy.sln --export-level default", (e) =>
         {
             Assert.That(e, Does.Contain("default"));
             Assert.That(e, Does.Contain("export-level"));
         });
 
-        await CheckError("dummy.sln -el type", (e) =>
+        await CheckError("dummy.sln --export-level type", (e) =>
         {
             Assert.That(e, Does.Contain("type"));
             Assert.That(e, Does.Contain("export-level"));
         });
 
-        await CheckError("dummy.sln -el public-member", (e) =>
+        await CheckError("dummy.sln --export-level public-member", (e) =>
         {
             Assert.That(e, Does.Contain("public-member"));
             Assert.That(e, Does.Contain("export-level"));
         });
 
-        await CheckError("dummy.sln -el all", (e) =>
+        await CheckError("dummy.sln --export-level all", (e) =>
         {
             Assert.That(e, Does.Contain("all"));
             Assert.That(e, Does.Contain("export-level"));

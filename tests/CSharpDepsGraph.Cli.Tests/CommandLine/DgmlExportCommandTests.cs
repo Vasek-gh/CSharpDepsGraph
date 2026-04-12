@@ -28,25 +28,19 @@ internal class DgmlExportCommandTests : BaseExportCommandTests<ExportOptions>
     [Test]
     public async Task ExportLevel()
     {
-        await Check("dummy.sln -el assembly", (b, e) => Assert.That(e.ExportLevel, Is.EqualTo(NodeExportLevel.Assembly)));
-        await Check("dummy.sln -el namespace", (b, e) => Assert.That(e.ExportLevel, Is.EqualTo(NodeExportLevel.Namespace)));
-        await Check("dummy.sln -el type", (b, e) => Assert.That(e.ExportLevel, Is.EqualTo(NodeExportLevel.Type)));
-        await Check("dummy.sln -el public-member", (b, e) => Assert.That(e.ExportLevel, Is.EqualTo(NodeExportLevel.PublicMember)));
-        await Check("dummy.sln -el all", (b, e) => Assert.That(e.ExportLevel, Is.EqualTo(NodeExportLevel.All)));
-
         await Check("dummy.sln --export-level assembly", (b, e) => Assert.That(e.ExportLevel, Is.EqualTo(NodeExportLevel.Assembly)));
         await Check("dummy.sln --export-level namespace", (b, e) => Assert.That(e.ExportLevel, Is.EqualTo(NodeExportLevel.Namespace)));
         await Check("dummy.sln --export-level type", (b, e) => Assert.That(e.ExportLevel, Is.EqualTo(NodeExportLevel.Type)));
         await Check("dummy.sln --export-level public-member", (b, e) => Assert.That(e.ExportLevel, Is.EqualTo(NodeExportLevel.PublicMember)));
         await Check("dummy.sln --export-level all", (b, e) => Assert.That(e.ExportLevel, Is.EqualTo(NodeExportLevel.All)));
 
-        await CheckError("dummy.sln -el default", (e) =>
+        await CheckError("dummy.sln --export-level default", (e) =>
         {
             Assert.That(e, Does.Contain("default"));
             Assert.That(e, Does.Contain("export-level"));
         });
 
-        await CheckError("dummy.sln -el foo", (e) =>
+        await CheckError("dummy.sln --export-level foo", (e) =>
         {
             Assert.That(e, Does.Contain("foo"));
             Assert.That(e, Does.Contain("export-level"));

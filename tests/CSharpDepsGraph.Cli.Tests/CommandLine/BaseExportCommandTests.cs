@@ -140,7 +140,7 @@ public abstract class BaseExportCommandTests<TOptions> where TOptions : ExportOp
             Assert.That(e.NodeFilters.Single().Pattern, Is.EqualTo("foo* bar"));
         });
 
-        await Check("dummy.sln --node-filter hide,foo* -nf skip,bar*", (b, e) =>
+        await Check("dummy.sln --node-filter hide,foo* --node-filter skip,bar*", (b, e) =>
         {
             Assert.That(e.NodeFilters.Count(), Is.EqualTo(2));
             Assert.That(e.NodeFilters.First().FilterAction, Is.EqualTo(FilterAction.Hide));
@@ -167,7 +167,7 @@ public abstract class BaseExportCommandTests<TOptions> where TOptions : ExportOp
             Assert.That(e.NodeFilters.Single().Pattern, Is.EqualTo("foo*"));
         });
 
-        await CheckError("dummy.sln --node-filter -he", (e) =>
+        await CheckError("dummy.sln --node-filter --hide-external", (e) =>
         {
             Assert.That(e, Does.Contain("node-filter"));
         });

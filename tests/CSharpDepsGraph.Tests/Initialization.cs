@@ -8,7 +8,7 @@ public static class Initialization
     [OneTimeSetUp]
     public static void Init()
     {
-        Environment.SetEnvironmentVariable(TestData.SkipBuildVar, "1");
+        //Environment.SetEnvironmentVariable(TestData.SkipBuildVar, "1");
     }
 
     [OneTimeTearDown]

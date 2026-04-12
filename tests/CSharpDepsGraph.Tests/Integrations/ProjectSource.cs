@@ -26,7 +26,7 @@ public static class ProjectSource
         Workspace.Dispose();
     }
 
-    private static void BuildSolution(string slnFileName)
+    private static async Task BuildSolution(string slnFileName)
     {
         if (Environment.GetEnvironmentVariable(TestData.SkipBuildVar) == "1")
         {
@@ -41,6 +41,8 @@ public static class ProjectSource
                 Arguments = $"build {slnFileName} --nologo -v n --disable-build-servers",
                 RedirectStandardError = true,
                 RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true,
                 Environment = {
                     { "DOTNET_NOLOGO", "1" },
                     { "DOTNET_CLI_UI_LANGUAGE", "en" },
@@ -55,10 +57,10 @@ public static class ProjectSource
             throw new Exception("Fail to start restore process");
         }
 
-        process.WaitForExit();
+        await process.WaitForExitAsync();
         if (process.ExitCode != 0)
         {
-            var output = process.StandardOutput.ReadToEnd();
+            var output = await process.StandardOutput.ReadToEndAsync();
             throw new Exception($"Restore {slnFileName} fail: {output}");
         }
     }

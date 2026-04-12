@@ -11,9 +11,11 @@ TestResults/
 
 *.dmp
 *.txt
+*.dot
+*.dgml
 *.json
 *.nettrace
 *.speedscope.json
-
 *.lscache
+
 !*.lock.json
