@@ -30,8 +30,11 @@ public static class ProjectSource
     {
         if (Environment.GetEnvironmentVariable(TestData.SkipBuildVar) == "1")
         {
+            await TestContext.Out.WriteLineAsync("Build test data skipped");
             return;
         }
+
+        await TestContext.Out.WriteLineAsync($"Start build test data {slnFileName}...");
 
         using var process = new Process()
         {
@@ -54,14 +57,14 @@ public static class ProjectSource
 
         if (!process.Start())
         {
-            throw new Exception("Fail to start restore process");
+            throw new Exception("Fail to start build process");
         }
 
         await process.WaitForExitAsync();
         if (process.ExitCode != 0)
         {
             var output = await process.StandardOutput.ReadToEndAsync();
-            throw new Exception($"Restore {slnFileName} fail: {output}");
+            throw new Exception($"Build test data fail: {output}");
         }
     }
 }

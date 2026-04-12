@@ -12,6 +12,10 @@ runs:
       shell: bash
       run: dotnet --info
 
+    - name: Test
+      shell: bash
+      run: echo ${{ github.workspace }}
+
     - name: Build
       shell: bash
       run: dotnet build -c Release /p:EnforceCodeStyleInBuild=true
