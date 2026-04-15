@@ -21,7 +21,7 @@ jobs:
       matrix:
         os: [
           windows-latest
-          #macos-latest todo fix lint problem
+          #macos-latest todo
         ]
 
     steps:
@@ -73,7 +73,16 @@ jobs:
               lastTag: '${{ steps.get_last_tag.outputs.lastTag }}'
             });
 
+      - name: Pack
+        run: dotnet pack -c Release --no-restore --no-build -o ./_out
+
+      - name: Check nupkg version
+        if: ${{ hashFiles('./out/CSharpDepsGraph.Cli.${{ steps.prepare_notes.outputs.version }}.nupkg') == '' }}
+        uses: actions/github-script@v7
+        with:
+          script: core.setFailed('Wrong version of nupkg or file not exists')
+
       - name: Create release
-        run: gh release create v${{ steps.prepare_notes.outputs.version }} --title ${{ steps.prepare_notes.outputs.version }} --notes-file ${{ steps.prepare_notes.outputs.notes }} --fail-on-no-commits ./vscode-create-*.vsix
+        run: gh release create v${{ steps.prepare_notes.outputs.version }} --title ${{ steps.prepare_notes.outputs.version }} --notes-file ${{ steps.prepare_notes.outputs.notes }} --fail-on-no-commits ./out/CSharpDepsGraph.Cli.${{ steps.prepare_notes.outputs.version }}.nupkg
         env:
           GH_TOKEN: ${{ github.token }}
