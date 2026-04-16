@@ -1,0 +1,197 @@
+using Microsoft.CodeAnalysis;
+using Microsoft.Extensions.Logging;
+using System.Globalization;
+using CSharpDepsGraph.Building.Entities;
+using System.Data;
+using CSharpDepsGraph.Building.Services;
+
+namespace CSharpDepsGraph.Building;
+
+/// <summary>
+/// <see cref="IGraph"/> builder
+/// </summary>
+public sealed class GraphBuilder
+{
+    private readonly ILogger _logger;
+    private readonly IFilter _filter;
+    private readonly Metrics _metrics;
+    private readonly BuildingData _graphData;
+    private readonly CultureInfo _cultureInfo;
+    private readonly ILoggerFactory _loggerFactory;
+    private readonly GeneratedCodeDetector _generatedCodeDetector;
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="GraphBuilder"/> class.
+    /// </summary>
+    public GraphBuilder(
+        ILoggerFactory loggerFactory,
+        GraphBuildOptions options,
+        CultureInfo? cultureInfo = null
+        )
+    {
+        _loggerFactory = loggerFactory;
+        _cultureInfo = cultureInfo ?? CultureInfo.CurrentCulture;
+
+        _logger = CreateLogger();
+        _metrics = new();
+        _generatedCodeDetector = new(options);
+
+        var symbolComparer = new SymbolComparer(options);
+
+        _filter = new Filter(options, symbolComparer);
+
+        _graphData = new(
+            _metrics,
+            symbolComparer,
+            SymbolUidGenerator.Create(options)
+            );
+    }
+
+    /// <summary>
+    /// Build code graph
+    /// </summary>
+    public async Task<IGraph> Run(IEnumerable<Project> projects, CancellationToken cancellationToken)
+    {
+        await DoWithMeasurement(_logger, async () =>
+        {
+            foreach (var project in projects)
+            {
+                await HandleProject(project, cancellationToken);
+            }
+
+            await BuildLinks();
+        });
+
+        return new Graph()
+        {
+            Root = _graphData.Root,
+            Links = _graphData.Links
+        };
+    }
+
+    private Task BuildLinks()
+    {
+        var logger = CreateLogger(nameof(LinkBuilder));
+        return DoWithMeasurement(logger, () =>
+        {
+            new LinkBuilder(logger, _graphData, _generatedCodeDetector).Run();
+            return Task.CompletedTask;
+        });
+    }
+
+    private Task HandleProject(Project project, CancellationToken cancellationToken)
+    {
+        if (!project.SupportsCompilation)
+        {
+            return Task.CompletedTask;
+        }
+
+        var logger = CreateLogger(project.Name);
+        return DoWithMeasurement(logger, async () =>
+        {
+            await _generatedCodeDetector.PrepareProjectAsync(project, cancellationToken);
+
+            var projectPath = project.FilePath ?? $"{project.Name}.dll";
+
+            var compilation = await GetCompilation(project, logger, cancellationToken);
+            foreach (var syntaxTree in compilation.SyntaxTrees)
+            {
+                var generatedFileKind = _generatedCodeDetector.GetFileKind(syntaxTree, cancellationToken);
+                if (generatedFileKind == GeneratedFileKind.Hidden)
+                {
+                    continue;
+                }
+
+                HandleSyntax(
+                    logger,
+                    syntaxTree,
+                    compilation,
+                    generatedFileKind != GeneratedFileKind.None,
+                    projectPath,
+                    cancellationToken
+                );
+            }
+        });
+    }
+
+    private void HandleSyntax(
+        ILogger logger,
+        SyntaxTree syntaxTree,
+        Compilation compilation,
+        bool isGenerated,
+        string projectPath,
+        CancellationToken cancellationToken
+        )
+    {
+        var syntaxRoot = syntaxTree.GetRoot(cancellationToken);
+        var semanticModel = compilation.GetSemanticModel(syntaxTree);
+
+        var syntaxVisitor = new SyntaxVisitor(
+            logger,
+            _filter,
+            isGenerated,
+            projectPath,
+            _graphData,
+            semanticModel
+            );
+
+        syntaxVisitor.Visit(syntaxRoot);
+    }
+
+    private async Task<Compilation> GetCompilation(Project project, ILogger logger, CancellationToken cancellationToken)
+    {
+        var compilation = await project.GetCompilationAsync(cancellationToken)
+            ?? throw new Exception($"Fail to get compilation for project {project.Name}");
+
+        HandleErrors(logger, project, compilation);
+
+        return compilation;
+    }
+
+    private Task DoWithMeasurement(ILogger logger, Func<Task> action)
+    {
+        return Utils.LogOperation(logger, "Analysis", async () =>
+        {
+            _metrics.BeginScope(logger);
+            await action();
+            _metrics.EndScope();
+        });
+    }
+
+    private void HandleErrors(ILogger logger, Project project, Compilation compilation)
+    {
+        var diagErrors = compilation.GetDiagnostics()
+            .Where(m => m.Severity == DiagnosticSeverity.Error)
+            .ToArray();
+
+        if (diagErrors.Length == 0)
+        {
+            return;
+        }
+
+        foreach (var error in diagErrors)
+        {
+            logger.LogError(GetDiagMessage(error));
+        }
+
+        var fatalMessage = $"Project {Path.GetFileName(project.FilePath)} has errors, build break";
+        logger.LogCritical(fatalMessage);
+
+        throw new CSharpDepsGraphException(fatalMessage);
+    }
+
+    private string GetDiagMessage(Diagnostic diagnostic)
+    {
+        var span = diagnostic.Location.GetMappedLineSpan();
+        var line = span.StartLinePosition.Line + 1;
+        var column = span.StartLinePosition.Character + 1;
+        var path = span.Path;
+
+        return $"{path}:{line}:{column} {diagnostic.GetMessage(_cultureInfo)}";
+    }
+
+    private ILogger CreateLogger(string? category = null)
+    {
+        return Utils.CreateLogger<GraphBuilder>(_loggerFactory, category);
+    }
+}

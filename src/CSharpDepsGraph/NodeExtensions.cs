@@ -1,0 +1,86 @@
+
+namespace CSharpDepsGraph;
+
+/// <summary>
+/// Extension methods for the <see cref="INode"/>
+/// </summary>
+public static class NodeExtensions
+{
+    /// <summary>
+    /// Determines if the node is root
+    /// </summary>
+    public static bool IsRoot(this INode node)
+    {
+        return node.Uid == GraphConsts.RootNodeId;
+    }
+
+    /// <summary>
+    /// Determines if node created for metadata symbol
+    /// </summary>
+    public static bool IsFromMetadata(this INode node)
+    {
+        return node.Symbol != null && node.Symbol.IsFromMetadata();
+    }
+
+    /// <summary>
+    /// Collecting child nodes based on a predicate
+    /// </summary>
+    public static IEnumerable<INode> CollectChildNodes(this INode node, Func<INode, bool>? predicate = null)
+    {
+        var result = new List<INode>();
+        VisitNodes(node, (child) =>
+        {
+            result.Add(child);
+            return predicate?.Invoke(child) ?? true;
+        });
+
+        return result;
+    }
+
+    /// <summary>
+    /// Collecting child nodes data based on a predicate
+    /// </summary>
+    public static IEnumerable<T> CollectNodeData<T>(this INode node, Func<INode, T> action)
+    {
+        var result = new List<T>();
+        VisitNodes(node, (node) =>
+        {
+            result.Add(action(node));
+            return true;
+        });
+
+        return result;
+    }
+
+    /// <summary>
+    /// Visits all nodes down the hierarchy. The predicate is used to determine what to stop
+    /// </summary>
+    public static void VisitNodes(this INode node, Func<INode, bool> action)
+    {
+        if (!action(node))
+        {
+            return;
+        }
+
+        foreach (var child in node.Childs)
+        {
+            VisitNodes(child, action);
+        }
+    }
+
+    /// <summary>
+    /// Visits all nodes down the hierarchy. The predicate is used to determine what to stop
+    /// </summary>
+    public static void VisitNodes(this INode node, INode? parent, Func<INode, INode?, bool> action)
+    {
+        if (!action(node, parent))
+        {
+            return;
+        }
+
+        foreach (var child in node.Childs)
+        {
+            VisitNodes(child, node, action);
+        }
+    }
+}

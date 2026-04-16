@@ -1,0 +1,24 @@
+<Project>
+    <PropertyGroup>
+        <Nullable>enable</Nullable>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <LangVersion>Latest</LangVersion>
+        <TargetFramework>net8.0</TargetFramework>
+
+        <SatelliteResourceLanguages>en</SatelliteResourceLanguages>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+        <CurrentDate>$([System.DateTime]::Now.ToString("yyyy"))</CurrentDate>
+
+        <Authors>Vasek</Authors>
+        <Copyright>Copyright © Vasek $(CurrentDate)</Copyright>
+        <RepositoryType>git</RepositoryType>
+        <RepositoryUrl>https://github.com/Vasek-gh/CSharpDepsGraph</RepositoryUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <VersionPrefix>0.9.0</VersionPrefix>
+
+        <NuGetAudit>false</NuGetAudit>
+        <AnalysisMode>All</AnalysisMode>
+        <AnalysisLevel>8</AnalysisLevel>
+    </PropertyGroup>
+</Project>

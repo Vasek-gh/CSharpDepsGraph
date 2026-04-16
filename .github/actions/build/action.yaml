@@ -6,15 +6,19 @@ runs:
     - name: Install dotnet
       uses: actions/setup-dotnet@v5
       with:
-        dotnet-version: '8.0.x'
+        dotnet-version: '10.x'
 
     - name: Dotnet info
       shell: bash
       run: dotnet --info
 
+    - name: Build test data
+      shell: bash
+      run: dotnet build tests/CSharpDepsGraph.Tests/TestData/TestProject.sln -p:WarningLevel=0
+
     - name: Build
       shell: bash
-      run: dotnet build -c Release /p:EnforceCodeStyleInBuild=true
+      run: dotnet build -c Release -p:EnforceCodeStyleInBuild=true
 
     - name: Tests
       shell: bash

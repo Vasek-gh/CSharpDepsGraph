@@ -1,0 +1,169 @@
+using Microsoft.CodeAnalysis;
+using NUnit.Framework;
+using CSharpDepsGraph.Transforming;
+
+namespace CSharpDepsGraph.Tests.Transformation;
+
+[TestFixture]
+public class NamespaceOnlyTransformerTests
+{
+    private const string _assemblyName1 = "A1";
+    private const string _assemblyName2 = "A2";
+    private const string _namespaceName1 = "N1";
+    private const string _namespaceName2 = "N2";
+    private const string _namespaceName3 = "N3";
+
+    [Test]
+    public void Trivial()
+    {
+        var graphMock = new GraphMock();
+        graphMock.RootNode
+            .AddAssemblyNode(_assemblyName1)
+            .AddNamespaceNode(_namespaceName1);
+        graphMock.RootNode
+            .AddAssemblyNode(_assemblyName2)
+            .AddNamespaceNode(_namespaceName2);
+
+        var graph = new NamespaceOnlyTransformer().Execute(graphMock);
+
+        Assert.That(graph.Root.Uid, Is.EqualTo(GraphConsts.RootNodeId));
+        Assert.That(graph.Root.Childs.Count(), Is.EqualTo(2));
+
+        var namespaceNode1Check = graph.Root.Childs.First(n => n.Uid == _namespaceName1);
+        var namespaceNode2Check = graph.Root.Childs.First(n => n.Uid == _namespaceName2);
+
+        Assert.That(namespaceNode1Check.Symbol, Is.Not.Null);
+        Assert.That(namespaceNode2Check.Symbol, Is.Not.Null);
+    }
+
+    [Test]
+    public void ChildNamespaceNotTouched()
+    {
+        var graphMock = new GraphMock();
+
+        var childNode1Mock = graphMock.RootNode
+            .AddAssemblyNode(_assemblyName1)
+            .AddNamespaceNode(_namespaceName1)
+            .AddNamespaceNode(_namespaceName2)
+            .AddNode("C1");
+
+        var childNode2Mock = graphMock.RootNode
+            .AddAssemblyNode(_assemblyName1)
+            .AddNamespaceNode(_namespaceName3)
+            .AddNode("C2");
+
+        graphMock.AddLink(Mocks.CreateLink(childNode2Mock, childNode1Mock));
+
+        var graph = new NamespaceOnlyTransformer().Execute(graphMock);
+
+        Assert.That(graph.Links.Count(), Is.EqualTo(1));
+        Assert.That(graph.Root.Childs.Count(), Is.EqualTo(2));
+
+        var namespaceName1Node = graph.Root.Childs.Single(c => c.Uid == _namespaceName1);
+        var namespaceName3Node = graph.Root.Childs.Single(c => c.Uid == _namespaceName3);
+
+        var link = graph.Links.SingleOrDefault(l =>
+            l.Source.Uid == _namespaceName3
+            && l.Target.Uid == _namespaceName1
+            && l.OriginalSource.Uid == "C2"
+            && l.OriginalTarget.Uid == "C1"
+            );
+
+        Assert.That(link, Is.Not.Null);
+    }
+
+    [Test]
+    public void GlobalSymbolsMovedToGlobalNamespace()
+    {
+        var graphMock = new GraphMock();
+
+        var childNode1Mock = graphMock.RootNode
+            .AddAssemblyNode(_assemblyName1)
+            .AddNode("C1");
+
+        var childNode2Mock = graphMock.RootNode
+            .AddAssemblyNode(_assemblyName2)
+            .AddNode("C2");
+
+        var childNode3Mock = graphMock.RootNode
+            .AddAssemblyNode(_assemblyName1)
+            .AddNamespaceNode(_namespaceName1)
+            .AddNode("C3");
+
+        graphMock.AddLink(Mocks.CreateLink(childNode3Mock, childNode1Mock));
+        graphMock.AddLink(Mocks.CreateLink(childNode3Mock, childNode2Mock));
+
+        var graph = new NamespaceOnlyTransformer().Execute(graphMock);
+
+        Assert.That(graph.Root.Childs.Count(), Is.EqualTo(2));
+
+        var namespaceNode = graph.Root.Childs.Single(c => c.Uid == _namespaceName1);
+        var namespaceNodeSymbol = namespaceNode.Symbol as INamespaceSymbol;
+        var globalNamespaceNode = graph.Root.Childs.Single(c => c.Uid == NamespaceOnlyTransformer.GlobalId);
+        var globalNamespaceSymbol = globalNamespaceNode.Symbol as INamespaceSymbol;
+
+        Assert.That(namespaceNodeSymbol, Is.Not.Null);
+        Assert.That(namespaceNodeSymbol?.IsGlobalNamespace, Is.False);
+        Assert.That(globalNamespaceSymbol, Is.Not.Null);
+        Assert.That(globalNamespaceSymbol?.IsGlobalNamespace, Is.True);
+
+        var links = graph.Links.Where(l =>
+            l.Source.Uid == _namespaceName1
+            && l.Target.Uid == NamespaceOnlyTransformer.GlobalId
+            && l.OriginalSource.Uid == "C3"
+            )
+            .ToArray();
+
+        Assert.That(links.Length, Is.EqualTo(2));
+        Assert.That(links.SingleOrDefault(l => l.OriginalTarget.Uid == "C1"), Is.Not.Null);
+        Assert.That(links.SingleOrDefault(l => l.OriginalTarget.Uid == "C2"), Is.Not.Null);
+    }
+
+    [Test]
+    public void OneNameAcrossNodesIsMerged()
+    {
+        var graphMock = new GraphMock();
+
+        var childNode11 = graphMock.RootNode
+            .AddNode("Group", null)
+            .AddAssemblyNode(_assemblyName1)
+            .AddNamespaceNode(_namespaceName1)
+            .AddNode("C1");
+
+        var childNode12 = graphMock.RootNode
+            .AddAssemblyNode(_assemblyName2)
+            .AddNamespaceNode(_namespaceName1)
+            .AddNode("C2");
+
+        var childNode13 = graphMock.RootNode
+            .AddNamespaceNode(_namespaceName1)
+            .AddNode("C3");
+
+        var childNode2 = graphMock.RootNode
+            .AddNamespaceNode(_namespaceName2)
+            .AddNode("C4");
+
+        graphMock.LinkList.Add(Mocks.CreateLink(childNode2, childNode11));
+        graphMock.LinkList.Add(Mocks.CreateLink(childNode2, childNode12));
+        graphMock.LinkList.Add(Mocks.CreateLink(childNode2, childNode13));
+
+        var graph = new NamespaceOnlyTransformer().Execute(graphMock);
+
+        Assert.That(graph.Root.Childs.Count(), Is.EqualTo(2));
+
+        var namespaceNode1Check = graph.Root.Childs.First(n => n.Uid == _namespaceName1);
+        var namespaceNode2Check = graph.Root.Childs.First(n => n.Uid == _namespaceName2);
+
+        var links = graph.Links.Where(l =>
+            l.Source.Uid == _namespaceName2
+            && l.Target.Uid == _namespaceName1
+            && l.OriginalSource.Uid == "C4"
+            )
+            .ToArray();
+
+        Assert.That(links.Length, Is.EqualTo(3));
+        Assert.That(links.SingleOrDefault(l => l.OriginalTarget.Uid == "C1"), Is.Not.Null);
+        Assert.That(links.SingleOrDefault(l => l.OriginalTarget.Uid == "C2"), Is.Not.Null);
+        Assert.That(links.SingleOrDefault(l => l.OriginalTarget.Uid == "C3"), Is.Not.Null);
+    }
+}

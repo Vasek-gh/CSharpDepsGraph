@@ -1,0 +1,120 @@
+using NUnit.Framework;
+
+namespace CSharpDepsGraph.Tests.Integrations;
+
+public class PreprocessorDirectivesTests : BaseIntegrationsTests
+{
+    private static readonly char[] _pathSeparators = ['\\', '/'];
+
+    [Test]
+    public void TypeOptionalBody()
+    {
+        var graph = GetGraph();
+
+        var intTypeS21Node = graph.GetNode(AsmName.Netstandard, "System/int");
+        var intTypeR60Node = graph.GetNode(AsmName.Runtime60, "System/int");
+        var intTypeR80Node = graph.GetNode(AsmName.Runtime80, "System/int");
+        var decimalR60TypeNode = graph.GetNode(AsmName.Runtime60, "System/decimal");
+        var decimalR80TypeNode = graph.GetNode(AsmName.Runtime80, "System/decimal");
+        var longTypeNode = graph.GetNode(AsmName.Netstandard, "System/long");
+
+        CheckMethodLinks(graph, "Preprocessor1/TestMethod1()",
+            (intTypeS21Node, "Preprocessor1.cs:7:17"),
+            (intTypeR60Node, "Preprocessor1.cs:7:17"),
+            (intTypeR80Node, "Preprocessor1.cs:7:17"),
+            (longTypeNode, "Preprocessor1.cs:9:17"),
+            (decimalR60TypeNode, "Preprocessor1.cs:11:17"),
+            (decimalR80TypeNode, "Preprocessor1.cs:11:17")
+        );
+
+        CheckMethodLinks(graph, "Preprocessor1/TestMethod2()",
+            (longTypeNode, "Preprocessor1.cs:18:17")
+        );
+
+        CheckMethodLinks(graph, "Preprocessor1/TestMethod3()",
+            (decimalR60TypeNode, "Preprocessor1.cs:23:17"),
+            (decimalR80TypeNode, "Preprocessor1.cs:23:17")
+        );
+
+        CheckMethodLinks(graph, "Preprocessor1/TestMethod4()",
+            (longTypeNode, "Preprocessor1.cs:30:17"),
+            (decimalR60TypeNode, "Preprocessor1.cs:35:17"),
+            (decimalR80TypeNode, "Preprocessor1.cs:35:17")
+        );
+    }
+
+    [Test]
+    public void TypeOptionalDeclaration()
+    {
+        var graph = GetGraph();
+
+        Assert.That(
+            graph.GetNode(AsmName.TestProject, "TestProject")
+                .Childs
+                .Count(n => n.Symbol?.Name.StartsWith("Preprocessor2") == true),
+            Is.EqualTo(1)
+        );
+
+        var node = graph.GetNode(AsmName.TestProject, "TestProject/Preprocessor2<T>");
+        var nodeCar = graph.GetNode(AsmName.TestProject, "TestProject/Entities/Car");
+        var nodeAirplane = graph.GetNode(AsmName.TestProject, "TestProject/Entities/Airplane");
+
+        var links = graph.GetOutgoingLinks(node).ToArray();
+
+        Assert.That(links.Length, Is.EqualTo(2));
+        Assert.That(links.SingleOrDefault(l => l.Target.Uid == nodeCar.Uid), Is.Not.Null);
+        Assert.That(links.SingleOrDefault(l => l.Target.Uid == nodeAirplane.Uid), Is.Not.Null);
+    }
+
+    [Test]
+    public void TypeDifferentDeclaration()
+    {
+        var graph = GetGraph();
+
+        var userMethodNode = graph.GetNode(AsmName.TestProject, "TestProject/Preprocessor3User/Test()");
+
+        var nodeType1 = graph.GetNode(AsmName.TestProject, "TestProject/Preprocessor3_1");
+        var nodeMethod1 = graph.GetNode(AsmName.TestProject, "TestProject/Preprocessor3_1/Foo()");
+
+        var nodeType2 = graph.GetNode(AsmName.TestProject, "TestProject/Preprocessor3_2");
+        var nodeMethod2 = graph.GetNode(AsmName.TestProject, "TestProject/Preprocessor3_2/Foo()");
+
+        var links = graph.GetOutgoingLinks(userMethodNode).ToArray();
+        Assert.That(links.Length, Is.EqualTo(4));
+        Assert.That(links.SingleOrDefault(l => l.Target.Uid == nodeType1.Uid), Is.Not.Null);
+        Assert.That(links.SingleOrDefault(l => l.Target.Uid == nodeMethod1.Uid), Is.Not.Null);
+        Assert.That(links.SingleOrDefault(l => l.Target.Uid == nodeType1.Uid), Is.Not.Null);
+        Assert.That(links.SingleOrDefault(l => l.Target.Uid == nodeMethod2.Uid), Is.Not.Null);
+    }
+
+    private static void CheckMethodLinks(
+        IGraph graph,
+        string methodName,
+        params (INode node, string location)[] targetLocations
+        )
+    {
+        var methodNode = graph.GetNode(
+            AsmName.TestProject,
+            $"TestProject/{methodName}"
+            );
+
+        var links = graph.GetOutgoingLinks(methodNode).ToArray();
+
+        Assert.That(links.Length, Is.EqualTo(targetLocations.Length));
+        foreach (var targetLocation in targetLocations)
+        {
+            var linkShortLocation = GetLinkShortLocation(links, targetLocation.node);
+            Assert.That(linkShortLocation, Is.EqualTo(targetLocation.location));
+        }
+    }
+
+    private static string GetLinkShortLocation(ILink[] links, INode target)
+    {
+
+        return links.Single(l => l.Target.Uid == target.Uid)
+            .SyntaxLink
+            .GetDisplayString()
+            .Split(_pathSeparators)
+            .Last();
+    }
+}

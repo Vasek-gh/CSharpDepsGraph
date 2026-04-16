@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <IsPackable>false</IsPackable>
+
+        <NoWarn>CS1591,CA1002,CA1034,CA1304,CA1305,CA1307,CA1309,CA1310,CA1311,CA1851</NoWarn>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
+        <PackageReference Include="NSubstitute" Version="5.3.0" />
+        <PackageReference Include="NUnit" Version="4.5.0" />
+        <PackageReference Include="NUnit.Analyzers" Version="4.11.2"/>
+        <PackageReference Include="NUnit3TestAdapter" Version="6.1.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\..\src\CSharpDepsGraph.Cli\CSharpDepsGraph.Cli.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Using Include="NUnit.Framework" />
+    </ItemGroup>
+
+</Project>

@@ -1,0 +1,201 @@
+using System.CommandLine;
+using System.CommandLine.Parsing;
+
+namespace CSharpDepsGraph.Cli.CommandLine;
+
+internal static class OptionBuilder
+{
+    public static Option<T> CreateOption<T>(
+        string name,
+        string? alias,
+        string description
+        )
+    {
+        return DoCreateOption<T>(name, alias, description);
+    }
+
+    public static Option<IEnumerable<T>> CreateListOption<T>(
+        string name,
+        string? alias,
+        string description,
+        string helpName,
+        Func<ArgumentResult, (IEnumerable<T> value, string? error)> parser
+        )
+    {
+        var result = DoCreateOption<IEnumerable<T>>(name, alias, description, helpName, parser);
+
+        result.Arity = ArgumentArity.ZeroOrMore;
+
+        return result;
+    }
+
+    public static Option<T> CreateEnumOption<T>(
+        string name,
+        string? alias,
+        string helpName,
+        string description,
+        T defaultValue,
+        T[] values
+        )
+        where T : struct, Enum
+    {
+        return CreateEnumOption(
+            name,
+            alias,
+            helpName,
+            description,
+            defaultValue,
+            values.Select(i => (i, "", "")).ToArray()
+        );
+    }
+
+    public static Option<T> CreateEnumOption<T>(
+        string name,
+        string? alias,
+        string helpName,
+        string description,
+        T defaultValue,
+        (T value, string alias, string hint)[] values
+        )
+        where T : struct, Enum
+    {
+        if (values.Length == 0)
+        {
+            throw new ArgumentException("Empty", nameof(values));
+        }
+
+        if (!values.GroupBy(i => i.value).All(x => x.Count() == 1))
+        {
+            throw new ArgumentException("Duplication", nameof(values));
+        }
+
+        var validValues = values.Select(i => new EnumMemberMeta<T>(i.value, i.alias, i.hint));
+        var validValuesHint = string.Join(", ", validValues.Select(v => v.Hint));
+        var descriptionWithHint = description + $@" Allowed values are: {validValuesHint}.";
+
+        var result = DoCreateOption(name, alias, descriptionWithHint, helpName, Parse);
+        result.DefaultValueFactory = _ => defaultValue; //todo lowercase in description
+        result.Validators.Add(vsr =>
+        {
+            var (value, error) = Parse(vsr);
+            if (error is not null)
+            {
+                vsr.AddError(error);
+            }
+        });
+
+        return result;
+
+        (T result, string? error) Parse(SymbolResult symbolResult)
+        {
+            if (symbolResult.Tokens.Count == 0)
+            {
+                return (default, null);
+            }
+
+            var value = symbolResult.Tokens.First().Value.ToLowerInvariant();
+
+            var byName = validValues.SingleOrDefault(i => i.Name == value)?.Value;
+            if (byName != null)
+            {
+                return (byName.Value, null);
+            }
+
+            var byAlias = validValues.SingleOrDefault(i => i.Alias == value)?.Value;
+            if (byAlias != null)
+            {
+                return (byAlias.Value, null);
+            }
+
+            var error = Description($@"
+                Invalid value '{value}' for option '{name}'.
+                Must be one of: {validValuesHint}
+            ");
+
+            return (default(T), error);
+        }
+    }
+
+    private static Option<T> DoCreateOption<T>(
+        string name,
+        string? alias,
+        string description,
+        string? helpName = null,
+        Func<ArgumentResult, (T value, string? error)>? parser = null
+        )
+    {
+        var result = alias is null
+            ? new Option<T>("--" + name)
+            : new Option<T>("--" + name, "-" + alias);
+
+        result.Description = Description(description);
+        result.HelpName = helpName?.ToLowerInvariant();
+
+        result.CustomParser = parser is null
+            ? null
+            : argumentResult =>
+            {
+                var (value, error) = parser(argumentResult);
+                if (error is not null)
+                {
+                    argumentResult.AddError(error);
+                }
+
+                return value;
+            };
+
+        return result;
+    }
+
+    public static string Description(string value)
+    {
+        var paragraphs = value.Split(Environment.NewLine + Environment.NewLine)
+            .Select(p =>
+            {
+                var lines = p.Split(
+                    Environment.NewLine,
+                    StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries
+                );
+
+                return string.Join(" ", lines);
+            });
+
+        return string.Join(Environment.NewLine, paragraphs);
+    }
+
+    public static T Create<T>(Func<T> action)
+    {
+        return action();
+    }
+
+    private class EnumMemberMeta<T> where T : struct, Enum
+    {
+        public T Value { get; }
+        public string Name { get; }
+        public string? Alias { get; }
+        public string Hint { get; }
+
+        public EnumMemberMeta(T value, string? alias, string? hint)
+        {
+            Value = value;
+            Name = GetCliForm(value);
+            Alias = alias?.ToLowerInvariant();
+            Hint = !string.IsNullOrEmpty(hint)
+                ? hint
+                : string.IsNullOrEmpty(alias) ? $"{Name}" : $"{Name} or {Alias}";
+        }
+
+        private static string GetCliForm(T value)
+        {
+            var str = value.ToString();
+            var parts = str.Select((c, i) =>
+            {
+                return i == 0
+                    ? char.ToLowerInvariant(c).ToString()
+                    : char.IsUpper(c) ? $"-{char.ToLowerInvariant(c)}" : c.ToString();
+            });
+
+            return string.Concat(parts);
+        }
+    }
+}

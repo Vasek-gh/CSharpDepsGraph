@@ -1,0 +1,41 @@
+using CSharpDepsGraph.Building;
+
+namespace CSharpDepsGraph.Cli.Options;
+
+public class BuildOptions
+{
+    public string FileName { get; set; } = "";
+
+    public IEnumerable<KeyValuePair<string, string>> Properties { get; set; } = [];
+
+    public GraphBuildOptions GraphOptions { get; set; } = new GraphBuildOptions();
+
+    public BuildOptions Validate()
+    {
+        var fileNameError = OptionsUtils.GetFileNameError(FileName);
+        if (fileNameError != null)
+        {
+            throw new ArgumentException(fileNameError);
+        }
+
+        foreach (var prop in Properties)
+        {
+            if (string.IsNullOrWhiteSpace(prop.Key))
+            {
+                throw new ArgumentException("Property must have name");
+            }
+
+            if (string.IsNullOrWhiteSpace(prop.Value))
+            {
+                throw new ArgumentException("Property must have value");
+            }
+        }
+
+        return new BuildOptions()
+        {
+            FileName = FileName,
+            Properties = Properties,
+            GraphOptions = GraphOptions
+        };
+    }
+}
