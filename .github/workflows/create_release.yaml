@@ -82,6 +82,9 @@ jobs:
       - name: Dbg2
         run: echo ${{ steps.prepare_notes.outputs.notes }}
 
+      - name: Dbg22
+        run: echo ./_out/CSharpDepsGraph.Cli.${{ steps.prepare_notes.outputs.version }}.nupkg
+
       - name: Dbg3
         run: echo ${{ hashFiles('./_out/CSharpDepsGraph.Cli.${{ steps.prepare_notes.outputs.version }}.nupkg') }}
 
