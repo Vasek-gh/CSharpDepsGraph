@@ -78,7 +78,7 @@ internal abstract class BaseCliCommand : Command
                 .AddSimpleConsole(options =>
                 {
                     options.SingleLine = true;
-                    options.IncludeScopes = false;
+                    options.IncludeScopes = true;
                     options.ColorBehavior = LoggerColorBehavior.Enabled;
                 });
         });

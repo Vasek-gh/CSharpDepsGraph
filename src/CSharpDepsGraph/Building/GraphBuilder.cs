@@ -55,10 +55,9 @@ public sealed class GraphBuilder
     {
         return DoWithMeasurement<IGraph>(_logger, async () =>
         {
-            var projectsVariants = GetProjectsVariants(projects);
-            foreach (var projectVariants in projectsVariants)
+            foreach (var project in projects)
             {
-                await HandleProjectVariants(projectVariants, cancellationToken);
+                await HandleProject(project, cancellationToken);
             }
 
             await BuildLinks();
@@ -78,28 +77,6 @@ public sealed class GraphBuilder
         {
             new LinkBuilder(logger, _graphData, _generatedCodeDetector).Run();
             return Task.CompletedTask;
-        });
-    }
-
-    private Task HandleProjectVariants(Project[] projectVariants, CancellationToken cancellationToken)
-    {
-        if (projectVariants.Length == 0)
-        {
-            return Task.CompletedTask;
-        }
-
-        if (projectVariants.Length == 1)
-        {
-            return HandleProject(projectVariants[0], cancellationToken);
-        }
-
-        var assemblyName = projectVariants[0].AssemblyName;
-        return DoWithMeasurement(CreateLogger(assemblyName), async () =>
-        {
-            foreach (var project in projectVariants)
-            {
-                await HandleProject(project, cancellationToken);
-            }
         });
     }
 
@@ -187,9 +164,7 @@ public sealed class GraphBuilder
         sw.Start();
 
         var totalMemoryStart = GC.GetTotalMemory(false);
-
         var result = await action();
-
         var totalMemoryEnd = GC.GetTotalMemory(false);
 
         sw.Stop();
@@ -245,13 +220,5 @@ public sealed class GraphBuilder
     private ILogger CreateLogger(string? category = null)
     {
         return Utils.CreateLogger<GraphBuilder>(_loggerFactory, category);
-    }
-
-    private static Project[][] GetProjectsVariants(IEnumerable<Project> projects)
-    {
-        return projects.ToLookup(p => p.AssemblyName)
-            .Select(i => i.ToArray())
-            .Where(i => i.Length > 0)
-            .ToArray();
     }
 }

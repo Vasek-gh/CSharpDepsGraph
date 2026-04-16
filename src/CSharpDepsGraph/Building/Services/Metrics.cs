@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using System.Text;
 
 namespace CSharpDepsGraph.Building.Services;
 
@@ -66,11 +67,21 @@ internal class Metrics
             return;
         }
 
-        _scope.Logger.LogDebug($"Report:");
+        var sb = new StringBuilder();
+        sb.Append("Report:\n");
+
         foreach (var item in _items)
         {
-            _scope.Logger.LogDebug($"{item.Title}: {item}");
+            sb.Append("    ");
+            sb.Append(item.Title);
+            sb.Append(": ");
+            sb.Append(item.ToString());
+            sb.Append('\n');
         }
+
+        sb.Length--;
+
+        _scope.Logger.LogDebug(sb.ToString());
     }
 
     private T AppendMetric<T>(T metric) where T : IMetric

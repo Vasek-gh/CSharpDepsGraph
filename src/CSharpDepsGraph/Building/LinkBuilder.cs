@@ -35,8 +35,6 @@ internal class LinkBuilder
 
     private void HandleNode(Node node)
     {
-        //_logger.LogTrace($"HandleNode: {node.Id}"); todo
-
         foreach (var linkedSymbol in node.LinkedSymbolsList)
         {
             var targetNode = CreateNode(linkedSymbol.Symbol);
@@ -160,7 +158,7 @@ internal class LinkBuilder
         return link;
     }
 
-    internal static void ForEachSyntaxReference(ISymbol symbol, Action<SyntaxReference> action)
+    private static void ForEachSyntaxReference(ISymbol symbol, Action<SyntaxReference> action)
     {
         ForEachSyntaxReference(symbol.DeclaringSyntaxReferences, action);
 
