@@ -604,10 +604,10 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
                 return;
             }
 
-            // При вызове метода расширения roslyn делает обертку на оригинальным методом
-            // расширения, поэтому надо достать оригинал перед продолжением
             if (methodSymbol.MethodKind == MethodKind.ReducedExtension)
             {
+                // When calling an extension method, roslyn wraps the original extension method, so you need to
+                // get the original before continuing.
                 symbol = methodSymbol.ReducedFrom ?? methodSymbol;
             }
             else if (methodSymbol.IsGenericMethod)
