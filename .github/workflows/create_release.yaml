@@ -83,13 +83,13 @@ jobs:
         run: echo ${{ steps.prepare_notes.outputs.notes }}
 
       - name: Dbg3
-        run: echo ${{ hashFiles('./out/CSharpDepsGraph.Cli.${{ steps.prepare_notes.outputs.version }}.nupkg') }}
+        run: echo ${{ hashFiles('./_out/CSharpDepsGraph.Cli.${{ steps.prepare_notes.outputs.version }}.nupkg') }}
 
       - name: Dbg4
-        run: echo ${{ hashFiles('./out/CSharpDepsGraph.Cli.${{ steps.prepare_notes.outputs.version }}.nupkg') == '' }}
+        run: echo ${{ hashFiles('./_out/CSharpDepsGraph.Cli.${{ steps.prepare_notes.outputs.version }}.nupkg') == '' }}
 
       - name: Check nupkg version
-        if: ${{ hashFiles('./out/CSharpDepsGraph.Cli.${{ steps.prepare_notes.outputs.version }}.nupkg') == '' }}
+        if: ${{ hashFiles('./_out/CSharpDepsGraph.Cli.${{ steps.prepare_notes.outputs.version }}.nupkg') == '' }}
         uses: actions/github-script@v7
         with:
           script: core.setFailed('Wrong version of nupkg or file not exists')

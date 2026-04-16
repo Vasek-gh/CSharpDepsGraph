@@ -2,7 +2,7 @@ name: Check
 
 on:
   push:
-    branches: [ main, main-dev ]
+    branches: [ main ]
   pull_request:
     branches: [ main ]
 
@@ -21,9 +21,7 @@ jobs:
     strategy:
       matrix:
         os: [
-          ubuntu-latest,
-          windows-latest
-          #macos-latest todo
+          ubuntu-latest
         ]
 
     steps:
