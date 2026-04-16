@@ -86,10 +86,10 @@ jobs:
         run: echo ./_out/CSharpDepsGraph.Cli.${{ steps.prepare_notes.outputs.version }}.nupkg
 
       - name: Dbg3
-        run: echo ${{ hashFiles('./_out/CSharpDepsGraph.Cli.${{ steps.prepare_notes.outputs.version }}.nupkg') }}
+        run: echo ${{ hashFiles('_out/CSharpDepsGraph.Cli.${{ steps.prepare_notes.outputs.version }}.nupkg') }}
 
       - name: Dbg4
-        run: echo ${{ hashFiles('./_out/CSharpDepsGraph.Cli.${{ steps.prepare_notes.outputs.version }}.nupkg') == '' }}
+        run: echo ${{ hashFiles('_out/CSharpDepsGraph.Cli.${{ steps.prepare_notes.outputs.version }}.nupkg') == '' }}
 
       - name: Check nupkg version
         if: ${{ hashFiles('./_out/CSharpDepsGraph.Cli.${{ steps.prepare_notes.outputs.version }}.nupkg') == '' }}
