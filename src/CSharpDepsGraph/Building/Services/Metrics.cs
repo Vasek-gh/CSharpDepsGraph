@@ -16,9 +16,6 @@ internal class Metrics
     public Counter SyntaxLinkCount { get; private set; }
     public Counter SyntaxLinkQueryCount { get; private set; }
 
-    public Value<TimeSpan> ElapsedTime { get; private set; }
-    public Value<long> AllocatedMemory { get; private set; }
-
     public Metrics()
     {
         _items = new();
@@ -30,9 +27,6 @@ internal class Metrics
         LinkedSymbolQueryCount = AppendMetric(new Counter("Linked symbol query count"));
         SyntaxLinkCount = AppendMetric(new Counter("Syntax link count"));
         SyntaxLinkQueryCount = AppendMetric(new Counter("Syntax link query count"));
-
-        ElapsedTime = AppendMetric(new Value<TimeSpan>("Elapsed time"));
-        AllocatedMemory = AppendMetric(new Value<long>("Allocated memory", (v) => v.ToString("N0", null)));
     }
 
     public void BeginScope(ILogger logger)
@@ -133,49 +127,6 @@ internal class Metrics
         void IMetric.AppendScope()
         {
             _values.Add(0);
-        }
-
-        void IMetric.RemoveScope()
-        {
-            if (_values.Count > 0)
-            {
-                _values.RemoveAt(_values.Count - 1);
-            }
-        }
-    }
-
-    public class Value<T> : IMetric
-    {
-        private readonly List<T?> _values;
-        private readonly Func<T?, string?> _toString;
-
-        public string Title { get; }
-
-        public Value(string title, Func<T?, string?>? toString = null)
-        {
-            _values = new(5);
-            Title = title;
-            _toString = toString ?? ((v) => v?.ToString());
-        }
-
-        public override string? ToString()
-        {
-            return _values.Count == 0
-                ? null
-                : _toString(_values[_values.Count - 1]);
-        }
-
-        public void Set(T value)
-        {
-            if (_values.Count > 0)
-            {
-                _values[_values.Count - 1] = value;
-            }
-        }
-
-        void IMetric.AppendScope()
-        {
-            _values.Add(default);
         }
 
         void IMetric.RemoveScope()

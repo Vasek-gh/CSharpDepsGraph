@@ -1,6 +1,7 @@
 using CSharpDepsGraph.Building.Entities;
 using Microsoft.CodeAnalysis;
 using Microsoft.Extensions.Logging;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 
 namespace CSharpDepsGraph.Building;
@@ -44,6 +45,31 @@ internal static class Utils
             : $"{typeof(T).Name}.{entityName}";
 
         return factory.CreateLogger(category);
+    }
+
+    public static async Task LogOperation(ILogger logger, string operation, Func<Task> action)
+    {
+        logger.LogInformation($"Starting {operation.ToLowerInvariant()}...");
+
+        if (!logger.IsEnabled(LogLevel.Debug))
+        {
+            await action();
+            logger.LogInformation($"{operation} completed");
+
+            return;
+        }
+
+        var sw = new Stopwatch();
+
+        sw.Start();
+        var totalMemoryStart = GC.GetTotalMemory(false);
+        await action();
+        var totalMemoryEnd = GC.GetTotalMemory(false);
+        sw.Stop();
+
+        var detailReport = logger.IsEnabled(LogLevel.Debug);
+
+        logger.LogInformation($"{operation} completed\n    Duration: {sw.Elapsed}\n    Allocated memory: {totalMemoryEnd - totalMemoryStart:N0}");
     }
 
     public static INodeSyntaxLink CreateAssemblySyntaxLink(string path)

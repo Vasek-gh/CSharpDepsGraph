@@ -3,7 +3,6 @@ using Microsoft.Extensions.Logging;
 using System.Globalization;
 using CSharpDepsGraph.Building.Entities;
 using System.Data;
-using System.Diagnostics;
 using CSharpDepsGraph.Building.Services;
 
 namespace CSharpDepsGraph.Building;
@@ -51,9 +50,9 @@ public sealed class GraphBuilder
     /// <summary>
     /// Build code graph
     /// </summary>
-    public Task<IGraph> Run(IEnumerable<Project> projects, CancellationToken cancellationToken)
+    public async Task<IGraph> Run(IEnumerable<Project> projects, CancellationToken cancellationToken)
     {
-        return DoWithMeasurement<IGraph>(_logger, async () =>
+        await DoWithMeasurement(_logger, async () =>
         {
             foreach (var project in projects)
             {
@@ -61,13 +60,13 @@ public sealed class GraphBuilder
             }
 
             await BuildLinks();
-
-            return new Graph()
-            {
-                Root = _graphData.Root,
-                Links = _graphData.Links
-            };
         });
+
+        return new Graph()
+        {
+            Root = _graphData.Root,
+            Links = _graphData.Links
+        };
     }
 
     private Task BuildLinks()
@@ -149,39 +148,13 @@ public sealed class GraphBuilder
         return compilation;
     }
 
-    private async Task<T> DoWithMeasurement<T>(ILogger logger, Func<Task<T>> action)
-    {
-        logger.LogInformation("Begin handle...");
-
-        if (!_logger.IsEnabled(LogLevel.Debug))
-        {
-            return await action();
-        }
-
-        _metrics.BeginScope(logger);
-
-        var sw = new Stopwatch();
-        sw.Start();
-
-        var totalMemoryStart = GC.GetTotalMemory(false);
-        var result = await action();
-        var totalMemoryEnd = GC.GetTotalMemory(false);
-
-        sw.Stop();
-
-        _metrics.ElapsedTime.Set(sw.Elapsed);
-        _metrics.AllocatedMemory.Set(totalMemoryEnd - totalMemoryStart);
-        _metrics.EndScope();
-
-        return result;
-    }
-
     private Task DoWithMeasurement(ILogger logger, Func<Task> action)
     {
-        return DoWithMeasurement<object?>(logger, async () =>
+        return Utils.LogOperation(logger, "Analysis", async () =>
         {
+            _metrics.BeginScope(logger);
             await action();
-            return null;
+            _metrics.EndScope();
         });
     }
 
