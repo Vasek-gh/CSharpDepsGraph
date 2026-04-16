@@ -82,6 +82,12 @@ jobs:
       - name: Dbg2
         run: echo ${{ steps.prepare_notes.outputs.notes }}
 
+      - name: Dbg3
+        run: echo ${{ hashFiles('./out/CSharpDepsGraph.Cli.${{ steps.prepare_notes.outputs.version }}.nupkg') }}
+
+      - name: Dbg4
+        run: echo ${{ hashFiles('./out/CSharpDepsGraph.Cli.${{ steps.prepare_notes.outputs.version }}.nupkg') == '' }}
+
       - name: Check nupkg version
         if: ${{ hashFiles('./out/CSharpDepsGraph.Cli.${{ steps.prepare_notes.outputs.version }}.nupkg') == '' }}
         uses: actions/github-script@v7
