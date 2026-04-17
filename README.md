@@ -5,9 +5,9 @@ CSharpDepsGraph(`csdg`) is a command-line tool for visualizing dependencies in C
 #### Supported output formats
 - Json: Creates a graph dump in json format.
 - [Dgml](https://wikipedia.org/wiki/DGML): Creates a file that can be opened in the visual studio. To view it you need to install the corresponding [component](https://stackoverflow.com/a/62656606/3907965).
-![dgmlSample](./docs/Dgml.png)
+![dgmlSample](https://raw.githubusercontent.com/Vasek-gh/CSharpDepsGraph/main/docs/Dgml.png)
 - [Graphviz](https://wikipedia.org/wiki/Graphviz): Creates a dot file that can be viewed through any graphviz viewer. For this format support only one level export
-![graphvizSample](./docs/Graphviz.svg)
+![graphvizSample](https://raw.githubusercontent.com/Vasek-gh/CSharpDepsGraph/main/docs/Graphviz.svg)
 
 ## Installation
 
