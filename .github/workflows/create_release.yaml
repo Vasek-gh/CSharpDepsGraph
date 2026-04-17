@@ -50,7 +50,7 @@ jobs:
 
       - name: Check new commits
         if: ${{ steps.get_last_tag_hash.outputs.lastTagHash == steps.get_current_hash.outputs.lastCurrentHash }}
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: core.setFailed('The current commit contains the tag')
 
@@ -60,7 +60,7 @@ jobs:
 
       - id: prepare_notes
         name: Prepare notes
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           result-encoding: json
           script: |
@@ -78,7 +78,7 @@ jobs:
 
       - name: Check nupkg version
         if: ${{ hashFiles(format('_out/CSharpDepsGraph.Cli.{0}.nupkg', steps.prepare_notes.outputs.version)) == '' }}
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         with:
           script: core.setFailed('Wrong version of nupkg or file not exists')
 
