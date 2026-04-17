@@ -95,12 +95,12 @@ jobs:
         run: echo ${{ hashFiles('_out/CSharpDepsGraph.Cli.${{ steps.prepare_notes.outputs.version }}.nupkg') == '' }}
 
       - name: Check nupkg version
-        if: ${{ hashFiles('./_out/CSharpDepsGraph.Cli.${{ steps.prepare_notes.outputs.version }}.nupkg') == '' }}
+        if: ${{ hashFiles(format('_out/CSharpDepsGraph.Cli.{0}.nupkg', steps.prepare_notes.outputs.version)) == '' }}
         uses: actions/github-script@v7
         with:
           script: core.setFailed('Wrong version of nupkg or file not exists')
 
-      - name: Create release
-        run: gh release create v${{ steps.prepare_notes.outputs.version }} --title ${{ steps.prepare_notes.outputs.version }} --notes-file ${{ steps.prepare_notes.outputs.notes }} --fail-on-no-commits ./out/CSharpDepsGraph.Cli.${{ steps.prepare_notes.outputs.version }}.nupkg
-        env:
-          GH_TOKEN: ${{ github.token }}
+      # - name: Create release
+      #   run: gh release create v${{ steps.prepare_notes.outputs.version }} --title ${{ steps.prepare_notes.outputs.version }} --notes-file ${{ steps.prepare_notes.outputs.notes }} --fail-on-no-commits ./out/CSharpDepsGraph.Cli.${{ steps.prepare_notes.outputs.version }}.nupkg
+      #   env:
+      #     GH_TOKEN: ${{ github.token }}
