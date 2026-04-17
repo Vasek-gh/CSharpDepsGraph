@@ -83,6 +83,6 @@ jobs:
           script: core.setFailed('Wrong version of nupkg or file not exists')
 
       - name: Create release
-        run: gh release create v${{ steps.prepare_notes.outputs.version }} --title ${{ steps.prepare_notes.outputs.version }} --notes-file ${{ steps.prepare_notes.outputs.notes }} --fail-on-no-commits ./_out/CSharpDepsGraph.Cli.${{ steps.prepare_notes.outputs.version }}.nupkg
+        run: gh release create v${{ steps.prepare_notes.outputs.version }} --title v${{ steps.prepare_notes.outputs.version }} --notes-file ${{ steps.prepare_notes.outputs.notes }} --fail-on-no-commits ./_out/CSharpDepsGraph.Cli.${{ steps.prepare_notes.outputs.version }}.nupkg
         env:
           GH_TOKEN: ${{ github.token }}
