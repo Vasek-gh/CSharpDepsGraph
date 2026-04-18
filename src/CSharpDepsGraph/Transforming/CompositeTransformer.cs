@@ -20,7 +20,7 @@ public class CompositeTransformer : ITransformer
     /// </summary>
     public CompositeTransformer(IEnumerable<ITransformer> transformers)
     {
-        _transformers = transformers;
+        _transformers = transformers.ToArray();
     }
 
     /// <inheritdoc/>

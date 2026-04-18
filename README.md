@@ -26,7 +26,7 @@ cd CSharpDepsGraph
 # Build solution. After this you can find binary in src/CSharpDepsGraph.Cli/bin/Release/net8.0
 dotnet build -c Release
 
-# Optionaly you can run tests
+# Optionally you can run tests
 dotnet build tests/CSharpDepsGraph.Tests/TestData/TestProject.sln -p:WarningLevel=0
 dotnet test -c Release --no-restore --no-build
 ```
@@ -61,7 +61,7 @@ csdg json CSharpDepsGraph.slnx
 
 #### Common options
 
-- ```--verson```<br>Show version information
+- ```--version```<br>Show version information
 - ```-?|-h|--help```<br>Show help and usage information
 - ```-v|--verbosity <level>```<br>Sets the verbosity level of the command. Allowed values are: ```q[uiet]```, ```m[inimal]```, ```n[ormal]```, ```d[etailed]```, ```diag[nostic]```. Default : ```normal```
 - ```-p|--property <name=value>```<br>Defines one or more MSBuild properties. Specify multiple properties delimited by semicolons or by repeating the option: ```-p prop1=val1;prop2=val2``` or ```-p prop1=val1 -p prop2=val2```.
@@ -95,9 +95,9 @@ Export to graphviz namespace level
 ```bash
 csdg graphviz CSharpDepsGraph.slnx --export-level namespace
 ```
-Export to dgml wtih filter all System and Microsoft.Extensions assemblies
+Export to dgml with filter all System and Microsoft.Extensions assemblies
 ```bash
-csdg dgml CSharpDepsGraph.slnx --node-filter hide,**/System.* --node-filter hide,**/Microsoft.Extensions.*
+csdg dgml CSharpDepsGraph.slnx --node-filter hide,System.* --node-filter hide,Microsoft.Extensions.*
 ```
 
 ## Limitations

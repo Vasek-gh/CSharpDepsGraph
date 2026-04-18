@@ -22,7 +22,7 @@ public class FilterTransformer : ITransformer
     /// </summary>
     public FilterTransformer(IEnumerable<INodeFilter> filters)
     {
-        _filters = filters;
+        _filters = filters.ToArray();
         _nodeMap = new();
     }
 
@@ -38,7 +38,7 @@ public class FilterTransformer : ITransformer
         {
             Node = graph.Root,
             Parent = graph.Root, // Because MutateNode only processes child elements, it doesn't matter what's in that field.
-            Path = graph.Root.Uid
+            Path = ""
         };
 
         var root = MutateNode(rootContext);
@@ -117,9 +117,12 @@ public class FilterTransformer : ITransformer
 
     private static NodeContext MakeChildContext(NodeContext parentContext, INode node)
     {
+        var childPath = (node.Symbol?.Name ?? node.Uid);
         return new NodeContext()
         {
-            Path = parentContext.Path + "/" + (node.Symbol?.Name ?? node.Uid),
+            Path = string.IsNullOrEmpty(parentContext.Path)
+                ? childPath
+                : parentContext.Path + "/" + childPath,
             Parent = parentContext.Node,
             Node = node
         };

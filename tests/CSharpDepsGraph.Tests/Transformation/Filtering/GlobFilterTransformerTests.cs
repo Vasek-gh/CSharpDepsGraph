@@ -112,6 +112,38 @@ public class GlobFilterTransformerTests : BaseSyntaxTests
         Assert.That(graph.GetNode("N1").Childs.Count(), Is.EqualTo(1));
     }
 
+    [Test]
+    public void AssemblyFilter()
+    {
+        var originalGraph = Build(@"
+            namespace For {
+                public class Bar {}
+            }
+        ");
+
+        GraphAssert.HasSymbol(originalGraph, (AsmName.CoreLib, null));
+
+        GraphAssert.HasNotSymbol(
+            ExecuteTransformer(originalGraph, "System*"),
+            (AsmName.CoreLib, null)
+            );
+
+        GraphAssert.HasNotSymbol(
+            ExecuteTransformer(originalGraph, "System.*"),
+            (AsmName.CoreLib, null)
+            );
+
+        GraphAssert.HasNotSymbol(
+            ExecuteTransformer(originalGraph, "**/System*"),
+            (AsmName.CoreLib, null)
+            );
+
+        GraphAssert.HasNotSymbol(
+            ExecuteTransformer(originalGraph, "**/System.*"),
+            (AsmName.CoreLib, null)
+            );
+    }
+
     private static IGraph ExecuteTransformer(IGraph sourceGraph, FilterAction action, string pattern)
     {
         var filter = new GlobFilter(action, pattern);
