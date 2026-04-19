@@ -1,3 +1,5 @@
+using Microsoft.CodeAnalysis;
+
 namespace CSharpDepsGraph.Transforming.Filtering;
 
 
@@ -117,15 +119,42 @@ public class FilterTransformer : ITransformer
 
     private static NodeContext MakeChildContext(NodeContext parentContext, INode node)
     {
-        var childPath = (node.Symbol?.Name ?? node.Uid);
+        var childPath = GetNodePath(parentContext, node);
+        var separator = GetSeparator(parentContext);
+
         return new NodeContext()
         {
-            Path = string.IsNullOrEmpty(parentContext.Path)
-                ? childPath
-                : parentContext.Path + "/" + childPath,
+            Path = parentContext.Path + separator + childPath,
             Parent = parentContext.Node,
             Node = node
         };
+    }
+
+    private static string GetNodePath(NodeContext parentContext, INode node)
+    {
+        if (
+            node.Symbol?.Kind == SymbolKind.Namespace
+            && node.Symbol?.ContainingSymbol is INamespaceSymbol parentNamespaceSymbol
+            && !parentNamespaceSymbol.IsGlobalNamespace
+            && parentContext.Node.Symbol?.Kind != SymbolKind.Namespace
+            )
+        {
+            return node.Symbol.ToDisplayString();
+        }
+
+        return node.Symbol?.Name ?? node.Uid;
+    }
+
+    private static string GetSeparator(NodeContext parentContext)
+    {
+        if (string.IsNullOrEmpty(parentContext.Path))
+        {
+            return "";
+        }
+
+        return parentContext.Node.Symbol is IAssemblySymbol || parentContext.Node.Symbol is IModuleSymbol
+            ? "/"
+            : ".";
     }
 
     private List<ILink> MutateLinks(IEnumerable<ILink> links)
