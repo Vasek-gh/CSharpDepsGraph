@@ -92,8 +92,9 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
         Utils.CheckNull(symbol.ContainingAssembly, $"Namespace {symbol} does not have assembly");
         Utils.CheckNull(symbol.ContainingModule, $"Namespace {symbol} does not have module");
 
+        var syntaxName = syntax.Name;
         var parentSymbol = symbol.ContainingSymbol;
-        while (parentSymbol is not null && parentSymbol.Kind != SymbolKind.Assembly)
+        while (parentSymbol is not null && parentSymbol.Kind != SymbolKind.Assembly && syntaxName is QualifiedNameSyntax qualifiedNameSyntax)
         {
             if (
                 (parentSymbol.Kind == SymbolKind.Namespace && !parentSymbol.IsGlobalNamespace())
@@ -103,6 +104,7 @@ internal class SyntaxVisitor : CSharpSyntaxWalker
                 _symbolStack.Push(parentSymbol);
             }
 
+            syntaxName = qualifiedNameSyntax.Left;
             parentSymbol = parentSymbol.ContainingSymbol;
         }
 
