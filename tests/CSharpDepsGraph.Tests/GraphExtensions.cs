@@ -12,7 +12,7 @@ public static class GraphExtensions
         return graph.Root.GetNode(MakeFullPath(assemblyName, symbolPath));
     }
 
-    public static INode[] GetNodes(this IGraph graph, string assemblyName, string symbolPath)
+    public static INode[] GetNodes(this IGraph graph, string assemblyName, string? symbolPath)
     {
         return graph.Root.GetNodes(MakeFullPath(assemblyName, symbolPath));
     }
