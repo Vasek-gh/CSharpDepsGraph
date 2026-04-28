@@ -6,9 +6,9 @@ namespace CSharpDepsGraph.Cli.CommandLine;
 
 public interface ICommandFactory
 {
-    ICommand CreateDgmlExport(ILoggerFactory loggerFactory, BuildOptions buildOptions, ExportOptions exportOptions);
+    IRootCommand CreateDgmlExport(ILoggerFactory loggerFactory, BuildingOptions buildOptions, Options.ExportOptions exportOptions);
 
-    ICommand CreateGraphVizExport(ILoggerFactory loggerFactory, BuildOptions buildOptions, ExportOptions exportOptions);
+    IRootCommand CreateGraphVizExport(ILoggerFactory loggerFactory, BuildingOptions buildOptions, Options.ExportOptions exportOptions);
 
-    ICommand CreateJsonExport(ILoggerFactory loggerFactory, BuildOptions buildOptions, JsonExportOptions exportOptions);
+    IRootCommand CreateJsonExport(ILoggerFactory loggerFactory, BuildingOptions buildOptions, JsonExportOptions exportOptions);
 }

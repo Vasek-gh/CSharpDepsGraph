@@ -47,16 +47,16 @@ internal class DgmlExportCommandTests : BaseExportCommandTests<ExportOptions>
         });
     }
 
-    protected override async Task Check(string commandLine, Action<BuildOptions, ExportOptions> validator)
+    protected override async Task Check(string commandLine, Action<BuildingOptions, ExportOptions> validator)
     {
         var mock = Substitute.For<ICommandFactory>();
 
-        BuildOptions? buildOptions = null;
+        BuildingOptions? buildOptions = null;
         ExportOptions? exportOptions = null;
-        mock.When(x => x.CreateDgmlExport(Arg.Any<ILoggerFactory>(), Arg.Any<BuildOptions>(), Arg.Any<ExportOptions>()))
+        mock.When(x => x.CreateDgmlExport(Arg.Any<ILoggerFactory>(), Arg.Any<BuildingOptions>(), Arg.Any<ExportOptions>()))
             .Do(callInfo =>
             {
-                buildOptions = callInfo.ArgAt<BuildOptions>(1);
+                buildOptions = callInfo.ArgAt<BuildingOptions>(1);
                 exportOptions = callInfo.ArgAt<ExportOptions>(2);
             });
 

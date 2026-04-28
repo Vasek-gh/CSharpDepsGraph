@@ -7,7 +7,7 @@ using System.CommandLine.Parsing;
 
 namespace CSharpDepsGraph.Cli.Tests.CommandLine;
 
-public abstract class BaseExportCommandTests<TOptions> where TOptions : ExportOptions
+public abstract class BaseExportCommandTests<TOptions> where TOptions : Options.ExportOptions
 {
     private readonly string _baseCommand;
 
@@ -215,7 +215,7 @@ public abstract class BaseExportCommandTests<TOptions> where TOptions : ExportOp
         await Check("dummy.sln --split-asm-versions", (b, e) => Assert.That(b.GraphOptions.SplitAssembliesVersions, Is.True));
     }
 
-    protected virtual Task Check(string commandLine, Action<BuildOptions, TOptions> validator)
+    protected virtual Task Check(string commandLine, Action<BuildingOptions, TOptions> validator)
     {
         return Task.CompletedTask;
     }
