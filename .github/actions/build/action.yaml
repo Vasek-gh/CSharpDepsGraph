@@ -18,7 +18,7 @@ runs:
 
     - name: Build
       shell: bash
-      run: dotnet build -c Release -p:EnforceCodeStyleInBuild=true
+      run: dotnet build -c Release -p:EnforceCodeStyleInBuild=true -p:TreatWarningsAsErrors=true -p:ContinuousIntegrationBuild=true
 
     - name: Tests
       shell: bash
