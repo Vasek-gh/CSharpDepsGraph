@@ -2,7 +2,7 @@ using CSharpDepsGraph.Cli.Commands;
 
 namespace CSharpDepsGraph.Cli.Tests.CommandLine;
 
-internal class CommandMock : ICommand
+internal class CommandMock : IRootCommand
 {
     public Task Execute(CancellationToken cancellationToken)
     {

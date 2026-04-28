@@ -1,20 +1,27 @@
 using Microsoft.Extensions.Logging;
 using CSharpDepsGraph.Export.Dgml;
 using CSharpDepsGraph.Cli.Options;
+using CSharpDepsGraph.Transforming;
 
 namespace CSharpDepsGraph.Cli.Commands.Export;
 
-public sealed class DgmlExportCommand : IHandlerCommand
+public sealed class DgmlExportCommand : IGraphCommand
 {
     private readonly ILogger _logger;
-    private readonly ILoggerFactory _loggerFactory;
+    private readonly ITransformer _transformer;
+    private readonly DgmlExport _dgmlExport;
     private readonly ExportOptions _options;
 
-    public DgmlExportCommand(ILoggerFactory loggerFactory, ExportOptions options)
+    public DgmlExportCommand(
+        ILogger<DgmlExportCommand> logger,
+        ITransformer transformer,
+        DgmlExport dgmlExport,
+        ExportOptions options
+        )
     {
-        _logger = loggerFactory.CreateLogger(nameof(DgmlExportCommand));
-        _loggerFactory = loggerFactory;
-
+        _logger = logger;
+        _transformer = transformer;
+        _dgmlExport = dgmlExport;
         _options = options;
     }
 
@@ -24,13 +31,13 @@ public sealed class DgmlExportCommand : IHandlerCommand
         {
             _logger.LogDebug("Mutation...");
 
-            var graph = CommandsUtils.GetHierarchyExportTransformer(_options).Execute(graphContext.Graph);
+            var graph = _transformer.Execute(graphContext.Graph);
 
             _logger.LogDebug("Export...");
 
             using var stream = CommandsUtils.CreateOutputStream(graphContext.InputFile, _options.OutputFileName, "dgml");
 
-            await new DgmlExport(_loggerFactory.CreateLogger<DgmlExport>()).RunAsync(graph, stream, cancellationToken);
+            await _dgmlExport.RunAsync(graph, stream, cancellationToken);
         });
     }
 }

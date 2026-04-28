@@ -2,7 +2,7 @@ using CSharpDepsGraph.Building;
 
 namespace CSharpDepsGraph.Cli.Options;
 
-public class BuildOptions
+public class BuildingOptions : IOptions
 {
     public string FileName { get; set; } = "";
 
@@ -10,7 +10,7 @@ public class BuildOptions
 
     public GraphBuildOptions GraphOptions { get; set; } = new GraphBuildOptions();
 
-    public BuildOptions Validate()
+    public BuildingOptions Validate()
     {
         var fileNameError = OptionsUtils.GetFileNameError(FileName);
         if (fileNameError != null)
@@ -31,11 +31,23 @@ public class BuildOptions
             }
         }
 
-        return new BuildOptions()
+        return new BuildingOptions()
         {
             FileName = FileName,
             Properties = Properties,
             GraphOptions = GraphOptions
         };
+    }
+
+    public void Verbose(ICollection<KeyValuePair<string, string>> options)
+    {
+        options.AddOptionValue(FileName);
+        options.AddOptionValue(Properties);
+        options.AddOptionValue(GraphOptions.CreateLinksToSelf);
+        options.AddOptionValue(GraphOptions.CreateLinksToPrimitiveTypes);
+        options.AddOptionValue(GraphOptions.ParseGeneratedCode);
+        options.AddOptionValue(GraphOptions.SplitAssembliesVersions);
+        options.AddOptionValue(GraphOptions.FullyQualifiedUid);
+        options.AddOptionValue(GraphOptions.AssemblyFilter);
     }
 }

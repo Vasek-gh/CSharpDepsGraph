@@ -13,9 +13,9 @@ internal class Program
     public static async Task<int> Run(string[] args, ICommandFactory commandFactory)
     {
         var rootCommand = new RootCommand($"{nameof(CSharpDepsGraph)} cli tool");
-        rootCommand.Subcommands.Add(new JsonExportCliCommand(commandFactory));
-        rootCommand.Subcommands.Add(new DgmlExportCliCommand(commandFactory));
-        rootCommand.Subcommands.Add(new GraphvizExportCliCommand(commandFactory));
+        rootCommand.Subcommands.Add(JsonExportFactory.CreateCliCommand(commandFactory));
+        rootCommand.Subcommands.Add(DgmlExportFactory.CreateCliCommand(commandFactory));
+        rootCommand.Subcommands.Add(GraphvizExportFactory.CreateCliCommand(commandFactory));
 
         var parseResult = rootCommand.Parse(args);
 

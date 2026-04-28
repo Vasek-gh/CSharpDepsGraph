@@ -57,16 +57,16 @@ internal class JsonExportCommandTests : BaseExportCommandTests<JsonExportOptions
         });
     }
 
-    protected override async Task Check(string commandLine, Action<BuildOptions, JsonExportOptions> validator)
+    protected override async Task Check(string commandLine, Action<BuildingOptions, JsonExportOptions> validator)
     {
         var mock = Substitute.For<ICommandFactory>();
 
-        BuildOptions? buildOptions = null;
+        BuildingOptions? buildOptions = null;
         JsonExportOptions? exportOptions = null;
-        mock.When(x => x.CreateJsonExport(Arg.Any<ILoggerFactory>(), Arg.Any<BuildOptions>(), Arg.Any<JsonExportOptions>()))
+        mock.When(x => x.CreateJsonExport(Arg.Any<ILoggerFactory>(), Arg.Any<BuildingOptions>(), Arg.Any<JsonExportOptions>()))
             .Do(callInfo =>
             {
-                buildOptions = callInfo.ArgAt<BuildOptions>(1);
+                buildOptions = callInfo.ArgAt<BuildingOptions>(1);
                 exportOptions = callInfo.ArgAt<JsonExportOptions>(2);
             });
 

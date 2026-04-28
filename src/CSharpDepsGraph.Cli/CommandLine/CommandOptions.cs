@@ -4,7 +4,7 @@ using CSharpDepsGraph.Transforming.Filtering;
 
 namespace CSharpDepsGraph.Cli.CommandLine;
 
-internal static class ExportOptionsFactory
+internal static class CommandOptions
 {
     public static Option<bool> HideExternal { get; } = OptionBuilder.Create(() =>
     {
@@ -138,8 +138,5 @@ internal static class ExportOptionsFactory
                 "When this option is enabled, the path to the file is written directly to the location itself"
                 );
         });
-
-
-
     }
 }

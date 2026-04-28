@@ -62,16 +62,16 @@ internal class GraphVizExportCommandTests : BaseExportCommandTests<ExportOptions
         });
     }
 
-    protected override async Task Check(string commandArguments, Action<BuildOptions, ExportOptions> validator)
+    protected override async Task Check(string commandArguments, Action<BuildingOptions, ExportOptions> validator)
     {
         var mock = Substitute.For<ICommandFactory>();
 
-        BuildOptions? buildOptions = null;
+        BuildingOptions? buildOptions = null;
         ExportOptions? exportOptions = null;
-        mock.When(x => x.CreateGraphVizExport(Arg.Any<ILoggerFactory>(), Arg.Any<BuildOptions>(), Arg.Any<ExportOptions>()))
+        mock.When(x => x.CreateGraphVizExport(Arg.Any<ILoggerFactory>(), Arg.Any<BuildingOptions>(), Arg.Any<ExportOptions>()))
             .Do(callInfo =>
             {
-                buildOptions = callInfo.ArgAt<BuildOptions>(1);
+                buildOptions = callInfo.ArgAt<BuildingOptions>(1);
                 exportOptions = callInfo.ArgAt<ExportOptions>(2);
             });
 

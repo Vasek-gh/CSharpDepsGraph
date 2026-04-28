@@ -1,6 +1,6 @@
 namespace CSharpDepsGraph.Cli.Commands;
 
-public interface ICommand
+public interface IRootCommand
 {
     Task Execute(CancellationToken cancellationToken);
 }
