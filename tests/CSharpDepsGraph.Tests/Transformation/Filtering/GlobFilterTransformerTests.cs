@@ -146,6 +146,59 @@ public class GlobFilterTransformerTests : BaseSyntaxTests
     }
 
     [Test]
+    [Description("Checking that source isolated nodes are not removed")]
+    public void IsolatedSourceNodesNotRemoved()
+    {
+        var originalGraph = Build(@"
+            namespace N1 {
+                class C1 {
+                    N2.C2 f1;
+                }
+            }
+            namespace N2 {
+                class C2 {
+                }
+            }
+        ");
+
+        GraphAssert.HasLink(originalGraph, "N1/C1/f1", (AsmName.Test, "N2/C2"));
+
+        var graph = ExecuteTransformer(originalGraph, $"**/*C1");
+
+        GraphAssert.HasNotSymbol(graph, "N1/C1");
+        GraphAssert.HasSymbol(graph, "N2/C2");
+    }
+
+    [Test]
+    [Description("Checking that external isolated nodes are removed")]
+    public void IsolatedMetadataNodesRemoved()
+    {
+        var originalGraph = Build(@"
+            namespace N1 {
+                class C1 {
+                    System.Text.Json.JsonSerializerOptions f1;
+                    System.Collections.Frozen.FrozenSet<int> f2;
+                }
+                class C2 {
+                    System.Collections.Immutable.ImmutableArray<int> f1;
+                }
+            }
+        ");
+
+        var asmJson = "System.Text.Json_8.0.0.0";
+        var asmImmutable = "System.Collections.Immutable_9.0.0.0";
+
+        GraphAssert.HasLink(originalGraph, "N1/C1/f1", (asmJson, "System/Text/Json/JsonSerializerOptions"));
+        GraphAssert.HasLink(originalGraph, "N1/C1/f2", (asmImmutable, "System/Collections/Frozen/FrozenSet<T>"));
+
+        var graph = ExecuteTransformer(originalGraph, $"**/*C1");
+
+        GraphAssert.HasNotSymbol(graph, (asmJson, "System/Text/Json/JsonSerializerOptions"));
+        GraphAssert.HasNotSymbol(graph, (asmImmutable, "System/Collections/Frozen/FrozenSet<T>"));
+        GraphAssert.HasSymbol(graph, (asmImmutable, "System/Collections/Immutable/ImmutableArray<T>"));
+    }
+
+    [Test]
     [Description("Tests the filter on a raw graph")]
     public void NamespaceFilterHierarchy()
     {

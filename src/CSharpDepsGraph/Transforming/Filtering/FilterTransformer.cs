@@ -2,7 +2,6 @@ using Microsoft.CodeAnalysis;
 
 namespace CSharpDepsGraph.Transforming.Filtering;
 
-
 /// <summary>
 /// This transformer can be used to filter graph nodes
 /// </summary>
